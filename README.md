@@ -1,6 +1,7 @@
-#TTRate Package
+# TTRate Package
 
-#Tasks
+## Tasks
+
 - Meeting where we write the API together
 - Create Unit testing from beginning (rcmd check ->bioconductor)
     - use subset of Livias data for demo and unit test. *Don't* use Ohlers data
