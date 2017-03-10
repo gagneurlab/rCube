@@ -7,5 +7,4 @@
 - Set up plotting using exon plotting, have a look at JunctionSeq package and paper
 - Make gene-fit plots loke in pombe paper
 - Use FPKM/min for synthesis rate
-- 
     
