@@ -1,7 +1,9 @@
 # General
-- One .R -file per Function; overloaded functions go into same file.
+- one .R -file per Function; overloaded functions go into same file.
+- documentation ROxygen
+- rcmd check / bioccheck
 
-
+ 
 # Matrix
 ## Count Design Matrix
 | sample name [string] | condition [factor] | L/T [factor] | labeling time [numeric] | replicate [factor] | filename [string]     |
@@ -18,7 +20,7 @@
 | PlaB.30min_decay_A      | PlaB.30min         | decay         | A                  |
 | PlaB.30min_synthesis_AB | PlaB.30min         | synthesis     | AB                 |
 
-# Flow
+# Flow Diagram
 ## Preprocessing
 ### Create GTF annotation from all extracted junctions (split read) [L]
 *In*: list of bams
@@ -118,5 +120,5 @@ merge different exons/junctions based on findOverlaps
 - Plot: sample vs. spikein counts
 - Plot: RepA vs RepB
 - Plot: model time vs normalization factor
-- Print: rate estimation by ratio summary
+- [Print: rate estimation by ratio summary]
 
