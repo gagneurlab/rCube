@@ -92,17 +92,15 @@ Carinas and Leos model get initial parameters from ratio model (only distributio
 	- (summarizedExperiment) calculateRateByRatio(summarizedExperiment featureCounts, factor[] replicate)
 	
 - Carina
-	
 	- (summarizedExperiment) calculateRateByCondition(summarizedExperiment featureCounts, factor[] replicate)
 	
 - Leo
-	
 	- (summarizedExperiment) calculateRateByLabelingTimeSeries(summarizedExperiment featureCounts, factor[] replicate)
 
 ## Postprocessing
 *In*: Count Rate Matrix, GTF
 *Out*: summarized Rate Matrix
-	
+
 	- (summarizedExperiment) mergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures)
 	- (summarizedExperiment) weightedMergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures, summarizedExperiment featureCounts)
 
