@@ -20,32 +20,33 @@
 *In*: list of bams
 *Out*: GRanges (GTF)
 
-(GRanges) createJunctionGRangesFromBam(string[] bamFileVector)
-(GRanges) createJunctionGRangesFromBam(string path)
+- (GRanges) createJunctionGRangesFromBam(string[] bamFileVector)
+- (GRanges) createJunctionGRangesFromBam(string path)
 
 ### Create GTF annotation from constitutive exons/introns (from existing GTF)
 *In*: GTF
 *Out*: GTF
-(GRanges) createConstituiveFeaturesGRangesFromGRange(GRange gtf)
+- (GRanges) createConstituiveFeaturesGRangesFromGRange(GRange gtf)
 
 ## Create Design Matrix and rowData Matrix
 *In*: list of bams or path to scan
 *Out*: empty summarized experiment
 
-(summarizedExperiment) setupExperiment(GRanges rows, data.frame designMatrix)
-(summarizedExperiment) setupExperiment(GRanges rows, string[] bamFileVector)
-(summarizedExperiment) setupExperiment(GRanges rows, string path)
-(summarizedExperiment) setupExperimentSpikeins(GRanges rows, string path, numeric[] length, factor[] labelingState)
+- (summarizedExperiment) setupExperiment(GRanges rows, data.frame designMatrix)
+- (summarizedExperiment) setupExperiment(GRanges rows, string[] bamFileVector)
+- (summarizedExperiment) setupExperiment(GRanges rows, string path)
+- (summarizedExperiment) setupExperimentSpikeins(GRanges rows, string path, numeric[] length, factor[] labelingState)
+
 ## Counting
 ### Features
 *In*: empty summarized experiment (SE0, GTF)
 *Out*: full summarized experiment (SE10)
 
 - Regions (Exons, Introns)
-(summarizedExperiment) countRegions(summarizedExperiment experimentalSetup)
+	- (summarizedExperiment) countRegions(summarizedExperiment experimentalSetup)
 
 - Junctions (Donor, Acceptor, split reads)
-(summarizedExperiment) countJunctions(summarizedExperiment experimentalSetup)
+	- (summarizedExperiment) countJunctions(summarizedExperiment experimentalSetup)
 
 
 ### Spike-ins
