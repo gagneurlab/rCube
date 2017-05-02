@@ -50,12 +50,13 @@
 
 
 ### Spike-ins
-- same as Regions function, additional columns in Design Matrix: spikein length, spikein labelling state (L/T)
-- preloaded with default values from typicall TTSeq spiekein set
 *In*: empty summarized experiment (SE0, GTFs)
 *Out*: full summarized experiment (spikein, SE10s)
 
-(summarizedExperiment) countSpikeins(summarizedExperiment experimentalSetupSpikeins)
+Same as Regions function, additional columns in Design Matrix: spikein length, spikein labelling state (L/T)
+Preloaded with default values from typicall TTSeq spiekein set
+
+- (summarizedExperiment) countSpikeins(summarizedExperiment experimentalSetupSpikeins)
 
 ## Normalization
 *In*: summarized experiment (SE10), full summarized experiment (spikein, SE10s)
@@ -63,8 +64,8 @@
 - estimate by Carina (spikein)
 - estimate by Leo (spikein)
 - estimate by Leo (joint model)
-
-(summarizedExperiment) calculateNormalization(summarizedExperiment featureCounts, summarizedExperiment spikeinCounts, method=c('spikeinGLM','spikeinMean','jointModel'))
+	
+	- (summarizedExperiment) calculateNormalization(summarizedExperiment featureCounts, summarizedExperiment spikeinCounts, method=c('spikeinGLM','spikeinMean','jointModel'))
 
 ## Dispersion estimation
 *In*: full summarized experiment with additional normalization column (SE20)
@@ -72,13 +73,13 @@
 - DESeq
 - mean/var by replicates
 
-(summarizedExperiment) calculateNormalization(summarizedExperiment featureCounts, method=c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst','Replicate'))
+	- (summarizedExperiment) calculateNormalization(summarizedExperiment featureCounts, method=c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst','Replicate'))
 
 ## (optional) Model Time
 *In/Out*:  SE30
 - Add model time column to SE30
 
-(summarizedExperiment) calculateModelTime(summarizedExperiment featureCounts, numeric[] time)
+	- (summarizedExperiment) calculateModelTime(summarizedExperiment featureCounts, numeric[] time)
 
 ## Rate estimation
 *In*: SE30
@@ -89,19 +90,17 @@ Carinas and Leos model get initial parameters from ratio model (only distributio
 
 
 - ratio (L/T estimation of rates)
-(summarizedExperiment) calculateRateByRatio(summarizedExperiment featureCounts, factor[] replicate)
+	- (summarizedExperiment) calculateRateByRatio(summarizedExperiment featureCounts, factor[] replicate)
 - Carina
-
-(summarizedExperiment) calculateRateByCondition(summarizedExperiment featureCounts, factor[] replicate)
+	- (summarizedExperiment) calculateRateByCondition(summarizedExperiment featureCounts, factor[] replicate)
 - Leo
-(summarizedExperiment) calculateRateByLabelingTimeSeries(summarizedExperiment featureCounts, factor[] replicate)
+	- (summarizedExperiment) calculateRateByLabelingTimeSeries(summarizedExperiment featureCounts, factor[] replicate)
 
 ## Postprocessing
 *In*: Count Rate Matrix, GTF
 *Out*: summarized Rate Matrix
-
-(summarizedExperiment) mergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures)
-(summarizedExperiment) weightedMergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures, summarizedExperiment featureCounts)
+	- (summarizedExperiment) mergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures)
+	- (summarizedExperiment) weightedMergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures, summarizedExperiment featureCounts)
 
 merge different exons/junctions based on findOverlaps
 
