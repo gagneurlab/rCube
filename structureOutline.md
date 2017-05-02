@@ -18,28 +18,43 @@
 ## Preprocessing
 ### Create GTF annotation from all extracted junctions (split read)
 *In*: list of bams
-*Out*: GTF
-### Create GTF annotation from constitutive exons (from existing GTF)
+*Out*: GRanges (GTF)
+
+(GRanges) createJunctionGRangesFromBam(string[] bamFileVector)
+(GRanges) createJunctionGRangesFromBam(string path)
+
+### Create GTF annotation from constitutive exons/introns (from existing GTF)
 *In*: GTF
 *Out*: GTF
+(GRanges) createConstituiveFeaturesGRangesFromGRange(GRange gtf)
 
 ## Create Design Matrix and rowData Matrix
 *In*: list of bams or path to scan
 *Out*: empty summarized experiment
 
+(summarizedExperiment) setupExperiment(GRanges rows, data.frame designMatrix)
+(summarizedExperiment) setupExperiment(GRanges rows, string[] bamFileVector)
+(summarizedExperiment) setupExperiment(GRanges rows, string path)
+(summarizedExperiment) setupExperimentSpikeins(GRanges rows, string path, numeric[] length, factor[] labelingState)
 ## Counting
 ### Features
-
-- Regions (Exons, Introns)
-- Junctions (Donor, Acceptor, split reads)
 *In*: empty summarized experiment (SE0, GTF)
 *Out*: full summarized experiment (SE10)
+
+- Regions (Exons, Introns)
+(summarizedExperiment) countRegions(summarizedExperiment experimentalSetup)
+
+- Junctions (Donor, Acceptor, split reads)
+(summarizedExperiment) countJunctions(summarizedExperiment experimentalSetup)
+
 
 ### Spike-ins
 - same as Regions function, additional columns in Design Matrix: spikein length, spikein labelling state (L/T)
 - preloaded with default values from typicall TTSeq spiekein set
 *In*: empty summarized experiment (SE0, GTFs)
 *Out*: full summarized experiment (spikein, SE10s)
+
+(summarizedExperiment) countSpikeins(summarizedExperiment experimentalSetupSpikeins)
 
 ## Normalization
 *In*: summarized experiment (SE10), full summarized experiment (spikein, SE10s)
@@ -48,29 +63,44 @@
 - estimate by Leo (spikein)
 - estimate by Leo (joint model)
 
+(summarizedExperiment) calculateNormalization(summarizedExperiment featureCounts, summarizedExperiment spikeinCounts, method=c('spikeinGLM','spikeinMean','jointModel'))
+
 ## Dispersion estimation
 *In*: full summarized experiment with additional normalization column (SE20)
 *Out*: full summarized experiment with additional normalization column and genwise overdispersion Parameter (SE30)
 - DESeq
 - mean/var by replicates
 
+(summarizedExperiment) calculateNormalization(summarizedExperiment featureCounts, method=c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst','Replicate'))
+
 ## (optional) Model Time
 *In/Out*:  SE30
 - Add model time column to SE30
+
+(summarizedExperiment) calculateModelTime(summarizedExperiment featureCounts, numeric[] time)
 
 ## Rate estimation
 *In*: SE30
 *Out*: Count Rate Matrix
 
-- ratio (L/T estimation of rates)
-- Carina
-- Leo
-
+replicate can be *NULL*: In case of 3 replicates this means A, B, C, ABC
 Carinas and Leos model get initial parameters from ratio model (only distribution mean and variance)
+
+
+- ratio (L/T estimation of rates)
+(summarizedExperiment) calculateRateByRatio(summarizedExperiment featureCounts, factor[] replicate)
+- Carina
+
+(summarizedExperiment) calculateRateByCondition(summarizedExperiment featureCounts, factor[] replicate)
+- Leo
+(summarizedExperiment) calculateRateByLabelingTimeSeries(summarizedExperiment featureCounts, factor[] replicate)
 
 ## Postprocessing
 *In*: Count Rate Matrix, GTF
 *Out*: summarized Rate Matrix
+
+(summarizedExperiment) mergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures)
+(summarizedExperiment) weightedMergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures, summarizedExperiment featureCounts)
 
 merge different exons/junctions based on findOverlaps
 
