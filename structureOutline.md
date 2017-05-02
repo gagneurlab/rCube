@@ -64,7 +64,6 @@ Preloaded with default values from typicall TTSeq spiekein set
 - estimate by Carina (spikein)
 - estimate by Leo (spikein)
 - estimate by Leo (joint model)
-	
 	- (summarizedExperiment) calculateNormalization(summarizedExperiment featureCounts, summarizedExperiment spikeinCounts, method=c('spikeinGLM','spikeinMean','jointModel'))
 
 ## Dispersion estimation
@@ -91,14 +90,19 @@ Carinas and Leos model get initial parameters from ratio model (only distributio
 
 - ratio (L/T estimation of rates)
 	- (summarizedExperiment) calculateRateByRatio(summarizedExperiment featureCounts, factor[] replicate)
+	
 - Carina
+	
 	- (summarizedExperiment) calculateRateByCondition(summarizedExperiment featureCounts, factor[] replicate)
+	
 - Leo
+	
 	- (summarizedExperiment) calculateRateByLabelingTimeSeries(summarizedExperiment featureCounts, factor[] replicate)
 
 ## Postprocessing
 *In*: Count Rate Matrix, GTF
 *Out*: summarized Rate Matrix
+	
 	- (summarizedExperiment) mergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures)
 	- (summarizedExperiment) weightedMergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures, summarizedExperiment featureCounts)
 
