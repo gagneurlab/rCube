@@ -20,6 +20,10 @@
 | PlaB.30min_decay_A      | PlaB.30min         | decay         | A                  |
 | PlaB.30min_synthesis_AB | PlaB.30min         | synthesis     | AB                 |
 
+# Classes
+The data structures we work on are rCubeExperiment and rCubeRates. Both inherit from SummarizedExperiment.
+
+
 # Flow Diagram
 ## Preprocessing
 ### Create GTF annotation from all extracted junctions (split read) [L]
@@ -38,10 +42,10 @@
 *In*: list of bams or path to scan
 *Out*: empty summarized experiment
 
-- (summarizedExperiment) setupExperiment(GRanges rows, data.frame designMatrix)
-- (summarizedExperiment) setupExperiment(GRanges rows, string[] bamFileVector)
-- (summarizedExperiment) setupExperiment(GRanges rows, string path)
-- (summarizedExperiment) setupExperimentSpikeins(GRanges rows, string path, numeric[] length, factor[] labelingState)
+- (rCubeExperiment) setupExperiment(GRanges rows, data.frame designMatrix)
+- (rCubeExperiment) setupExperiment(GRanges rows, string[] bamFileVector)
+- (rCubeExperiment) setupExperiment(GRanges rows, string path)
+- (rCubeExperiment) setupExperimentSpikeins(GRanges rows, string path, numeric[] length, factor[] labelingState)
 
 ## Counting [L,Ch]
 ### Features 
@@ -49,20 +53,20 @@
 *Out*: full summarized experiment (SE10)
 
 - Regions (Exons, Introns)
-	- (summarizedExperiment) countRegions(summarizedExperiment experimentalSetup)
+	- (Method) countRegions(rCubeExperiment experimentalSetup)
 
 - Junctions (Donor, Acceptor, split reads)
-	- (summarizedExperiment) countJunctions(summarizedExperiment experimentalSetup)
+	- (Method) countJunctions(rCubeExperiment experimentalSetup)
 
 
 ### Spike-ins
 *In*: empty summarized experiment (SE0, GTFs)
 *Out*: full summarized experiment (spikein, SE10s)
 
-Same as Regions function, additional columns in Design Matrix: spikein length, spikein labelling state (L/T)
-Preloaded with default values from typicall TTSeq spiekein set. Data already in repo.
+Same as Regions function, additional columns in Design Matrix: spikein length, spikein labeling state (L/T)
+Preloaded with default values from typical TTSeq spikein set. Data already in repo.
 
-- (summarizedExperiment) countSpikeins(summarizedExperiment experimentalSetupSpikeins)
+- (Method) countSpikeins(rCubeExperiment experimentalSetupSpikeins)
 
 ## Normalization
 *In*: summarized experiment (SE10), full summarized experiment (spikein, SE10s)
@@ -70,7 +74,7 @@ Preloaded with default values from typicall TTSeq spiekein set. Data already in 
 - estimate by Carina (spikein)
 - estimate by Leo (spikein)
 - estimate by Leo (joint model)
-	- (summarizedExperiment) calculateNormalization(summarizedExperiment featureCounts, summarizedExperiment spikeinCounts, method=c('spikeinGLM','spikeinMean','jointModel'))
+	- (Method) calculateNormalization(rCubeExperiment featureCounts, rCubeExperiment spikeinCounts, method=c('spikeinGLM','spikeinMean','jointModel'))
 
 (Wrapper by Carina, internal methods by whom it belongs. calculateNormalizationBySpikeinGLM, calculateNormalizationBySpikeinMean, calculateNormalizationByJointModel)
 ## Dispersion estimation
@@ -80,13 +84,13 @@ Adds two columns (dispersionLabel, dispersionTotal)
 - DESeq
 - mean/var by replicates
 
-	- (summarizedExperiment) calculateNormalization(summarizedExperiment featureCounts, method=c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst','Replicate'))
+	- (Method) calculateNormalization(rCubeExperiment featureCounts, method=c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst','Replicate'))
 (wrapper (df with 2 cols) calculateNormalizationBy...Method...)
 ## (optional) Model Time [L]
 *In/Out*:  SE30
 - Add model time column to SE30
 
-	- (summarizedExperiment) calculateModelTime(summarizedExperiment featureCounts, numeric[] time)
+	- (Method) calculateModelTime(rCubeExperiment featureCounts, numeric[] time)
 
 ## Rate estimation
 *In*: SE30
@@ -97,20 +101,20 @@ Carinas and Leos model get initial parameters from ratio model (only distributio
 
 
 - ratio (L/T estimation of rates) [L]
-	- (summarizedExperiment) calculateRateByRatio(summarizedExperiment featureCounts, factor[] replicate)
+	- (rCubeRates) calculateRateByRatio(rCubeExperiment featureCounts, factor[] replicate)
 	
 - Carina [C]
-	- (summarizedExperiment) calculateRateByCondition(summarizedExperiment featureCounts, factor[] replicate)
+	- (rCubeRates) calculateRateByCondition(rCubeExperiment featureCounts, factor[] replicate)
 	
 - Leo [L]
-	- (summarizedExperiment) calculateRateByLabelingTimeSeries(summarizedExperiment featureCounts, factor[] replicate)
+	- (rCubeRates) calculateRateByLabelingTimeSeries(rCubeExperiment featureCounts, factor[] replicate)
 
 ## Postprocessing [C]
 *In*: Count Rate Matrix, GTF
 *Out*: summarized Rate Matrix
 
-	- (summarizedExperiment) mergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures)
-	- (summarizedExperiment) weightedMergeRatesByOverlaps(summarizedExperiment featureRates, GRanges topLevelFeatures, summarizedExperiment featureCounts)
+	- (rCubeRates) mergeRatesByOverlaps(rCubeRates featureRates, GRanges topLevelFeatures)
+	- (rCubeRates) weightedMergeRatesByOverlaps(rCubeRates featureRates, GRanges topLevelFeatures, rCubeExperiment featureCounts)
 
 merge different exons/junctions based on findOverlaps
 
