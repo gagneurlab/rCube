@@ -3,7 +3,7 @@
 #' @param rows GRanges containing spike-in annotation
 #' @param path string 
 #' @param length numeric vector with the length of each spike-ins
-#' @param labelingState factor vector
+#' @param labelingState factor vector or logical###??
 #'
 #' @return An empty rCubeExperiment container
 #' @export
@@ -16,11 +16,14 @@
 #' length = spikein.lengths, labelingState = spikein.labeling)
 setupExperimentSpikeins <- function(rows, path, length, labelingState){
     rows$length <- length[names(rows)]
-    rows$labelingState <- factor(labelingState[names(rows)])
+    rows$labelingState <- factor(labelingState[names(rows)]) ### TODO what to use here
+    rows$labeled <- ifelse(rows$labelingState=="L", TRUE, FALSE) ### I use this now for Normalization.R
     rows$path <- path
-    counts <- matrix(NA, nrow = length(rows), ncol = 1)
+    nfiles = length(list.files(path, pattern = ".bam"))
+    #TODO ncol has to be set to final value directly
+    counts <- matrix(NA, nrow = length(rows), ncol = nfiles)
     #todo what are the counts in the beginning?
-    spikeins.SE <- SummarizedExperiment(assays = counts, rowRanges = rows)
+    spikeins.SE <- SummarizedExperiment(assays = list("counts"=counts), rowRanges = rows)
     spikeins <- new("rCubeExperiment", spikeins.SE)
     return(spikeins)
 }

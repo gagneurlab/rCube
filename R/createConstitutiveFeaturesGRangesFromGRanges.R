@@ -11,7 +11,10 @@
 #' @return Returns a GRanges object with constitutive exons.
 #' @author Carina Demel
 #' 
-#' @example 
+#' @examples
+#' # Gencode annotation of MYC gene
+#' data(example.exons)
+#' constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(example.exons, 1)
 #' @export
 createConstitutiveFeaturesGRangesFromGRanges = function(granges, ncores=2){
 
