@@ -37,9 +37,6 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
 #' @export
 #' @author Carina Demel
 #'
-#' @examples
-#' data(spikeins)
-#' calculateNormalizationBySpikeinGLM(spikeins)
 calculateNormalizationBySpikeinGLM <- function(spikeinCounts){
  
     spikein.dataframe <- function(spikeinCounts){
