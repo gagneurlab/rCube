@@ -2,9 +2,10 @@
 #'
 #' @param featureCounts rCubeExperiment Object containing read counts for features (genes, junctions, ...)
 #' @param spikeinCounts rCubeExperiment Object containing read counts for spike-ins
-#' @param method string specifying which normalization method should be used
+#' @param method string specifying which normalization method should be used,
+#' one of ('spikeinGLM','spikeinMean','jointModel')
 #'
-#' @return
+#' @return rCubeExperiment Object with updated metadata information
 #' @export
 #' @author Carina Demel
 #'
