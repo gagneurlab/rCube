@@ -49,7 +49,10 @@ createJunctionGRangesFromBam = function(bamFiles, support = 10, ncores=2, BPPARA
 	}
 	
 	res = rbindlist(bpdtapply(param,extractSplicedReads,BPPARAM = BPPARAM))
-	return(GRanges(res[,.(count=sum(count)),by=c("seqnames","start","end","strand")][count>=support,c("seqnames","start","end","strand")]))
+	res = res[,.(count=sum(count)),by=c("seqnames","start","end","strand")][count>=support,c("seqnames","start","end","strand")]
+	res = jToDA(res)
+	res = unique(res,by=c("seqnames","start","end","strand","typ"))
+	return(sort(GRanges(res)))
 }
 
 
@@ -66,6 +69,18 @@ bpdtapply = function(dt,FUN,...,BPREDO = list(), BPPARAM=bpparam())
 bpdtapply_helper = function(args,FUNEXPORT,...)
 {
 	do.call(FUNEXPORT,c(args, list(...)))
+}
+
+jToDA = function(junctions)
+{
+	junctions = copy(junctions)
+	junctions[,start:=start-1]
+	temp = junctions
+	da = rbind(junctions[,.(start,end=start+1,typ=ifelse(strand == '+','donor','acceptor')),by=c('seqnames','strand')],
+			junctions[,.(start=end,end=end+1,typ=ifelse(strand != '+','donor','acceptor')),by=c('seqnames','strand')]
+	)
+	junctions[,typ:='junction']
+	return(rbind(junctions,da))
 }
 
 test = function()

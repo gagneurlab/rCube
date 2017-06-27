@@ -27,3 +27,25 @@ setupExperimentSpikeins <- function(rows, path, length, labelingState){
     spikeins <- new("rCubeExperiment", spikeins.SE)
     return(spikeins)
 }
+
+#' Generate empty rCubeExperiment Object
+#'
+#' @param rows GRanges
+#' @param designMatrix dgM 
+#' 
+#' @return An empty rCubeExperiment container
+#' @export
+#' @author Leonhard Wachutka
+#'
+#' @examples
+#' 
+setupExperiment <- function(rows, designMatrix){
+	
+	counts <- matrix(NA, nrow = length(rows), ncol = nrow(designMatrix))
+	se <- SummarizedExperiment(assays = list("counts"=counts), rowRanges = rows,colData = designMatrix)
+	colnames(se) = designMatrix$sample
+	
+	se <- new("rCubeExperiment", se)
+	return(se)
+}
+
