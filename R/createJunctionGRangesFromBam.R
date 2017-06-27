@@ -9,10 +9,12 @@
 #' @import BiocParallel
 #' @import GenomicAlignments
 #' @import BiocGenerics
+#' @import data.table
+#' @import magrittr
 #' 
 #'
 #' @return Returns a GRanges object with junctions.
-#' @author Carina Demel
+#' @author Leonhard Wachutka
 #' 
 #' @examples
 #' # Gencode annotation of MYC gene
@@ -20,27 +22,32 @@
 #' constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(example.exons, 1)
 #' @export
 createJunctionGRangesFromBam = function(bamFiles, support = 10, ncores=2, BPPARAM = NULL){
-	if(is.null(BPPARAM))
-	{
-		BPPARAM = MulticoreParam(workers = ncores)
-	}
 	
 	extractSplicedReads = function(filename,chr)
 	{
-		require(GenomicAlignments)
-		require(data.table)
-		require(magrittr)
-		message('Loading: ',filename,'...',chr)
+		suppressPackageStartupMessages(require(GenomicAlignments,quietly=TRUE))
+		suppressPackageStartupMessages(require(data.table,quietly=TRUE))
+		suppressPackageStartupMessages(require(magrittr,quietly=TRUE))
+		suppressPackageStartupMessages(require(data.table))
+		
 		#Length is maximum ScanBam can handle
 		which = GRanges(seqnames = as.character(chr), IRanges(1, 536870912))
 		spliced_reads = readGAlignmentPairs(filename,param = ScanBamParam(which=which, flag=scanBamFlag(isSecondaryAlignment=FALSE)))%>%junctions()%>%reduce()%>%unlist()%>%as.data.table()
 		sc = spliced_reads[,.(count = .N),by=c("seqnames","start","end","strand")]
+		#message('Loaded: ',filename,'...',chr)
 		return(sc)
 	}
-	
-	
+	suppressPackageStartupMessages(require(data.table,quietly=TRUE))
+	suppressPackageStartupMessages(require(GenomicAlignments,quietly=TRUE))
 	chrs = unique(unlist(lapply(bamFiles,getChrName)))
-	param = data.table(filename = bamFiles, chr = chrs)
+	param = data.table(expand.grid(chr = chrs, filename = bamFiles, stringsAsFactors=FALSE))
+	
+	if(is.null(BPPARAM))
+	{
+		#BPPARAM = MulticoreParam(workers = ncores)
+		BPPARAM= SnowParam(workers = ncores, tasks=nrow(param), type = "SOCK", progressbar = TRUE)
+	}
+	
 	res = rbindlist(bpdtapply(param,extractSplicedReads,BPPARAM = BPPARAM))
 	return(GRanges(res[,.(count=sum(count)),by=c("seqnames","start","end","strand")][count>=support,c("seqnames","start","end","strand")]))
 }
@@ -48,7 +55,7 @@ createJunctionGRangesFromBam = function(bamFiles, support = 10, ncores=2, BPPARA
 
 getChrName = function(file)
 {
-	names(scanBamHeader(file)[[1]]$targets)
+	names(Rsamtools::scanBamHeader(file)[[1]]$targets)
 }
 bpdtapply = function(dt,FUN,...,BPREDO = list(), BPPARAM=bpparam())
 {

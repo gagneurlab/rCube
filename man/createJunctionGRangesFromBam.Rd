@@ -28,5 +28,5 @@ data(example.exons)
 constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(example.exons, 1)
 }
 \author{
-Carina Demel
+Leonhard Wachutka
 }
