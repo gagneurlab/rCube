@@ -10,6 +10,7 @@
 #' @author Carina Demel
 #'
 #' @examples
+#' 
 estimateSizeFactors <- function(featureCounts, spikeinCounts, 
                         method=c('spikeinGLM','spikeinMean','jointModel')){
     if(method=="spikeinGLM"){
