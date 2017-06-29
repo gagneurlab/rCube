@@ -8,10 +8,11 @@
 #' 
 #' @import BiocParallel
 #' @import GenomicAlignments
-#' @import BiocGenerics
 #' @import data.table
 #' @import magrittr
-#' 
+#' @import GenomicRanges
+#' @import IRanges
+#' @import Rsamtools
 #'
 #' @return Returns a GRanges object with junctions.
 #' @author Leonhard Wachutka
@@ -23,36 +24,30 @@
 #' @export
 createJunctionGRangesFromBam = function(bamFiles, support = 10, ncores=2, BPPARAM = NULL){
 	
-	extractSplicedReads = function(filename,chr)
-	{
-		suppressPackageStartupMessages(require(GenomicAlignments,quietly=TRUE))
-		suppressPackageStartupMessages(require(data.table,quietly=TRUE))
-		suppressPackageStartupMessages(require(magrittr,quietly=TRUE))
-		suppressPackageStartupMessages(require(data.table))
-		
+	extractSplicedReads = function(bamFile,chromosome)
+	{	
 		#Length is maximum ScanBam can handle
-		which = GRanges(seqnames = as.character(chr), IRanges(1, 536870912))
-		spliced_reads = readGAlignmentPairs(filename,param = ScanBamParam(which=which, flag=scanBamFlag(isSecondaryAlignment=FALSE)))%>%junctions()%>%reduce()%>%unlist()%>%as.data.table()
+		which = GRanges(seqnames = as.character(chromosome), IRanges(1, 536870912))
+		spliced_reads = GenomicAlignments::readGAlignmentPairs(bamFile,param = ScanBamParam(which=which, flag=scanBamFlag(isSecondaryAlignment=FALSE)))%>%junctions()%>%reduce()%>%unlist()%>%as.data.table()
 		sc = spliced_reads[,.(count = .N),by=c("seqnames","start","end","strand")]
-		#message('Loaded: ',filename,'...',chr)
+		#message('Loaded: ',bamFile,'...',chromosome)
 		return(sc)
 	}
-	suppressPackageStartupMessages(require(data.table,quietly=TRUE))
-	suppressPackageStartupMessages(require(GenomicAlignments,quietly=TRUE))
 	chrs = unique(unlist(lapply(bamFiles,getChrName)))
-	param = data.table(expand.grid(chr = chrs, filename = bamFiles, stringsAsFactors=FALSE))
+	param = data.table(expand.grid(chromosome = chrs, bamFile = bamFiles, stringsAsFactors=FALSE))
 	
 	if(is.null(BPPARAM))
 	{
-		#BPPARAM = MulticoreParam(workers = ncores)
-		BPPARAM= SnowParam(workers = ncores, tasks=nrow(param), type = "SOCK", progressbar = TRUE)
+		BPPARAM = MulticoreParam(workers = ncores, progressbar = TRUE)
+		#BPPARAM = SerialParam()
+		#BPPARAM= SnowParam(workers = ncores, tasks=nrow(param), type = "SOCK", progressbar = TRUE)
 	}
 	
 	res = rbindlist(bpdtapply(param,extractSplicedReads,BPPARAM = BPPARAM))
 	res = res[,.(count=sum(count)),by=c("seqnames","start","end","strand")][count>=support,c("seqnames","start","end","strand")]
 	res = jToDA(res)
 	res = unique(res,by=c("seqnames","start","end","strand","typ"))
-	return(sort(GRanges(res)))
+	return(sort(GenomicRanges::GRanges(res)))
 }
 
 
@@ -71,16 +66,16 @@ bpdtapply_helper = function(args,FUNEXPORT,...)
 	do.call(FUNEXPORT,c(args, list(...)))
 }
 
-jToDA = function(junctions)
+jToDA = function(junctionsIn)
 {
-	junctions = copy(junctions)
+	junctions = copy(junctionsIn)
 	junctions[,start:=start-1]
 	temp = junctions
 	da = rbind(junctions[,.(start,end=start+1,typ=ifelse(strand == '+','donor','acceptor')),by=c('seqnames','strand')],
 			junctions[,.(start=end,end=end+1,typ=ifelse(strand != '+','donor','acceptor')),by=c('seqnames','strand')]
 	)
-	junctions[,typ:='junction']
-	return(rbind(junctions,da))
+	junctionsIn[,typ:='junction']
+	return(rbind(junctionsIn,da))
 }
 
 test = function()

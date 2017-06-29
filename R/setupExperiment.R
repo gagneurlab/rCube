@@ -7,8 +7,10 @@
 #'
 #' @return An empty rCubeExperiment container
 #' @export
+#' @import SummarizedExperiment
 #' @author Carina Demel
 #'
+#' 
 #' @examples
 #' data(spikein.labeling)
 #' data(spikein.lengths)
