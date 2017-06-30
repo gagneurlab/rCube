@@ -1,3 +1,1 @@
-require(SummarizedExperiment)
-
-setClass("rCubeRates",contains = "SummarizedExperiment")
+setClass("rCubeRates",contains = "RangedSummarizedExperiment")
