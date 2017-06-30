@@ -22,9 +22,7 @@ setupExperimentSpikeins <- function(rows, path, length, labelingState){
     rows$labeled <- ifelse(rows$labelingState=="L", TRUE, FALSE) ### I use this now for Normalization.R
     rows$path <- path
     nfiles = length(list.files(path, pattern = ".bam"))
-    #TODO ncol has to be set to final value directly
     counts <- matrix(NA, nrow = length(rows), ncol = nfiles)
-    #todo what are the counts in the beginning?
     spikeins.SE <- SummarizedExperiment(assays = list("counts"=counts), rowRanges = rows)
     spikeins <- new("rCubeExperiment", spikeins.SE)
     return(spikeins)
