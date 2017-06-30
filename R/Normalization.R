@@ -29,7 +29,8 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
 #' Fit GLM to spike-in read counts to extract sequencing depth and
 #' cross-contamination rate for all samples
 #'
-#' @param spikeinCounts rCubeExperiment Object containing read counts for spike-ins
+#' @param spikeinCounts rCubeExperiment Object containing read counts, length and
+#' labeling status for spike-ins, as well as sample information
 #'
 #' @importFrom MASS glm.nb
 #' 
@@ -100,9 +101,10 @@ calculateNormalizationBySpikeinGLM <- function(spikeinCounts){
     
     rowData(spikeinCounts)$spikein.specific.bias <- spikein.specific.bias
     rowData(spikeinCounts)$intercept <- intercept
-    colData(spikeinCounts)[["sequencing.depth"]] <- seq.depths
-    colData(spikeinCounts)[["cross-contamination"]] <- cross.cont
-    assays(spikeinCounts)[["fitted.counts"]] <- matrix(fitted.counts, nrow=length(spikein.specific.bias))
+    colData(spikeinCounts)$sequencing.depth <- seq.depths
+    colData(spikeinCounts)$cross-contamination <- cross.cont
+    assays(spikeinCounts)$fitted.counts <- matrix(fitted.counts,
+                                                  nrow=length(spikein.specific.bias))
     
     return(spikeinCounts)
 }
