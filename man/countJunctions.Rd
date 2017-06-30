@@ -4,8 +4,9 @@
 \alias{countJunctions}
 \title{count Donor, Acceptor and Junction reads}
 \usage{
-countJunctions(experimentalSetup, filter = NULL, BPPARAM = NULL,
-  ncores = 1, verbose = FALSE)
+countJunctions(experimentalSetup, scanBamParam = ScanBamParam(flag =
+  scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL, ncores = 1,
+  verbose = FALSE)
 }
 \arguments{
 \item{rows}{GRanges}

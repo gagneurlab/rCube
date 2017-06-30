@@ -8,7 +8,8 @@
 #' @return An empty rCubeExperiment container
 #' @export
 #' @import SummarizedExperiment
-#' @author Carina Demel
+#' @import stringr
+#' @author Carina Demel, Leonhard Wachutka
 #'
 #' 
 #' @examples
@@ -16,16 +17,26 @@
 #' data(spikein.lengths)
 #' spikein.counts <- setupExperimentSpikeins(rows = spikeins, path = "", 
 #' length = spikein.lengths, labelingState = spikein.labeling)
-setupExperimentSpikeins <- function(rows, path, length, labelingState){
-    rows$length <- length[names(rows)]
-    rows$labelingState <- factor(labelingState[names(rows)]) ### TODO what to use here
+setupExperimentSpikeins <- function(rows, designMatrix = NULL, files = NULL, length = NULL, labelingState){
+	
+	stopifnot(!(is.null(designMatrix)&is.null(files)))
+	if(is.null(designMatrix))
+	{
+		designMatrix = createDesignMatrix(files)
+	}
+	if(!is.null(length))
+	{
+		rows$length <- length[names(rows)]
+	}
+    
+    rows$labelingState <- factor(labelingState) ### TODO what to use here
     rows$labeled <- ifelse(rows$labelingState=="L", TRUE, FALSE) ### I use this now for Normalization.R
-    rows$path <- path
-    nfiles = length(list.files(path, pattern = ".bam"))
+    #rows$path <- path
+    
     #TODO ncol has to be set to final value directly
-    counts <- matrix(NA, nrow = length(rows), ncol = nfiles)
+    counts <- matrix(NA, nrow = length(rows), ncol = nrow(designMatrix))
     #todo what are the counts in the beginning?
-    spikeins.SE <- SummarizedExperiment(assays = list("counts"=counts), rowRanges = rows)
+    spikeins.SE <- SummarizedExperiment(assays = list("counts"=counts), rowRanges = rows, colData = designMatrix)
     spikeins <- new("rCubeExperiment", spikeins.SE)
     return(spikeins)
 }
@@ -41,7 +52,13 @@ setupExperimentSpikeins <- function(rows, path, length, labelingState){
 #'
 #' @examples
 #' 
-setupExperiment <- function(rows, designMatrix){
+setupExperiment <- function(rows, designMatrix = NULL, files = NULL){
+	
+	stopifnot(!(is.null(designMatrix)&is.null(files)))
+	if(is.null(designMatrix))
+	{
+		designMatrix = createDesignMatrix(files)
+	}
 	
 	counts <- matrix(NA, nrow = length(rows), ncol = nrow(designMatrix))
 	se <- SummarizedExperiment(assays = list("counts"=counts), rowRanges = rows,colData = designMatrix)
@@ -50,3 +67,14 @@ setupExperiment <- function(rows, designMatrix){
 	return(se)
 }
 
+createDesignMatrix = function(files)
+{
+	designMatrix = data.table(filename = files)
+	designMatrix[,str_extract(basename(filename),'([^_]+)')]
+	designMatrix[,sample:=str_extract(basename(filename),'([^_]+_){3}[^_^.]+')]
+	designMatrix[,condition := str_extract(sample,'[^_]+')]
+	designMatrix[,LT := str_extract(sample,'(?<=_)[LT]+')]
+	designMatrix[,labelingTime := str_extract(sample,'(?<=_)[0-9]+')]
+	designMatrix[,replicate:=str_extract(sample,'(?<=_)[^_]*$')]
+	return(designMatrix)
+}

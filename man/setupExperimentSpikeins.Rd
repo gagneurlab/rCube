@@ -4,16 +4,17 @@
 \alias{setupExperimentSpikeins}
 \title{Generate empty rCubeExperiment Object for spike-ins, which can be used for counting}
 \usage{
-setupExperimentSpikeins(rows, path, length, labelingState)
+setupExperimentSpikeins(rows, designMatrix = NULL, files = NULL,
+  length = NULL, labelingState)
 }
 \arguments{
 \item{rows}{GRanges containing spike-in annotation}
 
-\item{path}{string}
-
 \item{length}{numeric vector with the length of each spike-ins}
 
 \item{labelingState}{factor vector or logical###??}
+
+\item{path}{string}
 }
 \value{
 An empty rCubeExperiment container
@@ -28,5 +29,5 @@ spikein.counts <- setupExperimentSpikeins(rows = spikeins, path = "",
 length = spikein.lengths, labelingState = spikein.labeling)
 }
 \author{
-Carina Demel
+Carina Demel, Leonhard Wachutka
 }

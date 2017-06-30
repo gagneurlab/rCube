@@ -75,6 +75,8 @@ countJunctions = function(experimentalSetup, scanBamParam = ScanBamParam(flag=sc
 		assays(experimentalSetup[rowRanges(experimentalSetup)$typ == 'donor' | rowRanges(experimentalSetup)$typ=='acceptor', experimentalSetup[['filename']] == fn])[['counts']] = as.matrix(counts,ncol=1)		
 	}
 	
+	# Zero out NA lines.
+	assay(experimentalSetup)[is.na(assay(experimentalSetup))] = 0
 	return(experimentalSetup)	
 }
 

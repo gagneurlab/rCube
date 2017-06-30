@@ -16,13 +16,13 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
     if(method=="spikeinGLM"){
         spikeinCounts <- calculateNormalizationBySpikeinGLM(spikeinCounts)
     }else if(method=="spikeinMean"){
-        # calculateNormalizationBySpikeinMean
+		featureCounts <- calculateNormalizationByMean(featureCounts,spikeinCounts)
     }else{
         # calculateNormalizationByJointModel
     }
     
-    # depends on how Leo's normalization methods work, which objects are updated
-    return(spikeinCounts)
+    
+    return(featureCounts)
 }
 
 
@@ -107,4 +107,12 @@ calculateNormalizationBySpikeinGLM <- function(spikeinCounts){
     assays(spikeinCounts)[["fitted.counts"]] <- matrix(fitted.counts, nrow=length(spikein.specific.bias))
     
     return(spikeinCounts)
+}
+
+
+calculateNormalizationByMean <- function(featureCounts, spikeinCounts){
+	labled = subset(spikeinCounts, labelingState == 'L')
+	lc = assay(labled)
+	colData(featureCounts)$sizeFactor = 1 / colMeans(lc / rowSums(lc))
+	return(featureCounts)
 }

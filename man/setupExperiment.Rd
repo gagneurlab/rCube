@@ -4,7 +4,7 @@
 \alias{setupExperiment}
 \title{Generate empty rCubeExperiment Object}
 \usage{
-setupExperiment(rows, designMatrix)
+setupExperiment(rows, designMatrix = NULL, files = NULL)
 }
 \arguments{
 \item{rows}{GRanges}
