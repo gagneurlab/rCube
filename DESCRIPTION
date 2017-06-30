@@ -2,7 +2,7 @@ Package: rCube
 Title: RNA Rates in R
 Version: 0.1
 Date: 2017-05-02
-Author: Leonhard Wachutka, Carian Demel
+Author: Leonhard Wachutka, Carina Demel
 Maintainer: Leonhard Wachutka <wachutka@in.tum.de>
 Description: Calculate TTSeq rates.
 License: GPL (>=3)

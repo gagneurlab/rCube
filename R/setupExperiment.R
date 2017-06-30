@@ -37,6 +37,7 @@ setupExperimentSpikeins <- function(rows, designMatrix = NULL, files = NULL, len
     counts <- matrix(NA, nrow = length(rows), ncol = nrow(designMatrix))
     #todo what are the counts in the beginning?
     spikeins.SE <- SummarizedExperiment(assays = list("counts"=counts), rowRanges = rows, colData = designMatrix)
+
     spikeins <- new("rCubeExperiment", spikeins.SE)
     return(spikeins)
 }
