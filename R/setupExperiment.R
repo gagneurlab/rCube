@@ -73,9 +73,9 @@ createDesignMatrix = function(files)
 	designMatrix = data.table(filename = files)
 	designMatrix[,str_extract(basename(filename),'([^_]+)')]
 	designMatrix[,sample:=str_extract(basename(filename),'([^_]+_){3}[^_^.]+')]
-	designMatrix[,condition := str_extract(sample,'[^_]+')]
-	designMatrix[,LT := str_extract(sample,'(?<=_)[LT]+')]
-	designMatrix[,labelingTime := str_extract(sample,'(?<=_)[0-9]+')]
-	designMatrix[,replicate:=str_extract(sample,'(?<=_)[^_]*$')]
+	designMatrix[,condition := as.factor(str_extract(sample,'[^_]+'))]
+	designMatrix[,LT := as.facotr(str_extract(sample,'(?<=_)[LT]+'))]
+	designMatrix[,labelingTime := as.numeric(str_extract(sample,'(?<=_)[0-9]+'))]
+	designMatrix[,replicate:=as.factor(str_extract(sample,'(?<=_)[^_]*$'))]
 	return(designMatrix)
 }

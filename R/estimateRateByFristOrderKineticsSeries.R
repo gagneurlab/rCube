@@ -1,35 +1,56 @@
 
 
-estimateRateByFristOrderKineticsSeries = function(featureCounts,replicate)
+estimateRateByFristOrderKineticsSeries = function(featureCounts, rRates, replicate = NULL)
 {
 	
 }
 
 #TODO: move rep into metadata
-estimateRateByFristOrderKineticsSeriesCondition = function(featureCounts, replicates, conditions,rep = 3)
+estimateRateByFristOrderKineticsSeriesCondition = function(featureCounts, replicates, conditions, BPPARAM = BPPARAM,rep = 3 , verbose = FALSE)
 {
 	#featureCounts = rCubeCounts
 	#conditions = 'DMSO.30'
 	#replicates = c('1.dedup.bam')
+	#BPPARAM = MulticoreParam(workers = 4, progressbar = TRUE)
 	fset = subset(featureCounts,,condition==conditions & replicate %in% replicates)
-	F = colData(fset)$sizeFactor
-	F = (F/F[1])#[-1]
 	
-	modelTime = as.numeric(colData(fset)$labelingTime)
-	modelTime[colData(fset)$LT=='T'] = Inf
+	index0 = 1:nrow(fset)
+	index1 = lapply(1:rep, function(x)sample(index0))
+	batchSize = 100
 	
-	ss = fset[1:100]
+	batches = Reduce(c,lapply(index1, function(x) split(x, ceiling(seq_along(x)/batchSize))))
+	batches = batches[1:100]
 	
-	
-	SEfit_rates2(assay(ss),modelTime,length = rep(1, nrow(ss)),uc = rep(0, nrow(ss)), puc = 0, F = F, gc = 0)
+	res = bplapply(batches, callFit, experiment = fset, BPPARAM = BPPARAM, verbose = verbose)
+	data = rbindlist(res)
+	#Take the median of all refits
+	data2 = data[,.(gm = median(gs), gs = median(gs)),by=.(seqnames,start,end,strand,typ)]
 	
 }
+callFit = function(batch, experiment, verbose = FALSE)
+{
+	if(verbose)
+	{
+		message('Running on batch ', batch)
+	}
+	F = colData(experiment)$sizeFactor
+	F = (F/F[1])#[-1]
+	
+	modelTime = as.numeric(colData(experiment)$labelingTime)
+	modelTime[colData(experiment)$LT=='T'] = Inf
+	ss = experiment[batch]
+	
+	fit = SE_fit_rates(assay(ss),modelTime,length = rep(1, nrow(ss)),uc = rep(0, nrow(ss)), puc = 0, F = F, gc = 0)
+	rr = rowRanges(ss)
+	rr$gs = fit$gs
+	rr$gm = fit$gm
+	return(as.data.table(rr))
 
+}
 
 #the steady states have to be on the end, because of the way we handle gc!!!
 #maybe later do a check for this
-#This function fits the model to a bunch of junctions.
-SEfit_rates2 = function(counts,ti, length, uc, puc, params.initial = guess_initial2(counts, ti,...),log.out = FALSE,...)
+SE_fit_rates = function(counts,ti, length, uc, puc, params.initial = guess_initial2(counts, ti,...),log.out = FALSE,...)
 {
 	##Do parametrization
 	p = parametrize2(params.initial)
@@ -55,5 +76,6 @@ SEfit_rates2 = function(counts,ti, length, uc, puc, params.initial = guess_initi
 	params.all = append(params.all,list(params.initial = params.initial,fit = fit, gen.num = nrow(counts)))
 	return (params.all)
 }
+
 
 
