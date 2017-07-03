@@ -4,6 +4,7 @@
 #' 
 #' @param granges A GRanges annotation file with exons/introns. Needs columns 
 #' "gene_id" and "transcript_id"
+#' @param BPPARAM Instance of a BiocParallelParam class, default MulticoreParam
 #' @param ncores Number of cores available for parallel computation
 #' 
 #' @import BiocParallel
@@ -16,11 +17,14 @@
 #' data(example.exons)
 #' constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(example.exons, 1)
 #' @export
-createConstitutiveFeaturesGRangesFromGRanges = function(granges, ncores=2){
+createConstitutiveFeaturesGRangesFromGRanges = function(granges, BPPARAM=NULL, ncores=2){
 
-    #TODO which Param?
-    snowparam <- BiocParallel::SnowParam(workers = ncores, type = "SOCK")
-    BiocParallel::register(snowparam, default = TRUE)
+    if(is.null(BPPARAM)){
+        BPPARAM = MulticoreParam(workers = ncores)
+    }
+    #snowparam <- BiocParallel::SnowParam(workers = ncores, type = "SOCK")
+    #BiocParallel::register(snowparam, default = TRUE)
+    BiocParallel::register(BPPARAM, default = TRUE)
     BiocParallel::registered()
     
     # build constitutive features (exons/introns):
