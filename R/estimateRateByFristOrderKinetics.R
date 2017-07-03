@@ -11,6 +11,8 @@ estimateRateByFristOrderKinetics = function(featureCounts, replicate, method = c
 	{
 		rRates = createRResultCubeRates(featureCounts,replicate)
 		return(estimateRateByFristOrderKineticsSeries(featureCounts,rRates, replicate))
+	}else{
+	    return(estimateRateByFristOrderKineticsSingle(featureCounts,replicate))
 	}
 }
 
