@@ -103,7 +103,7 @@ calculateNormalizationBySpikeinGLM <- function(spikeinCounts){
     rowData(spikeinCounts)$spikein.specific.bias <- spikein.specific.bias
     rowData(spikeinCounts)$intercept <- intercept
     colData(spikeinCounts)$sequencing.depth <- seq.depths
-    colData(spikeinCounts)$cross-contamination <- cross.cont
+    colData(spikeinCounts)$cross.contamination <- cross.cont
     assays(spikeinCounts)$fitted.counts <- matrix(fitted.counts,
                                                   nrow=length(spikein.specific.bias))
     
