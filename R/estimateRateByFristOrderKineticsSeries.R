@@ -1,6 +1,6 @@
 
 
-estimateRateByFristOrderKineticsSeries = function(featureCounts, rRates, BPPARAM = NULL, verbose = TRUE)
+estimateRateByFristOrderKineticsSeries = function(featureCounts, rRates, BPPARAM = NULL, verbose = FALSE)
 {
 	
 	jobs = unique(as.data.table(colData(rRates))[,.(condition,replicate)])
@@ -13,13 +13,12 @@ estimateRateByFristOrderKineticsSeries = function(featureCounts, rRates, BPPARAM
 	for (i in 1:nrow(jobs))
 	{
 		job = jobs[i]	
-		if(verbose)
-		{
-			message('Estimate rates for ', print(job))
-		}
 		
-		fset = subset(featureCounts,,condition==job$condition & replicate %in% strsplit(as.character(job$replicate),':'))
-		res = estimateRateByFristOrderKineticsSeriesCondition(fset,r,BPPARAM = BPPARAM, rep = 3, verbose = FALSE)
+		message(date(), ' Estimate rates for ', gtools::capture(job))
+		
+		
+		fset = subset(featureCounts,,condition==job$condition & replicate %in% unlist(strsplit(as.character(job$replicate),':')))
+		res = estimateRateByFristOrderKineticsSeriesCondition(fset,r,BPPARAM = BPPARAM, rep = 3, verbose = verbose)
 		
 		#ss = subset(rRates,,condition==job$condition & replicate %in% unlist(job$replicate))
 		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'synthesis']) = as.matrix(res[as.data.table(rowRanges(rRates)), on = .(seqnames,start,end,strand,typ)]$gm,ncol=1)
