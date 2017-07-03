@@ -14,13 +14,12 @@ estimateRateByFristOrderKineticsSeries = function(featureCounts, rRates, BPPARAM
 	{
 		job = jobs[i]	
 		
-		message(date(), ' Estimate rates for ', gtools::capture(job))
+		message(date(), ' Estimate rates for ', capture.output(job))
 		
 		
 		fset = subset(featureCounts,,condition==job$condition & replicate %in% unlist(strsplit(as.character(job$replicate),':')))
 		res = estimateRateByFristOrderKineticsSeriesCondition(fset,r,BPPARAM = BPPARAM, rep = 3, verbose = verbose)
 		
-		#ss = subset(rRates,,condition==job$condition & replicate %in% unlist(job$replicate))
 		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'synthesis']) = as.matrix(res[as.data.table(rowRanges(rRates)), on = .(seqnames,start,end,strand,typ)]$gm,ncol=1)
 		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'degradation']) = as.matrix(res[as.data.table(rowRanges(rRates)), on = .(seqnames,start,end,strand,typ)]$gs,ncol=1)
 	}
