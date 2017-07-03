@@ -1,37 +1,56 @@
 
 
-estimateRateByFristOrderKineticsSeries = function(featureCounts, rRates, replicate = NULL)
+estimateRateByFristOrderKineticsSeries = function(featureCounts, rRates, BPPARAM = NULL, verbose = TRUE)
 {
 	
+	jobs = unique(as.data.table(colData(rRates))[,.(condition,replicate)])
+	if(is.null(BPPARAM))
+	{
+		BPPARAM = MulticoreParam(progressbar = TRUE)
+		#BPPARAM = SerialParam()
+		
+	}
+	for (i in 1:nrow(jobs))
+	{
+		job = jobs[i]	
+		if(verbose)
+		{
+			message('Estimate rates for ', print(job))
+		}
+		
+		fset = subset(featureCounts,,condition==job$condition & replicate %in% strsplit(as.character(job$replicate),':'))
+		res = estimateRateByFristOrderKineticsSeriesCondition(fset,r,BPPARAM = BPPARAM, rep = 3, verbose = FALSE)
+		
+		#ss = subset(rRates,,condition==job$condition & replicate %in% unlist(job$replicate))
+		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'synthesis']) = as.matrix(res[as.data.table(rowRanges(rRates)), on = .(seqnames,start,end,strand,typ)]$gm,ncol=1)
+		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'degradation']) = as.matrix(res[as.data.table(rowRanges(rRates)), on = .(seqnames,start,end,strand,typ)]$gs,ncol=1)
+	}
+	return(rRates)
 }
 
 #TODO: move rep into metadata
-estimateRateByFristOrderKineticsSeriesCondition = function(featureCounts, replicates, conditions, BPPARAM = BPPARAM,rep = 3 , verbose = FALSE)
+estimateRateByFristOrderKineticsSeriesCondition = function(featureCounts, replicates, conditions, BPPARAM = NULL, rep = 3 , verbose = FALSE)
 {
-	#featureCounts = rCubeCounts
-	#conditions = 'DMSO.30'
-	#replicates = c('1.dedup.bam')
-	#BPPARAM = MulticoreParam(workers = 4, progressbar = TRUE)
-	fset = subset(featureCounts,,condition==conditions & replicate %in% replicates)
 	
-	index0 = 1:nrow(fset)
+	
+	
+	index0 = 1:nrow(featureCounts)
 	index1 = lapply(1:rep, function(x)sample(index0))
 	batchSize = 100
 	
 	batches = Reduce(c,lapply(index1, function(x) split(x, ceiling(seq_along(x)/batchSize))))
-	batches = batches[1:100]
-	
-	res = bplapply(batches, callFit, experiment = fset, BPPARAM = BPPARAM, verbose = verbose)
+	bptasks(BPPARAM) = length(batches)
+	res = bplapply(batches, callFit, experiment = featureCounts, BPPARAM = BPPARAM, verbose = verbose)
 	data = rbindlist(res)
 	#Take the median of all refits
-	data2 = data[,.(gm = median(gs), gs = median(gs)),by=.(seqnames,start,end,strand,typ)]
+	data2 = data[,.(gm = median(gm), gs = median(gs)),by=.(seqnames,start,end,strand,typ)]
 	
 }
 callFit = function(batch, experiment, verbose = FALSE)
 {
 	if(verbose)
 	{
-		message('Running on batch ', batch)
+		message('Running on batch ', batch[1])
 	}
 	F = colData(experiment)$sizeFactor
 	F = (F/F[1])#[-1]
