@@ -1,12 +1,12 @@
 
 
-estimateRateByFristOrderKineticsSeries = function(featureCounts,replicate)
+estimateRateByFristOrderKineticsSeries = function(featureCounts, rRates, replicate = NULL)
 {
 	
 }
 
 #TODO: move rep into metadata
-estimateRateByFristOrderKineticsSeriesCondition = function(featureCounts, replicates, conditions, BPPARAM = BPPARAM,rep = 3)
+estimateRateByFristOrderKineticsSeriesCondition = function(featureCounts, replicates, conditions, BPPARAM = BPPARAM,rep = 3 , verbose = FALSE)
 {
 	#featureCounts = rCubeCounts
 	#conditions = 'DMSO.30'
@@ -21,14 +21,18 @@ estimateRateByFristOrderKineticsSeriesCondition = function(featureCounts, replic
 	batches = Reduce(c,lapply(index1, function(x) split(x, ceiling(seq_along(x)/batchSize))))
 	batches = batches[1:100]
 	
-	res = bplapply(batches,callFit, experiment = fset, BPPARAM = BPPARAM)
+	res = bplapply(batches, callFit, experiment = fset, BPPARAM = BPPARAM, verbose = verbose)
 	data = rbindlist(res)
-	
+	#Take the median of all refits
+	data2 = data[,.(gm = median(gs), gs = median(gs)),by=.(seqnames,start,end,strand,typ)]
 	
 }
-callFit = function(batch, experiment)
+callFit = function(batch, experiment, verbose = FALSE)
 {
-	message('Running on batch', batch)
+	if(verbose)
+	{
+		message('Running on batch ', batch)
+	}
 	F = colData(experiment)$sizeFactor
 	F = (F/F[1])#[-1]
 	
@@ -72,5 +76,6 @@ SE_fit_rates = function(counts,ti, length, uc, puc, params.initial = guess_initi
 	params.all = append(params.all,list(params.initial = params.initial,fit = fit, gen.num = nrow(counts)))
 	return (params.all)
 }
+
 
 
