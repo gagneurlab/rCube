@@ -114,6 +114,6 @@ calculateNormalizationBySpikeinGLM <- function(spikeinCounts){
 calculateNormalizationByMean <- function(featureCounts, spikeinCounts){
 	labled = subset(spikeinCounts, labelingState == 'L')
 	lc = assay(labled)
-	colData(featureCounts)$sizeFactor = 1 / colMeans(lc / rowSums(lc))
+	colData(featureCounts)$sizeFactor = colMeans(lc / rowSums(lc))
 	return(featureCounts)
 }

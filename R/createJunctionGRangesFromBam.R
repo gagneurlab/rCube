@@ -42,7 +42,7 @@ createJunctionGRangesFromBam = function(bamFiles, support = 10, ncores=2, BPPARA
 		#BPPARAM = SerialParam()
 		#BPPARAM= SnowParam(workers = ncores, tasks=nrow(param), type = "SOCK", progressbar = TRUE)
 	}
-	
+	bptasks(BPPARAM) = nrow(param)
 	res = rbindlist(bpdtapply(param,extractSplicedReads,BPPARAM = BPPARAM))
 	res = res[,.(count=sum(count)),by=c("seqnames","start","end","strand")][count>=support,c("seqnames","start","end","strand")]
 	res = jToDA(res)
