@@ -1,1 +1,3 @@
-setClass("rCubeExperiment",contains = "RangedSummarizedExperiment")
+setClass("rCubeExperiment",contains = "RangedSummarizedExperiment",
+         prototype=list(rowRanges=GRanges())
+         )

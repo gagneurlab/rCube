@@ -39,7 +39,8 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
 #' @export
 #' @author Carina Demel
 calculateNormalizationBySpikeinGLM <- function(spikeinCounts){
- 
+    samples <- rownames(colData(spikeinCounts))
+    spikeins <- rowData(spikeinCounts)$gene_id
     spikein.dataframe <- function(spikeinCounts){
         counts <- assay(spikeinCounts)
         rowData <- rowData(spikeinCounts)
