@@ -16,8 +16,8 @@
 #' 
 #' @examples
 #' # Gencode annotation of MYC gene
-#' data(example.exons)
-#' constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(example.exons, 1)
+#' data(exampleExons)
+#' constitutiveExons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, 1)
 #' @export
 createConstitutiveFeaturesGRangesFromGRanges = function(granges, BPPARAM=NULL, ncores=2){
 
