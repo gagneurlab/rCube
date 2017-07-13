@@ -1,15 +1,26 @@
-#' Title
+#' @title Estimation of sample-specific normalization factors
+#' 
+#' @description \code{estimateSizeFactors} provides a wrapper function to estimate 
+#' sample-specific size-factors by three different types.
 #'
-#' @param featureCounts rCubeExperiment Object containing read counts for features (genes, junctions, ...)
-#' @param spikeinCounts rCubeExperiment Object containing read counts for spike-ins
+#' @param featureCounts A \code{\link{rCubeExperiment}} object containing read
+#'  counts for features (genes, junctions, ...).
+#' @param spikeinCounts A \code{\link{rCubeExperiment}} object containing read 
+#' counts, length and labeling status for spike-ins, as well as sample information.
 #' @param method string specifying which normalization method should be used,
-#' one of ('spikeinGLM','spikeinMean','jointModel')
+#' one of ('spikeinGLM','spikeinMean','jointModel').
 #'
-#' @return rCubeExperiment Object with updated metadata information
+#' @return Returns an updated \code{\link{rCubeExperiment}} object with 
+#' metadata information.
+#' @rdname estimateSizeFactors
 #' @export
 #' @author Carina Demel
 #'
 #' @examples
+#' data(geneCounts)
+#' data(spikeinCounts)
+#' ### spikeinCounts <- estimateSizeFactors(spikeinCounts, method="spikeinGLM")
+#' geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method="spikeinMean")
 #' 
 estimateSizeFactors <- function(featureCounts, spikeinCounts, 
                         method=c('spikeinGLM','spikeinMean','jointModel')){
@@ -21,25 +32,22 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
         # calculateNormalizationByJointModel
     }
     
-    #' @Leo: do we return feature counts or spike-in counts?
+    #' Leo: do we return feature counts or spike-in counts?
     
     return(featureCounts)
 }
 
 
 
-#' Fit GLM to spike-in read counts to extract sequencing depth and
-#' cross-contamination rate for all samples
-#'
-#' @param spikeinCounts A \code{rCubeExperiment} object containing read counts,
-#' length and #' labeling status for spike-ins, as well as sample information
+#' @description \code{calculateNormalizationBySpikeinGLM} fits a GLM to spike-in read counts
+#' to extract sequencing depth values and cross-contamination rates for all samples.
 #'
 #' @importFrom MASS glm.nb
 #' 
 #' @return An \code{\link{rCubeExperiment}} object for spike-ins with 
-#' updated information in \code{RowData}
+#' updated information in \code{rowData} and \code{colData}.
 #'
-#' @author Carina Demel
+#' @rdname estimateSizeFactors
 #' @examples
 #' data(spikeinCounts)
 #' spikeinCounts <- calculateNormalizationBySpikeinGLM(spikeinCounts)
@@ -116,7 +124,8 @@ calculateNormalizationBySpikeinGLM <- function(spikeinCounts){
     return(spikeinCounts)
 }
 
-
+#' @description \code{calculateNormalizationByMean} ...
+#' @rdname estimateSizeFactors
 calculateNormalizationByMean <- function(featureCounts, spikeinCounts){
 	labled = subset(spikeinCounts, labelingState == 'L')
 	lc = assay(labled)

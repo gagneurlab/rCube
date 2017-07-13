@@ -16,7 +16,8 @@
 #' rates for each feature and sample and the specified replicate combinations
 #' @author Carina Demel
 #' @seealso \code{\link{BiocParallelParam}}
-#' @import BiocParallel, data.table
+#' @import BiocParallel
+#' @import data.table
 #'
 #' @examples
 #' ## estimate sequencing depths and cross-contamination values from spike-ins
@@ -39,6 +40,7 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
     replicates <- featureCounts@colData$replicate
     sequencingDepths <- spikeinCounts@colData$sequencing.depth
     crossContamination <- spikeinCounts@colData$cross.contamination
+    
     ## gene information
     rows <- rowRanges(featureCounts)
     genes <- names(rows)
@@ -53,6 +55,16 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
     dispersion_T <- rowRanges(featureCounts)$dispersion_T
     dispersion <- cbind(dispersion_L, dispersion_T)
     rownames(dispersion) <- genes
+    
+    stopifnot(!is.null(conditions) &
+                  !is.null(conditionsLabeling) & 
+                  !is.null(labelingTime) &
+                  !is.null(replicates) &
+                  !is.null(sequencingDepths) &
+                  !is.null(crossContamination) &
+                  !is.null(dispersion) & 
+                  !is.null(rows))
+    
     if(is.null(replicate)){
         ur <- unique(replicates)
         replicate <- c(as.list(combn(ur,1)),list(ur))
@@ -184,7 +196,8 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
 
 
 
-
+## the underlying function to fit labeled and unlabeled RNA amounts to observed
+## read count data
 .fitAlphaBeta_log_reparam <- function(
     counts,
     labeledSamples,

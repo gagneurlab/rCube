@@ -1,7 +1,10 @@
-#' Generate \code{\link{rCubeExperiment}} object for spike-ins, which can be
-#' used for counting and which is necessary for normalization and estimation steps.
+#' @title rCubeExperiment object and constructors
+#' 
+#' @description \code{setupExperimentSpikeins} generates a \code{rCubeExperiment} 
+#' object for spike-ins, which can be used for counting and which is necessary 
+#' for normalization and estimation steps.
 #'
-#' @param rows GRanges containing spike-in annotation
+#' @param rows GRanges containing spike-in/gene/exon/... annotation
 #' @param designMatrix an optional data.frame containing sample information, see 
 #' constructor functions \code{\link{createDesignMatrix}}. Either \code{designMatrix}
 #' or \code{files} needs to be present.
@@ -13,12 +16,13 @@
 #' was labeled or unlabeled
 #' @param counts an optional matrix with spike-in read counts
 #'
-#' @return An (empty) rCubeExperiment container
+#' @return An (empty) \code{rCubeExperiment} container
 #' @export
 #' @import SummarizedExperiment
 #' @import stringr
 #' @author Carina Demel, Leonhard Wachutka
-#' @seealso \code{\link{SummarizedExperiment}}
+#' @seealso \code{\link[SummarizedExperiment]{SummarizedExperiment}}
+#' @rdname rCubeExperiment
 #' 
 #' @examples
 #' data(spikeins)
@@ -56,18 +60,16 @@ setupExperimentSpikeins <- function(rows, designMatrix = NULL, files = NULL, len
     return(spikeins)
 }
 
-#' Generate empty rCubeExperiment Object
-#'
-#' @param rows GRanges
-#' @param designMatrix dgM 
-#' 
-#' @return An empty rCubeExperiment container
+
+#' @description \code{setupExperiment} generates an empty \code{rCubeExperiment}
+#' container.
 #' @export
 #' @author Leonhard Wachutka
+#' @rdname rCubeExperiment
 #'
 #' @examples
 #' 
-setupExperiment <- function(rows, designMatrix = NULL, files = NULL){
+setupExperiment <- function(rows, designMatrix=NULL, files=NULL){
 	
 	stopifnot(!(is.null(designMatrix) & is.null(files)))
 	if(is.null(designMatrix))
@@ -82,6 +84,8 @@ setupExperiment <- function(rows, designMatrix = NULL, files = NULL){
 	return(se)
 }
 
+
+# TODO is this not being exported? prefix function with a '.'
 createDesignMatrix = function(files)
 {
 	designMatrix <- data.table(filename=files)

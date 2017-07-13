@@ -1,17 +1,21 @@
-#' This function provides a wrapper function to estimate gene-specific
-#' dispersion values.
+#' Estimate dispersion values
+#' 
+#' Th \code{estimateSizeDispersions} function provides a wrapper function to 
+#' estimate gene-specific #' dispersion values.
 #' 
 #' @param experiment A \code{\link{rCubeExperiment}} object containing feature 
-#' counts for labeled and total RNA-seq samples
+#' counts for labeled and total RNA-seq samples.
 #' @param method Either "DESeqDispMAP", "DESeqDispFit", "DESeqDispGeneEst", or 
 #' "Replicate" for the type of fitting of dispersions to be used. For the three 
-#' DESeq methods see als \code{\link{DESeq2}}
+#' \code{DESeq} methods see also \code{\link[DESeq2]{DESeq}}.
 #' 
-#' @seealso \code{\link{DESeq2}}
+#' @seealso \code{\link[DESeq2]{DESeq}}
 #' @return Returns an updated \code{\link{rCubeExperiment}} object with dispersion
-#' estimated included into rowData information
+#' estimated included into \code{rowData} information
 #' @export
 #' @author Leonhard Wachutka, Carina Demel
+#' @rdname estimateSizeDispersions
+#' 
 #' @examples 
 #' data(geneCounts)
 #' geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
@@ -29,6 +33,7 @@ estimateSizeDispersions <- function(experiment, method = c('DESeqDispMAP','DESeq
 	}
 }
 
+
 estimateSizeDispersions_replicate <- function(experiment)
 {
 	rowRanges(experiment)$dispersion = 40
@@ -36,17 +41,12 @@ estimateSizeDispersions_replicate <- function(experiment)
 }
 
 
-#' Estimates gene-specific dispersion estimates for total and labeled samples,
-#' using \code{\link[DESeq2]{DESeq2}}.
+##@return Returns an updated \code{rCubeExperiment} object with dispersion
+##estimates for labeled and total samples included in the \code{rowData}.
+#' \code{estimateSizeDispersionsDESeq} estimates gene-specific dispersion 
+#' estimates for total and labeled samples, using \code{\link[DESeq2]{DESeq}}.
 #'
-#' @param experiment A \code{\link{rCubeExperiment}} object containing feature 
-#' counts for labeled and total RNA-seq samples
-#' @param method Type of disperion from \code{\link[DESeq2]{DESeq2}}, default 'DispMap'.
-#'
-#' @return Returns an updated \code{rCubeExperiment} object with
-#' dispersion estimates for labeled and total samples included in the rowData.
-#' @seealso \code{\link{DESeq2}}
-#' @author Carina Demel
+#' @rdname estimateSizeDispersions
 #' @importFrom DESeq2 DESeqDataSetFromMatrix
 #' @importFrom DESeq2 DESeq
 #'
