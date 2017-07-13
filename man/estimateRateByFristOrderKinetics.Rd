@@ -5,10 +5,10 @@
 \title{Title}
 \usage{
 estimateRateByFristOrderKinetics(featureCounts, replicate,
-  method = c("series", "single"))
+  method = c("series", "single"), BPPARAM = NULL)
 }
 \value{
-rCubeExperiment experiment with rates
+A \code{rCubeRates} object with rates
 }
 \description{
 Title

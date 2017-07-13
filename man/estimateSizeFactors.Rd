@@ -2,27 +2,52 @@
 % Please edit documentation in R/Normalization.R
 \name{estimateSizeFactors}
 \alias{estimateSizeFactors}
-\title{Title}
+\alias{calculateNormalizationBySpikeinGLM}
+\alias{calculateNormalizationByMean}
+\title{Estimation of sample-specific normalization factors}
 \usage{
 estimateSizeFactors(featureCounts, spikeinCounts, method = c("spikeinGLM",
   "spikeinMean", "jointModel"))
+
+calculateNormalizationBySpikeinGLM(spikeinCounts)
+
+calculateNormalizationByMean(featureCounts, spikeinCounts)
 }
 \arguments{
-\item{featureCounts}{rCubeExperiment Object containing read counts for features (genes, junctions, ...)}
+\item{featureCounts}{A \code{\link{rCubeExperiment}} object containing read
+counts for features (genes, junctions, ...).}
 
-\item{spikeinCounts}{rCubeExperiment Object containing read counts for spike-ins}
+\item{spikeinCounts}{A \code{\link{rCubeExperiment}} object containing read 
+counts, length and labeling status for spike-ins, as well as sample information.}
 
 \item{method}{string specifying which normalization method should be used,
-one of ('spikeinGLM','spikeinMean','jointModel')}
+one of ('spikeinGLM','spikeinMean','jointModel').}
 }
 \value{
-rCubeExperiment Object with updated metadata information
+Returns an updated \code{\link{rCubeExperiment}} object with 
+metadata information.
+
+An \code{\link{rCubeExperiment}} object for spike-ins with 
+updated information in \code{rowData} and \code{colData}.
 }
 \description{
-Title
+\code{estimateSizeFactors} provides a wrapper function to estimate 
+sample-specific size-factors by three different types.
+
+\code{calculateNormalizationBySpikeinGLM} fits a GLM to spike-in read counts
+to extract sequencing depth values and cross-contamination rates for all samples.
+
+\code{calculateNormalizationByMean} ...
 }
 \examples{
+data(geneCounts)
+data(spikeinCounts)
+### spikeinCounts <- estimateSizeFactors(spikeinCounts, method="spikeinGLM")
+geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method="spikeinMean")
 
+Leo: do we return feature counts or spike-in counts?
+data(spikeinCounts)
+spikeinCounts <- calculateNormalizationBySpikeinGLM(spikeinCounts)
 }
 \author{
 Carina Demel

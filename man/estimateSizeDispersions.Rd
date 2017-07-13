@@ -2,17 +2,46 @@
 % Please edit documentation in R/estimateSizeDispersions.R
 \name{estimateSizeDispersions}
 \alias{estimateSizeDispersions}
-\title{Title}
+\alias{estimateSizeDispersionsDESeq}
+\title{Estimate dispersion values}
 \usage{
 estimateSizeDispersions(experiment, method = c("DESeqDispMAP", "DESeqDispFit",
   "DESeqDispGeneEst", "Replicate"))
+
+estimateSizeDispersionsDESeq(experiment, method = c("DESeqDispMAP",
+  "DESeqDispFit", "DESeqDispGeneEst"))
+}
+\arguments{
+\item{experiment}{A \code{\link{rCubeExperiment}} object containing feature 
+counts for labeled and total RNA-seq samples.}
+
+\item{method}{Either "DESeqDispMAP", "DESeqDispFit", "DESeqDispGeneEst", or 
+"Replicate" for the type of fitting of dispersions to be used. For the three 
+\code{DESeq} methods see also \code{\link[DESeq2]{DESeq}}.}
 }
 \value{
-rCubeExperiment Object with updated metadata information
+Returns an updated \code{\link{rCubeExperiment}} object with dispersion
+estimated included into \code{rowData} information
 }
 \description{
-Title
+Th \code{estimateSizeDispersions} function provides a wrapper function to 
+estimate gene-specific #' dispersion values.
+
+\code{estimateSizeDispersionsDESeq} estimates gene-specific dispersion 
+estimates for total and labeled samples, using \code{\link[DESeq2]{DESeq}}.
+}
+\examples{
+data(geneCounts)
+geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
+rowRanges(geneCounts)
+
+geneCounts <- estimateSizeDispersions(geneCounts, method='Replicate')
+rowRanges(geneCounts)
+
+}
+\seealso{
+\code{\link[DESeq2]{DESeq}}
 }
 \author{
-Leonhard Wachutka
+Leonhard Wachutka, Carina Demel
 }

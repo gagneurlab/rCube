@@ -6,11 +6,14 @@
 annotation file. All exonic/intronic bases are considered constitutive, when
 they belong to all transcript isoform of the corresponding gene.}
 \usage{
-createConstitutiveFeaturesGRangesFromGRanges(granges, ncores = 2)
+createConstitutiveFeaturesGRangesFromGRanges(granges, BPPARAM = NULL,
+  ncores = 2)
 }
 \arguments{
 \item{granges}{A GRanges annotation file with exons/introns. Needs columns 
 "gene_id" and "transcript_id"}
+
+\item{BPPARAM}{Instance of a BiocParallelParam class, default MulticoreParam}
 
 \item{ncores}{Number of cores available for parallel computation}
 }
