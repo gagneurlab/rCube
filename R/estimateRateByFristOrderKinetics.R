@@ -1,33 +1,49 @@
 #' Title
 #' 
-#' @return rCubeExperiment experiment with rates
+#' @return A \code{rCubeRates} object with rates
 #' @export
 #' @author Leonhard Wachutka
 #'
-estimateRateByFristOrderKinetics = function(featureCounts, replicate, method = c('series','single'), BPPARAM = NULL)
+estimateRateByFristOrderKinetics = function(featureCounts, replicate, method=c('series','single'), BPPARAM=NULL)
 {
 	#replicate = c(1,2,'1:2')
-	if(method =='series')
+	if(method == 'series')
 	{
-		rRates = createRResultCubeRates(featureCounts,replicate)
-		return(estimateRateByFristOrderKineticsSeries(featureCounts,rRates, BPPARAM = BPPARAM))
+		rRates <- createRResultCubeRates(featureCounts, replicate)
+		return(estimateRateByFristOrderKineticsSeries(featureCounts, rRates, BPPARAM=BPPARAM))
 	}else{
-	    return(estimateRateByFristOrderKineticsSingle(featureCounts,replicate))
+	    return(estimateRateByFristOrderKineticsSingle(featureCounts, replicate, BPPARAM=BPPARAM))
 	}
 }
 
 createRResultCubeRates = function(featureCounts,replicate)
 {
 	#designmatrix
-	cond = unique(featureCounts$condition)
-	dm = expand.grid(condition = cond, rate = as.factor(c('synthesis','degradation')), replicate = as.character(replicate))
-	dm$sample = paste0(dm$condition,'_',dm$rate,'_',dm$replicate)
+	cond <- unique(featureCounts$condition)
+	dm <- expand.grid(condition=cond, rate=as.factor(c('synthesis','degradation')), replicate=as.character(replicate))
+	dm$sample <- paste0(dm$condition, '_', dm$rate, '_', dm$replicate)
 	
-	rates <- matrix(NA, nrow = length(featureCounts), ncol = nrow(dm))
+	rates <- matrix(NA, nrow=length(featureCounts), ncol=nrow(dm))
 	
-	se <- SummarizedExperiment(assays = list("rates"=rates), rowRanges =rowRanges(featureCounts),colData = dm)
-	colnames(se) = dm$sample
+	se <- SummarizedExperiment(assays=list("rates"=rates), rowRanges=rowRanges(featureCounts), colData=dm)
+	colnames(se) <- dm$sample
 	se <- new("rCubeRates", se)
 	return(se)
 	
+}
+
+createRResultCubeRatesExtended <- function(featureCounts, replicate)
+{
+    #designmatrix
+    cond <- unique(featureCounts$condition)
+    dm <- expand.grid(condition=cond, rate=as.factor(c('synthesis','degradation', 'half.life', 'labeled.amount', 'unlabeled.amount')), replicate=as.character(replicate))
+    dm$sample <- paste0(dm$condition, '_', dm$rate, '_', dm$replicate)
+    
+    rates <- matrix(NA, nrow=length(featureCounts), ncol=nrow(dm))
+    
+    se <- SummarizedExperiment(assays=list("rates"=rates), rowRanges=rowRanges(featureCounts), colData=dm)
+    colnames(se) <- dm$sample
+    se <- new("rCubeRates", se)
+    return(se)
+    
 }

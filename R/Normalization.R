@@ -13,14 +13,15 @@
 #' 
 estimateSizeFactors <- function(featureCounts, spikeinCounts, 
                         method=c('spikeinGLM','spikeinMean','jointModel')){
-    if(method=="spikeinGLM"){
+    if(method == "spikeinGLM"){
         spikeinCounts <- calculateNormalizationBySpikeinGLM(spikeinCounts)
-    }else if(method=="spikeinMean"){
-		featureCounts <- calculateNormalizationByMean(featureCounts,spikeinCounts)
+    }else if(method == "spikeinMean"){
+		featureCounts <- calculateNormalizationByMean(featureCounts, spikeinCounts)
     }else{
         # calculateNormalizationByJointModel
     }
     
+    #' @Leo: do we return feature counts or spike-in counts?
     
     return(featureCounts)
 }
@@ -30,83 +31,87 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
 #' Fit GLM to spike-in read counts to extract sequencing depth and
 #' cross-contamination rate for all samples
 #'
-#' @param spikeinCounts rCubeExperiment Object containing read counts, length and
-#' labeling status for spike-ins, as well as sample information
+#' @param spikeinCounts A \code{rCubeExperiment} object containing read counts,
+#' length and #' labeling status for spike-ins, as well as sample information
 #'
 #' @importFrom MASS glm.nb
 #' 
-#' @return rCubeExperiment Object for spike-ins with updated information
-#' @export
+#' @return An \code{\link{rCubeExperiment}} object for spike-ins with 
+#' updated information in \code{RowData}
+#'
 #' @author Carina Demel
+#' @examples
+#' data(spikeinCounts)
+#' spikeinCounts <- calculateNormalizationBySpikeinGLM(spikeinCounts)
 calculateNormalizationBySpikeinGLM <- function(spikeinCounts){
     samples <- rownames(colData(spikeinCounts))
-    spikeins <- rowData(spikeinCounts)$gene_id
-    spikein.dataframe <- function(spikeinCounts){
+    spikeins <- rowRanges(spikeinCounts)$gene_id
+    spikeinDataframe <- function(spikeinCounts){
         counts <- assay(spikeinCounts)
-        rowData <- rowData(spikeinCounts)
+        rowData <- rowRanges(spikeinCounts)
         colData <- colData(spikeinCounts)
         
-        counts.vec <- as.vector(counts)
+        countsVector <- as.vector(counts)
         spikeins <- rowData$gene_id
-        spikein.lengths <- rowData$length
-        spikein.labeling <- rowData$labeled
+        spikeinLengths <- rowData$length
+        spikeinLabeling <- rowData$labeledSpikein
         samples <- rownames(colData)
-        conditions.labeling <- colData$labeled.sample
+        conditionsLabeling <- colData$LT
         
         mat <- data.frame(spike = rep(spikeins, length(samples)), 
-                          length = rep(spikein.lengths, length(samples)),
-                          spikein.labeled = rep(spikein.labeling, length(samples)),
+                          length = rep(spikeinLengths, length(samples)),
+                          spikein.labeled = rep(spikeinLabeling, length(samples)),
                           sample = rep(paste(samples), each = length(spikeins)),
-                          sample.labeling = rep(conditions.labeling, each = length(spikeins)),
-                          counts = counts.vec)
+                          sample.labeling = rep(conditionsLabeling, each = length(spikeins)),
+                          counts = countsVector)
         
-        # additional columns: control for crosscontamination, with one value per
-        # labeled sample and one value for ALL total samples (e.g.FALSE)
-        # and log.length: natural logarithm of spike-in length
-        mat$control.for.cross.contamination <- 
-            ifelse(mat$sample.labeling == TRUE & mat$spikein.labeled == FALSE, TRUE, FALSE)
-        mat$control.for.cross.contamination <- 
-            factor(mat$control.for.cross.contamination)
+        ## additional columns: control for crosscontamination, with one value per
+        ## labeled sample and one value for ALL total samples (e.g.FALSE)
+        ## and log.length: natural logarithm of spike-in length
+        mat$control.for.crosscontamination <- 
+            ifelse(mat$sample.labeling == "L" & mat$spikein.labeled == FALSE, TRUE, FALSE)
+        mat$control.for.crosscontamination <- 
+            factor(mat$control.for.crosscontamination)
         mat$sample.labeling <- factor(mat$sample.labeling)
         mat$ccc <- paste("L", rep(1:length(samples), each = length(spikeins)), 
                          collape = " ")
-        mat$ccc[mat$control.for.cross.contamination == FALSE] <- "F"
+        mat$ccc[mat$control.for.crosscontamination == FALSE] <- "F"
         mat$ccc <- factor(mat$ccc)
-        mat$log.length <- log(mat$length) #use natural logarithm
+        mat$log.length <- log(mat$length)
         
         return(mat)
     }
-    mat <- spikein.dataframe(spikeinCounts)
+    mat <- spikeinDataframe(spikeinCounts)
     
     nb_model <- MASS::glm.nb(counts ~ offset(log.length) + sample + ccc + spike,
                              data=mat, link="log")
-    fitted.counts <- nb_model$fitted.values
+    fittedCounts <- nb_model$fitted.values
 
     coefs <- coefficients(nb_model)
     intercept <- coefs[1]
     
-    seq.depths <- exp(coefs[grep("sample", names(coefs))]) 
-    names(seq.depths) <- sub("sample", "", names(seq.depths))
-    seq.depths <- c(1, seq.depths) #reference sample is 0, exp(0)=1
-    names(seq.depths)[1] <- setdiff(samples, names(seq.depths))
-    seq.depths <- seq.depths[samples]
+    sequencingDepths <- exp(coefs[grep("sample", names(coefs))]) 
+    names(sequencingDepths) <- sub("sample", "", names(sequencingDepths))
+    sequencingDepths <- c(1, sequencingDepths) ## reference sample is 0, exp(0)=1
+    names(sequencingDepths)[1] <- setdiff(samples, names(sequencingDepths))
+    sequencingDepths <- sequencingDepths[samples]
     
-    cross.cont.L <- exp(coefs[grep("cccL", names(coefs))])
-    cross.cont <- rep(0, length(samples))
-    names(cross.cont) <- samples
-    cross.cont[conditions.labeling == "L"] <- cross.cont.L
-    cross.cont[conditions.labeling == "T"] <- 1
-    cross.cont <- cross.cont[samples]
+    crossContaminationLabeled <- exp(coefs[grep("cccL", names(coefs))])
+    crossContamination <- rep(0, length(samples))
+    names(crossContamination) <- samples
+    crossContamination[conditionsLabeling == "L"] <- crossContaminationLabeled
+    crossContamination[conditionsLabeling == "T"] <- 1
+    crossContamination <- crossContamination[samples]
     
-    spikein.specific.bias <- c(1,exp(coefs[grep("spike",names(coefs))]))
-    names(spikein.specific.bias) <- sort(spikeins)
+    spikeinSpecificBias <- c(1,exp(coefs[grep("spike",names(coefs))]))
+    names(spikeinSpecificBias) <- sort(spikeins)
     
-    rowData(spikeinCounts)$spikein.specific.bias <- spikein.specific.bias
+    rowData(spikeinCounts)$spikeinSpecificBias <- spikeinSpecificBias
     rowData(spikeinCounts)$intercept <- intercept
-    colData(spikeinCounts)$sequencing.depth <- seq.depths
-    colData(spikeinCounts)$cross.contamination <- cross.cont
-    assays(spikeinCounts)$fitted.counts <- matrix(fitted.counts,
-                                                  nrow=length(spikein.specific.bias))
+    colData(spikeinCounts)$sequencing.depth <- sequencingDepths
+    colData(spikeinCounts)$cross.contamination <- crossContamination
+    assays(spikeinCounts)$fittedCounts <- matrix(fittedCounts,
+                                                  nrow=length(spikeinSpecificBias))
     
     return(spikeinCounts)
 }
