@@ -10,7 +10,7 @@
 #' or \code{files} needs to be present.
 #' @param files An optional vector of sample file names in the format 
 #' 'condition_L|T_labelingTime_Replicate.bam'. Either \code{designMatrix}
-#' or \code{files} needs to be present
+#' or \code{files} needs to be present.
 #' @param length numeric vector with the length of each spike-ins
 #' @param labelingState factor vector containing L and U indicating if a spikein
 #' was labeled or unlabeled

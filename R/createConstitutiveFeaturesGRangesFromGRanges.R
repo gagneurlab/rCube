@@ -1,13 +1,15 @@
-#' A function to create constitutive features (i.e. exons or introns) from an
+#' @title Extracting constitutive exons or introns from annotation
+#' @description A function to create constitutive features (i.e. exons or introns) from an
 #' annotation file. All exonic/intronic bases are considered constitutive, when
 #' they belong to all transcript isoform of the corresponding gene.
 #' 
-#' @param granges A GRanges annotation file with exons/introns. Needs columns 
-#' "gene_id" and "transcript_id"
-#' @param BPPARAM Instance of a BiocParallelParam class, default MulticoreParam
+#' @param granges A \code{GRanges} annotation file with exons/introns. Needs columns 
+#' "gene_id" and "transcript_id" (e.g. gtf from GENCODE)
+#' @param BPPARAM Instance of a \code{\link[BiocParallel]{BiocParallelParam}} class, default \code{MulticoreParam}
 #' @param ncores Number of cores available for parallel computation
 #' 
 #' @import BiocParallel
+#' @seealso \code{\link[BiocParallel]{BiocParallelParam}}
 #'
 #' @return Returns a GRanges object with constitutive exons.
 #' @author Carina Demel
@@ -22,13 +24,10 @@ createConstitutiveFeaturesGRangesFromGRanges = function(granges, BPPARAM=NULL, n
     if(is.null(BPPARAM)){
         BPPARAM = MulticoreParam(workers = ncores)
     }
-    #snowparam <- BiocParallel::SnowParam(workers = ncores, type = "SOCK")
-    #BiocParallel::register(snowparam, default = TRUE)
     BiocParallel::register(BPPARAM, default = TRUE)
-    BiocParallel::registered()
-    
-    # build constitutive features (exons/introns):
-    # set of (exonic/intronic) bases that belong to each isoform of the gene
+
+    ## build constitutive features (exons/introns):
+    ## set of (exonic/intronic) bases that belong to each isoform of the gene
     getConstitutiveFeatures <- function(gid){
         ranges <- granges[which(granges$gene_id == gid)]
         tr_ids <- unique(ranges$transcript_id) # transcript ids
@@ -60,12 +59,12 @@ createConstitutiveFeaturesGRangesFromGRanges = function(granges, BPPARAM=NULL, n
     }
     
     gene_ids = unique(granges$gene_id)
-    const.feature.list <- BiocParallel::bplapply(gene_ids, getConstitutiveFeatures)
-    const.feature.list <- GRangesList(const.feature.list)
-    constitutive.features <- do.call("c", const.feature.list)
+    constFeatureList <- BiocParallel::bplapply(gene_ids, getConstitutiveFeatures)
+    constFeatureList <- GRangesList(constFeatureList)
+    constitutiveFeatures <- do.call("c", constFeatureList)
    
-    feature.num.formatted <- sprintf("%05d", 1:length(constitutive.features))
-    names(constitutive.features) <- paste("CF", feature.num.formatted, sep="")
+    featureNumFormatted <- sprintf("%05d", 1:length(constitutiveFeatures))
+    names(constitutiveFeatures) <- paste("CF", featureNumFormatted, sep="")
     
-    return(constitutive.features)
+    return(constitutiveFeatures)
 }

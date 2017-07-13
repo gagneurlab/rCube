@@ -12,15 +12,16 @@ estimateSizeDispersionsDESeq(experiment, method = c("DESeqDispMAP",
   "DESeqDispFit", "DESeqDispGeneEst"))
 }
 \arguments{
-\item{experiment}{A \code{\link{rCubeExperiment}} object containing feature 
-counts for labeled and total RNA-seq samples.}
+\item{experiment}{A \code{rCubeExperiment} object containing feature 
+counts for labeled and total RNA-seq samples, see constructor function 
+ \code{\link{setupExperiment}}.}
 
 \item{method}{Either "DESeqDispMAP", "DESeqDispFit", "DESeqDispGeneEst", or 
 "Replicate" for the type of fitting of dispersions to be used. For the three 
 \code{DESeq} methods see also \code{\link[DESeq2]{DESeq}}.}
 }
 \value{
-Returns an updated \code{\link{rCubeExperiment}} object with dispersion
+Returns an updated \code{rCubeExperiment} object with dispersion
 estimated included into \code{rowData} information
 }
 \description{

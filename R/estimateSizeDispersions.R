@@ -3,14 +3,15 @@
 #' Th \code{estimateSizeDispersions} function provides a wrapper function to 
 #' estimate gene-specific #' dispersion values.
 #' 
-#' @param experiment A \code{\link{rCubeExperiment}} object containing feature 
-#' counts for labeled and total RNA-seq samples.
+#' @param experiment A \code{rCubeExperiment} object containing feature 
+#' counts for labeled and total RNA-seq samples, see constructor function 
+#'  \code{\link{setupExperiment}}.
 #' @param method Either "DESeqDispMAP", "DESeqDispFit", "DESeqDispGeneEst", or 
 #' "Replicate" for the type of fitting of dispersions to be used. For the three 
 #' \code{DESeq} methods see also \code{\link[DESeq2]{DESeq}}.
 #' 
 #' @seealso \code{\link[DESeq2]{DESeq}}
-#' @return Returns an updated \code{\link{rCubeExperiment}} object with dispersion
+#' @return Returns an updated \code{rCubeExperiment} object with dispersion
 #' estimated included into \code{rowData} information
 #' @export
 #' @author Leonhard Wachutka, Carina Demel

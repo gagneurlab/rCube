@@ -3,14 +3,16 @@
 #' @description \code{estimateSizeFactors} provides a wrapper function to estimate 
 #' sample-specific size-factors by three different types.
 #'
-#' @param featureCounts A \code{\link{rCubeExperiment}} object containing read
-#'  counts for features (genes, junctions, ...).
-#' @param spikeinCounts A \code{\link{rCubeExperiment}} object containing read 
-#' counts, length and labeling status for spike-ins, as well as sample information.
+#' @param featureCounts A \code{rCubeExperiment} object containing read
+#'  counts for features (genes, junctions, ...), see constructor function 
+#'  \code{\link{setupExperiment}}.
+#' @param spikeinCounts A \code{rCubeExperiment} object containing read 
+#' counts, length and labeling status for spike-ins, as well as sample information,
+#' see constructor function \code{\link{setupExperimentSpikeins}}.
 #' @param method string specifying which normalization method should be used,
 #' one of ('spikeinGLM','spikeinMean','jointModel').
 #'
-#' @return Returns an updated \code{\link{rCubeExperiment}} object with 
+#' @return Returns an updated \code{rCubeExperiment} object with 
 #' metadata information.
 #' @rdname estimateSizeFactors
 #' @export
@@ -44,7 +46,7 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
 #'
 #' @importFrom MASS glm.nb
 #' 
-#' @return An \code{\link{rCubeExperiment}} object for spike-ins with 
+#' @return An \code{rCubeExperiment} object for spike-ins with 
 #' updated information in \code{rowData} and \code{colData}.
 #'
 #' @rdname estimateSizeFactors

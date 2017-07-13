@@ -14,20 +14,22 @@ calculateNormalizationBySpikeinGLM(spikeinCounts)
 calculateNormalizationByMean(featureCounts, spikeinCounts)
 }
 \arguments{
-\item{featureCounts}{A \code{\link{rCubeExperiment}} object containing read
-counts for features (genes, junctions, ...).}
+\item{featureCounts}{A \code{rCubeExperiment} object containing read
+counts for features (genes, junctions, ...), see constructor function 
+\code{\link{setupExperiment}}.}
 
-\item{spikeinCounts}{A \code{\link{rCubeExperiment}} object containing read 
-counts, length and labeling status for spike-ins, as well as sample information.}
+\item{spikeinCounts}{A \code{rCubeExperiment} object containing read 
+counts, length and labeling status for spike-ins, as well as sample information,
+see constructor function \code{\link{setupExperimentSpikeins}}.}
 
 \item{method}{string specifying which normalization method should be used,
 one of ('spikeinGLM','spikeinMean','jointModel').}
 }
 \value{
-Returns an updated \code{\link{rCubeExperiment}} object with 
+Returns an updated \code{rCubeExperiment} object with 
 metadata information.
 
-An \code{\link{rCubeExperiment}} object for spike-ins with 
+An \code{rCubeExperiment} object for spike-ins with 
 updated information in \code{rowData} and \code{colData}.
 }
 \description{

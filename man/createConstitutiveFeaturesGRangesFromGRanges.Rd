@@ -2,18 +2,16 @@
 % Please edit documentation in R/createConstitutiveFeaturesGRangesFromGRanges.R
 \name{createConstitutiveFeaturesGRangesFromGRanges}
 \alias{createConstitutiveFeaturesGRangesFromGRanges}
-\title{A function to create constitutive features (i.e. exons or introns) from an
-annotation file. All exonic/intronic bases are considered constitutive, when
-they belong to all transcript isoform of the corresponding gene.}
+\title{Extracting constitutive exons or introns from annotation}
 \usage{
 createConstitutiveFeaturesGRangesFromGRanges(granges, BPPARAM = NULL,
   ncores = 2)
 }
 \arguments{
-\item{granges}{A GRanges annotation file with exons/introns. Needs columns 
-"gene_id" and "transcript_id"}
+\item{granges}{A \code{GRanges} annotation file with exons/introns. Needs columns 
+"gene_id" and "transcript_id" (e.g. gtf from GENCODE)}
 
-\item{BPPARAM}{Instance of a BiocParallelParam class, default MulticoreParam}
+\item{BPPARAM}{Instance of a \code{\link[BiocParallel]{BiocParallelParam}} class, default \code{MulticoreParam}}
 
 \item{ncores}{Number of cores available for parallel computation}
 }
@@ -29,6 +27,9 @@ they belong to all transcript isoform of the corresponding gene.
 # Gencode annotation of MYC gene
 data(example.exons)
 constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(example.exons, 1)
+}
+\seealso{
+\code{\link[BiocParallel]{BiocParallelParam}}
 }
 \author{
 Carina Demel

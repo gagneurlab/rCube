@@ -21,7 +21,7 @@ or \code{files} needs to be present.}
 
 \item{files}{An optional vector of sample file names in the format 
 'condition_L|T_labelingTime_Replicate.bam'. Either \code{designMatrix}
-or \code{files} needs to be present}
+or \code{files} needs to be present.}
 
 \item{length}{numeric vector with the length of each spike-ins}
 
@@ -38,12 +38,12 @@ An (empty) \code{rCubeExperiment} container
 \code{RangedSummarizedExperiment}, used to store read counts, annotations, and
 sample metadata.
 
-\code{setupExperimentSpikeins} Generates a \code{rCubeExperiment} 
+\code{setupExperimentSpikeins} generates a \code{rCubeExperiment} 
 object for spike-ins, which can be used for counting and which is necessary 
 for normalization and estimation steps.
 
 \code{setupExperiment} generates an empty \code{rCubeExperiment}
-container
+container.
 }
 \examples{
 data(spikeins)
