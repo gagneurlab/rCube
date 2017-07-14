@@ -1,45 +1,15 @@
-#' Estimation of synthesis and degradation rates (half-lives) based on
-#' 4sU-labeled and total RNA-seq read counts.
-#'
-#' @param featureCounts A \code{rCubeExperiment} object with feature count table
-#' @param spikeinCounts A \code{rCubeExperiment} object with spike-in count table and
-#' sequencing.depth and crossContaminationamination information (e.g. output from 
-#' \code{\link[estimateSizeDispersions]{estimateSizeDispersions}})
-#' @param replicate list of character/factor vectors for which replicate or 
-#' combination of replicates the results should be computed. If \code{NULL},
-#' estimates for each replicate individually and all combinations of replicates
-#' will be calculated.
-#' @param BPPARAM An instance of a \code{BiocParallelParam} class, e.g., 
-#' \code{\link{MulticoreParam}}, \code{\link{SnowParam}}, \code{\link{DoparParam}}.
-#'
-#' @return Returns a \code{rCubeRates} object with estimated synthesis and degradation
-#' rates for each feature and sample and the specified replicate combinations
-#' @author Carina Demel
-#' @seealso \code{\link{BiocParallelParam}}
-#' @import BiocParallel
-#' @import data.table
-#'
-#' @examples
-#' ## estimate sequencing depths and cross-contamination values from spike-ins
-#' data(spikeinCounts)
-#' data(geneCounts)
-#' ## spikeinCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method = "spikeinGLM") ##TODO return type
-#' spikeinCounts <- calculateNormalizationBySpikeinGLM(spikeinCounts)
-#' ## estimate Dispersions for all genes
-#' geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
-#' ## estimate synthesis and degradation rates for individual replicates and combination
-#' rates <- estimateRateByFirstOrderKineticsSingle(geneCounts, spikeinCounts)
-#' 
-estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts, replicate=NULL, BPPARAM=NULL){
-    
+## author: Carina Demel
+
+.estimateRateByFirstOrderKineticsSingle <- function(featureCounts, replicate=NULL, BPPARAM=NULL)
+{
     ## sample information
     conditions <- featureCounts@colData$condition
     uniqueConditions <- unique(conditions)
     conditionsLabeling <- featureCounts@colData$LT
     labelingTime <- featureCounts@colData$labelingTime
     replicates <- featureCounts@colData$replicate
-    sequencingDepths <- spikeinCounts@colData$sequencing.depth
-    crossContamination <- spikeinCounts@colData$cross.contamination
+    sequencingDepths <- featureCounts@colData$sequencing.depth
+    crossContamination <- featureCounts@colData$cross.contamination
     
     ## gene information
     rows <- rowRanges(featureCounts)
@@ -132,18 +102,18 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
                                                alphaInitial=alphaInitialGene,
                                                betaInitial=betaInitialGene)
                 
-                fittingResult = exp(fab$par)
-                alpha = fittingResult[1]
-                beta = fittingResult[2]
+                fittingResult <- exp(fab$par)
+                alpha <- fittingResult[1]
+                beta <- fittingResult[2]
                 lambda <- -1 / labelingTime[labeledSamples[1]] * log(beta / (alpha + beta))
                 mu <- (alpha + beta) * lambda
                 hl <- log(2)/lambda
                 ## exp counts are a vector of the lenght of individual labeled/total samples under consideration
                 ## therefore do.call("rbind", res) does not work if looped over reps and combinations of reps
-                # expectedCountsLabeled <- getExpectedCounts(lengths[gene], alpha, beta, N,
+                # expectedCountsLabeled <- .getExpectedCounts(lengths[gene], alpha, beta, N,
                 #                                   crossContamination[labeledSamples],
                 #                                   sequencingDepths[labeledSamples])
-                # expectedCountsTotal <- getExpectedCounts(lengths[gene], alpha, beta, N,
+                # expectedCountsTotal <- .getExpectedCounts(lengths[gene], alpha, beta, N,
                 #                                   crossContamination[totalSamples],
                 #                                   sequencingDepths[totalSamples])
 
@@ -161,7 +131,7 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
     
     ## give worker or use MultiCoreParam
     if(is.null(BPPARAM)){
-        BPPARAM = MulticoreParam(workers = ncores)
+        BPPARAM <- MulticoreParam(workers = ncores)
     }
     BiocParallel::register(BPPARAM, default = TRUE)
     ## BiocParallel::registered()
@@ -170,7 +140,7 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
     res <- do.call("rbind", res)
 
     resTable <- cbind(singleConditions, as.data.frame(res))
-    resTableReshaped = data.table::melt(resTable, id.vars=c("condition","rep","gene"))
+    resTableReshaped <- data.table::melt(resTable, id.vars=c("condition","rep","gene"))
     resTableReshaped$merge_var <- paste(resTableReshaped$condition, resTableReshaped$variable, resTableReshaped$rep, sep="_")
     resTableReshaped <- reshape(resTableReshaped, idvar=c("gene"), timevar=c("merge_var"),
                                  direction="wide", drop=c("condition", "rep", "variable"))
@@ -217,7 +187,7 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
     alphaInitial <- log(alphaInitial)
     betaInitial <- log(betaInitial)
     
-    cost <- function(
+    .cost <- function(
         theta,
         counts,
         L,
@@ -238,15 +208,15 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
         labeledAmount <- exp(l) ## labeled amount alpha
         unlabeledAmount <- exp(u) ## unlabeled amount beta
         
-        expectedCountsLabeled <- getExpectedCounts(L, labeledAmount, unlabeledAmount, N,
+        expectedCountsLabeled <- .getExpectedCounts(L, labeledAmount, unlabeledAmount, N,
                                           crossContamination[labeledSamples], sequencingDepths[labeledSamples])
-        expectedCountsTotal <- getExpectedCounts(L, labeledAmount, unlabeledAmount, N,
+        expectedCountsTotal <- .getExpectedCounts(L, labeledAmount, unlabeledAmount, N,
                                           crossContamination[totalSamples], sequencingDepths[totalSamples])
         
-        neg_LL <- -sum(dnbinom(x = counts[labeledSamples], size = labeledDispersion,
-                               mu = expectedCountsLabeled, log = TRUE)) -
-            sum(dnbinom(x = counts[totalSamples], size = totalDispersion,
-                        mu = expectedCountsTotal, log = TRUE)) 
+        neg_LL <- -sum(dnbinom(x=counts[labeledSamples], size=labeledDispersion,
+                               mu=expectedCountsLabeled, log=TRUE)) -
+            sum(dnbinom(x=counts[totalSamples], size=totalDispersion,
+                        mu=expectedCountsTotal, log=TRUE)) 
         
         if (logloglik) {
             res <- log(neg_LL)
@@ -256,7 +226,7 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
         return(res)
     }
     
-    grad <- function(
+    .grad <- function(
         theta,
         counts,
         L,
@@ -301,7 +271,7 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
     }
     
     ## minimize negative log likelihood == maximize likelihood
-    fit <- optim(par=c(alphaInitial, betaInitial), fn=cost, gr=grad, 
+    fit <- optim(par=c(alphaInitial, betaInitial), fn=.cost, gr=.grad, 
                  counts=counts, L=L, N=N, crossContamination=crossContamination, 
                  sequencingDepths=sequencingDepths, disp=disp,
                  control=list(maxit=maxit, trace=trace), method="BFGS",
@@ -310,6 +280,14 @@ estimateRateByFirstOrderKineticsSingle <- function(featureCounts, spikeinCounts,
     return(fit)
 }
 
+
+## underlying function to calculated expected counts based on labeled and unlabeld
+## RNA amounts
+.getExpectedCounts <- function(L, labeledAmount, unlabeledAmount, N, crossCont, seqDepths)
+{
+    exp.counts <- t(N) * L * t(seqDepths * (t(labeledAmount) + crossCont * t(unlabeledAmount)))
+    return(exp.counts)
+}
 
 
 

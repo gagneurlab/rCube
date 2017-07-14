@@ -1,9 +1,39 @@
-#' Title
+
 #' 
-#' @return A \code{rCubeRates} object with rates
+
+
+#' @title Estimation of RNA rates
+#' 
+#' @description Estimation of synthesis and degradation rates (half-lives) based on
+#' 4sU-labeled and total RNA-seq read counts.
+#' 
+#' @param featureCounts A \code{rCubeExperiment} object with feature count table
+#' @param replicate list of character/factor vectors for which replicate or 
+#' combination of replicates the results should be computed. If \code{NULL},
+#' estimates for each replicate individually and all combinations of replicates
+#' will be calculated.
+#' @param method Type of estimation to be used. 'series' uses a set of TT-seq and
+#' RNA-seq data sets with multiple labeling time points, 'single' works on individual
+#' time points.
+#' @param BPPARAM An instance of a \code{BiocParallelParam} class, e.g., 
+#' \code{\link{MulticoreParam}}, \code{\link{SnowParam}}, \code{\link{DoparParam}}.
+#' 
+#' @return Returns a \code{rCubeRates} object with estimated synthesis and degradation
+#' rates for each feature and sample and the specified replicate combinations
 #' @export
-#' @author Leonhard Wachutka
-#'
+#' @seealso \code{\link{BiocParallelParam}}
+#' @import BiocParallel
+#' @import data.table
+#' @author Leonhard Wachutka, Carina Demel
+#' @examples
+#' ## estimate sequencing depths and cross-contamination values from spike-ins
+#' data(spikeinCounts)
+#' data(geneCounts)
+#' geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM')
+#' ## estimate Dispersions for all genes
+#' geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
+#' ## estimate synthesis and degradation rates for individual replicates and combination
+#' rates <- estimateRateByFirstOrderKineticsSingle(geneCounts, spikeinCounts, method='single', BPPARAM=NULL)
 estimateRateByFristOrderKinetics = function(featureCounts, replicate, method=c('series','single'), BPPARAM=NULL)
 {
 	#replicate = c(1,2,'1:2')
@@ -12,7 +42,7 @@ estimateRateByFristOrderKinetics = function(featureCounts, replicate, method=c('
 		rRates <- createRResultCubeRates(featureCounts, replicate)
 		return(estimateRateByFristOrderKineticsSeries(featureCounts, rRates, BPPARAM=BPPARAM))
 	}else{
-	    return(estimateRateByFristOrderKineticsSingle(featureCounts, replicate, BPPARAM=BPPARAM))
+	    return(.estimateRateByFristOrderKineticsSingle(featureCounts, replicate, BPPARAM=BPPARAM))
 	}
 }
 
