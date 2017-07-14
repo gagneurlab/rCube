@@ -5,7 +5,7 @@
 #' @param featureRates An \code{rCubeRate object}, see constructor function 
 #'  \code{\link{createRResultCubeRates}}.
 #' @param topLevelFeatures \code{GRanges} annotation
-#' @param method grouping method ## was this what we intended to do?
+#' @param by grouping method ## was this what we intended to do?
 #'
 #' @return Returns a \code{rCubeExperiment} object which contains summarized rates
 #' for the specified topLevelFeatures.
@@ -15,7 +15,7 @@
 #' data(geneRates)
 #' rows <- rowRanges(geneRates)
 #' topLevelFeatures <- reduce(rows)
-#' topLevelFeaturesRates <- summarizeRates(geneRates, topLevelFeatures)
+#' topLevelFeaturesRates <- summarizeRates(geneRates, topLevelFeatures, by='mean')
 summarizeRates <- function(featureRates, topLevelFeatures, by=c('mean','median'))
 {
     rows <- rowRanges(featureRates)

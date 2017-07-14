@@ -6,7 +6,7 @@ estimateRateByFristOrderKineticsSeries <- function(featureCounts, rRates, BPPARA
 	jobs <- unique(as.data.table(colData(rRates))[,.(condition,replicate)])
 	if(is.null(BPPARAM))
 	{
-		BPPARAM <- MulticoreParam(progressbar = TRUE)
+		BPPARAM <- MulticoreParam(progressbar=TRUE)
 		#BPPARAM = SerialParam()
 	}
 	for (i in 1:nrow(jobs))

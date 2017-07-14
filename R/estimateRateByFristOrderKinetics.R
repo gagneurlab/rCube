@@ -1,17 +1,14 @@
-
-#' 
-
-
 #' @title Estimation of RNA rates
 #' 
 #' @description Estimation of synthesis and degradation rates (half-lives) based on
 #' 4sU-labeled and total RNA-seq read counts.
 #' 
 #' @param featureCounts A \code{rCubeExperiment} object with feature count table
-#' @param replicate list of character/factor vectors for which replicate or 
-#' combination of replicates the results should be computed. If \code{NULL},
-#' estimates for each replicate individually and all combinations of replicates
-#' will be calculated.
+#' @param replicate A vector of integers/strings indicating for which individual
+#' replicates and for which combination of replicates the results should be calculated.
+#' For specifying combinations of replicates, please separate them by a ':'.
+#' If \code{NULL}, estimates for each replicate individually and all combinations 
+#' of replicates will be calculated.
 #' @param method Type of estimation to be used. 'series' uses a set of TT-seq and
 #' RNA-seq data sets with multiple labeling time points, 'single' works on individual
 #' time points.
@@ -30,10 +27,13 @@
 #' data(spikeinCounts)
 #' data(geneCounts)
 #' geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM')
-#' ## estimate Dispersions for all genes
+#' 
+#' ## estimate dispersions for all genes
 #' geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
+#' 
 #' ## estimate synthesis and degradation rates for individual replicates and combination
-#' rates <- estimateRateByFirstOrderKineticsSingle(geneCounts, spikeinCounts, method='single', BPPARAM=NULL)
+#' rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1,2,"1:2"),
+#' method='single', BPPARAM=NULL)
 estimateRateByFristOrderKinetics = function(featureCounts, replicate, method=c('series','single'), BPPARAM=NULL)
 {
 	#replicate = c(1,2,'1:2')
@@ -53,8 +53,8 @@ estimateRateByFristOrderKinetics = function(featureCounts, replicate, method=c('
 #'
 #' @param featureCounts a \code{rCubeExperiment} object with set 'condition'
 #' column in \code{colData}.
-#' @param replicate a list of single replicates/combination of replicates for
-#' which the results should be calculated.
+#' @param replicate a vector of integers and strings indicating single replicates/
+#' combination of replicates for which the results should be calculated.
 #'
 #' @return Returns an empty rCubeRate object.
 #' @export
@@ -63,7 +63,7 @@ estimateRateByFristOrderKinetics = function(featureCounts, replicate, method=c('
 #'
 #' @examples
 #' data(geneCounts)
-#' rates <- createRResultCubeRates(geneCounts, list('1'=1,'2'=2,'1,2'=c(1,2)))
+#' rates <- createRResultCubeRates(geneCounts, replicate=c(1,2,'1:2'))
 #' rates
 createRResultCubeRates = function(featureCounts, replicate)
 {
@@ -84,14 +84,14 @@ createRResultCubeRates = function(featureCounts, replicate)
 #' @description \code{createRResultCubeRatesExtended} is a constructor for 
 #' \code{rCubeExperiment} objects which contains slots for synthesis and degradation rates,
 #' as well as half.lives, labeled and unlabeled RNA amount estimates for all
-#' replicates/combination of replicates. Used for \code{\link{estimateRateByFirstOrderKineticsSingle}}.
+#' replicates/combination of replicates.
 #'
 #' @export
 #' @rdname rCubeRate
 #'
 #' @examples
 #' #' data(geneCounts)
-#' rates <- createRResultCubeRatesExtended(geneCounts, list('1'=1,'2'=2,'1,2'=c(1,2)))
+#' rates <- createRResultCubeRatesExtended(geneCounts, replicate=c(1,2,'1:2'))
 #' rates
 createRResultCubeRatesExtended <- function(featureCounts, replicate)
 {

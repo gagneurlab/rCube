@@ -2,9 +2,9 @@
 % Please edit documentation in R/summarizeRates.R
 \name{summarizeRates}
 \alias{summarizeRates}
-\title{Title}
+\title{Summarize rates for features}
 \usage{
-summarizeRates(featureRates, topLevelFeatures, by, featureCounts = NULL)
+summarizeRates(featureRates, topLevelFeatures, by = c("mean", "median"))
 }
 \arguments{
 \item{featureRates}{An \code{rCubeRate object}, see constructor function 
@@ -12,15 +12,18 @@ summarizeRates(featureRates, topLevelFeatures, by, featureCounts = NULL)
 
 \item{topLevelFeatures}{\code{GRanges} annotation}
 
-\item{by}{grouping}
-
-\item{featureCounts}{A \code{rCubeExperiment} object, see constructor function 
-\code{\link{setupExperiment}}.}
+\item{by}{grouping method ## was this what we intended to do?}
 }
 \value{
 Returns a \code{rCubeExperiment} object which contains summarized rates
 for the specified topLevelFeatures.
 }
 \description{
-Title
+
+}
+\examples{
+data(geneRates)
+rows <- rowRanges(geneRates)
+topLevelFeatures <- reduce(rows)
+topLevelFeaturesRates <- summarizeRates(geneRates, topLevelFeatures, by='mean')
 }

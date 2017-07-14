@@ -2,17 +2,51 @@
 % Please edit documentation in R/estimateRateByFristOrderKinetics.R
 \name{estimateRateByFristOrderKinetics}
 \alias{estimateRateByFristOrderKinetics}
-\title{Title}
+\title{Estimation of RNA rates}
 \usage{
 estimateRateByFristOrderKinetics(featureCounts, replicate,
   method = c("series", "single"), BPPARAM = NULL)
 }
+\arguments{
+\item{featureCounts}{A \code{rCubeExperiment} object with feature count table}
+
+\item{replicate}{A vector of integers/strings indicating for which individual
+replicates and for which combination of replicates the results should be calculated.
+For specifying combinations of replicates, please separate them by a ':'.
+If \code{NULL}, estimates for each replicate individually and all combinations 
+of replicates will be calculated.}
+
+\item{method}{Type of estimation to be used. 'series' uses a set of TT-seq and
+RNA-seq data sets with multiple labeling time points, 'single' works on individual
+time points.}
+
+\item{BPPARAM}{An instance of a \code{BiocParallelParam} class, e.g., 
+\code{\link{MulticoreParam}}, \code{\link{SnowParam}}, \code{\link{DoparParam}}.}
+}
 \value{
-A \code{rCubeRates} object with rates
+Returns a \code{rCubeRates} object with estimated synthesis and degradation
+rates for each feature and sample and the specified replicate combinations
 }
 \description{
-Title
+Estimation of synthesis and degradation rates (half-lives) based on
+4sU-labeled and total RNA-seq read counts.
+}
+\examples{
+## estimate sequencing depths and cross-contamination values from spike-ins
+data(spikeinCounts)
+data(geneCounts)
+geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM')
+
+## estimate dispersions for all genes
+geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
+
+## estimate synthesis and degradation rates for individual replicates and combination
+rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1,2,"1:2"),
+method='single', BPPARAM=NULL)
+}
+\seealso{
+\code{\link{BiocParallelParam}}
 }
 \author{
-Leonhard Wachutka
+Leonhard Wachutka, Carina Demel
 }

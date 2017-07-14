@@ -16,7 +16,7 @@ setupExperiment(rows, designMatrix = NULL, files = NULL)
 \item{rows}{GRanges containing spike-in/gene/exon/... annotation}
 
 \item{designMatrix}{an optional data.frame containing sample information, see 
-constructor functions \code{\link{createDesignMatrix}}. Either \code{designMatrix}
+constructor functions \code{createDesignMatrix}. Either \code{designMatrix}
 or \code{files} needs to be present.}
 
 \item{files}{An optional vector of sample file names in the format 

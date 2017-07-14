@@ -6,7 +6,7 @@
 #'
 #' @param rows GRanges containing spike-in/gene/exon/... annotation
 #' @param designMatrix an optional data.frame containing sample information, see 
-#' constructor functions \code{\link{createDesignMatrix}}. Either \code{designMatrix}
+#' constructor functions \code{createDesignMatrix}. Either \code{designMatrix}
 #' or \code{files} needs to be present.
 #' @param files An optional vector of sample file names in the format 
 #' 'condition_L|T_labelingTime_Replicate.bam'. Either \code{designMatrix}

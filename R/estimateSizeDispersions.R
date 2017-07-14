@@ -1,7 +1,13 @@
 #' Estimate dispersion values
 #' 
-#' Th \code{estimateSizeDispersions} function provides a wrapper function to 
-#' estimate gene-specific #' dispersion values.
+#' The \code{estimateSizeDispersions} function provides a wrapper function to 
+#' estimate gene-specific dispersion values.
+#' The methods \code{"DESeqDispMAP", "DESeqDispFit", "DESeqDispGeneEst"}
+#' estimate gene-specific dispersion values for total and labeled samples, 
+#' using \code{\link[DESeq2]{DESeq}}.
+#'
+#' @importFrom DESeq2 DESeqDataSetFromMatrix
+#' @importFrom DESeq2 DESeq
 #' 
 #' @param experiment A \code{rCubeExperiment} object containing feature 
 #' counts for labeled and total RNA-seq samples, see constructor function 
@@ -12,7 +18,7 @@
 #' 
 #' @seealso \code{\link[DESeq2]{DESeq}}
 #' @return Returns an updated \code{rCubeExperiment} object with dispersion
-#' estimated included into \code{rowData} information
+#' estimated included into \code{rowRanges} information
 #' @export
 #' @author Leonhard Wachutka, Carina Demel
 #' @rdname estimateSizeDispersions
@@ -28,32 +34,23 @@ estimateSizeDispersions <- function(experiment, method = c('DESeqDispMAP','DESeq
 {
 	if(method == 'Replicate')
 	{
-		return(estimateSizeDispersions_replicate(experiment))
+		return(.estimateSizeDispersions_replicate(experiment))
 	}else{
-	    return(estimateSizeDispersionsDESeq(experiment, method))
+	    return(.estimateSizeDispersionsDESeq(experiment, method))
 	}
 }
 
 
-estimateSizeDispersions_replicate <- function(experiment)
+## author: Leonhard Wachutka
+.estimateSizeDispersions_replicate <- function(experiment)
 {
-	rowRanges(experiment)$dispersion = 40
+	rowRanges(experiment)$dispersion <- 40
 	return(experiment)
 }
 
 
-##@return Returns an updated \code{rCubeExperiment} object with dispersion
-##estimates for labeled and total samples included in the \code{rowData}.
-#' \code{estimateSizeDispersionsDESeq} estimates gene-specific dispersion 
-#' estimates for total and labeled samples, using \code{\link[DESeq2]{DESeq}}.
-#'
-#' @rdname estimateSizeDispersions
-#' @importFrom DESeq2 DESeqDataSetFromMatrix
-#' @importFrom DESeq2 DESeq
-#'
-#' @examples
-#' 
-estimateSizeDispersionsDESeq <- function(experiment, method = c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst'))
+## author: Carina Demel
+.estimateSizeDispersionsDESeq <- function(experiment, method = c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst'))
 {
     counts <- assay(experiment)
     colData <- colData(experiment)

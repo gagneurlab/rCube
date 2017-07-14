@@ -16,8 +16,8 @@ createRResultCubeRatesExtended(featureCounts, replicate)
 \item{featureCounts}{a \code{rCubeExperiment} object with set 'condition'
 column in \code{colData}.}
 
-\item{replicate}{a list of single replicates/combination of replicates for
-which the results should be calculated.}
+\item{replicate}{a vector of integers and strings indicating single replicates/
+combination of replicates for which the results should be calculated.}
 }
 \value{
 Returns an empty rCubeRate object.
@@ -30,7 +30,7 @@ replicates/combination of replicates.
 \code{createRResultCubeRatesExtended} is a constructor for 
 \code{rCubeExperiment} objects which contains slots for synthesis and degradation rates,
 as well as half.lives, labeled and unlabeled RNA amount estimates for all
-replicates/combination of replicates. Used for \code{\link{estimateRateByFirstOrderKineticsSingle}}.
+replicates/combination of replicates.
 
 \code{rCubeRate} is a subclass of 
 \code{RangedSummarizedExperiment}, used to store estimation results such as
@@ -38,10 +38,10 @@ synthesis and degradation rates
 }
 \examples{
 data(geneCounts)
-rates <- createRResultCubeRates(geneCounts, list('1'=1,'2'=2,'1,2'=c(1,2)))
+rates <- createRResultCubeRates(geneCounts, replicate=c(1,2,'1:2'))
 rates
 #' data(geneCounts)
-rates <- createRResultCubeRatesExtended(geneCounts, list('1'=1,'2'=2,'1,2'=c(1,2)))
+rates <- createRResultCubeRatesExtended(geneCounts, replicate=c(1,2,'1:2'))
 rates
 }
 \author{
