@@ -7,7 +7,7 @@
     uniqueConditions <- unique(conditions)
     conditionsLabeling <- featureCounts@colData$LT
     labelingTime <- featureCounts@colData$labelingTime
-    replicates <- featureCounts@colData$replicate
+    replicates <- as.character(featureCounts@colData$replicate)
     sequencingDepths <- featureCounts@colData$sequencing.depth
     crossContamination <- featureCounts@colData$cross.contamination
     
@@ -37,7 +37,7 @@
     
     if(is.null(replicate)){
         ur <- unique(replicates)
-        replicate <- c(as.list(combn(ur,1)),list(ur))
+        replicate <- c(as.character(ur), paste(ur, collapse=':'))
     }
 
     N <- 1 ## number of cells, my model does not take into account other numbers
@@ -51,7 +51,8 @@
 
     estimate <- function(index){
         c <- singleConditions$condition[index]
-        rep <- unlist(singleConditions$rep[index])
+        rep <- unlist(strsplit(as.character(singleConditions$rep[index]), ':')) #unlist(singleConditions$rep[index])
+        
         gene <- singleConditions$gene[index]
         labeledSamples <- which(conditions == c & conditionsLabeling == "L" & replicates %in% rep)
         totalSamples <- which(conditions == c & conditionsLabeling == "T" & replicates %in% rep)
@@ -139,29 +140,39 @@
     res <- BiocParallel::bplapply(1:nrow(singleConditions), estimate)
     res <- do.call("rbind", res)
 
-    resTable <- cbind(singleConditions, as.data.frame(res))
-    resTableReshaped <- data.table::melt(resTable, id.vars=c("condition","rep","gene"))
-    resTableReshaped$merge_var <- paste(resTableReshaped$condition, resTableReshaped$variable, resTableReshaped$rep, sep="_")
-    resTableReshaped <- reshape(resTableReshaped, idvar=c("gene"), timevar=c("merge_var"),
-                                 direction="wide", drop=c("condition", "rep", "variable"))
-    colnames(resTableReshaped) <- gsub("value.", "", colnames(resTableReshaped))
-    rownames(resTableReshaped) <- resTableReshaped$gene
-       
-    # match.L <- match(conditions[labeledSamples], uniqueConditions)
-    # match.T <- match(conditions[totalSamples], uniqueConditions)
-        
-    # expectedCountsLabeled <- getExpectedCounts(lengths[gene.indices], alpha[, match.L], 
-    #                                   beta[, match.L], N, crossContamination[labeledSamples], 
-    #                                   sequencingDepths[labeledSamples]) 	
-    # expectedCountsTotal <- getExpectedCounts(lengths[gene.indices], alpha[, match.T], 
-    #                                   beta[, match.T], N, crossContamination[totalSamples], sequencingDepths[totalSamples])
-        
-    ## empty results object code by LEO in estimate...Kinetics.R
-    ## createRResultCubeRates(featureCounts, replicate)
-    rates <- createRResultCubeRatesExtended(featureCounts, replicate)
-    assay(rates) <- resTableReshaped[ ,colnames(assay(rates))]
-        
-    return(rates)
+    # resTable <- cbind(singleConditions, as.data.frame(res))
+    # resTableReshaped <- data.table::melt(resTable, id.vars=c("condition","rep","gene"))
+    # resTableReshaped$merge_var <- paste(resTableReshaped$condition, resTableReshaped$variable, resTableReshaped$rep, sep="_")
+    # resTableReshaped <- reshape(resTableReshaped, idvar=c("gene"), timevar=c("merge_var"),
+    #                              direction="wide", drop=c("condition", "rep", "variable"))
+    # colnames(resTableReshaped) <- gsub("value.", "", colnames(resTableReshaped))
+    # rownames(resTableReshaped) <- resTableReshaped$gene
+    #    
+    # # match.L <- match(conditions[labeledSamples], uniqueConditions)
+    # # match.T <- match(conditions[totalSamples], uniqueConditions)
+    #     
+    # # expectedCountsLabeled <- getExpectedCounts(lengths[gene.indices], alpha[, match.L], 
+    # #                                   beta[, match.L], N, crossContamination[labeledSamples], 
+    # #                                   sequencingDepths[labeledSamples]) 	
+    # # expectedCountsTotal <- getExpectedCounts(lengths[gene.indices], alpha[, match.T], 
+    # #                                   beta[, match.T], N, crossContamination[totalSamples], sequencingDepths[totalSamples])
+    #     
+    # ## empty results object code by LEO in estimate...Kinetics.R
+    # ## createRResultCubeRates(featureCounts, replicate)
+    rRates <- createRResultCubeRatesExtended(featureCounts, replicate)
+    # assay(rRates) <- resTableReshaped[ ,colnames(assay(rates))]
+
+    assay(rRates[,rRates$rate == 'synthesis']) = matrix(res[,'synthesis'], nrow=length(genes), 
+                                                        ncol=length(unique(conditions))*length(replicate), byrow = TRUE)
+    assay(rRates[,rRates$rate == 'degradation']) = matrix(res[,'degradation'], nrow=length(genes), 
+                                                        ncol=length(unique(conditions))*length(replicate), byrow = TRUE)
+    assay(rRates[,rRates$rate == 'half.life']) = matrix(res[,'half.life'], nrow=length(genes), 
+                                                        ncol=length(unique(conditions))*length(replicate), byrow = TRUE)
+    assay(rRates[,rRates$rate == 'labeled.amount']) = matrix(res[,'labeled.amount'], nrow=length(genes), 
+                                                        ncol=length(unique(conditions))*length(replicate), byrow = TRUE)
+    assay(rRates[,rRates$rate == 'unlabeled.amount']) = matrix(res[,'unlabeled.amount'], nrow=length(genes), 
+                                                        ncol=length(unique(conditions))*length(replicate), byrow = TRUE)
+    return(rRates)
 }
 
 
@@ -187,7 +198,7 @@
     alphaInitial <- log(alphaInitial)
     betaInitial <- log(betaInitial)
     
-    .cost <- function(
+    cost <- function(
         theta,
         counts,
         L,
@@ -226,7 +237,7 @@
         return(res)
     }
     
-    .grad <- function(
+    grad <- function(
         theta,
         counts,
         L,
@@ -271,7 +282,7 @@
     }
     
     ## minimize negative log likelihood == maximize likelihood
-    fit <- optim(par=c(alphaInitial, betaInitial), fn=.cost, gr=.grad, 
+    fit <- optim(par=c(alphaInitial, betaInitial), fn=cost, gr=grad, 
                  counts=counts, L=L, N=N, crossContamination=crossContamination, 
                  sequencingDepths=sequencingDepths, disp=disp,
                  control=list(maxit=maxit, trace=trace), method="BFGS",
