@@ -37,15 +37,15 @@
 #' ## estimate synthesis and degradation rates for individual replicates and combination
 #' rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1,2,"1:2"),
 #' method='single', BPPARAM=NULL)
-estimateRateByFristOrderKinetics = function(featureCounts, replicate, method=c('series','single'), BPPARAM=NULL)
+estimateRateByFirstOrderKinetics <- function(featureCounts, replicate, method=c('series','single'), BPPARAM=NULL)
 {
 	#replicate = c(1,2,'1:2')
 	if(method == 'series')
 	{
 		rRates <- createRResultCubeRates(featureCounts, replicate)
-		return( .estimateRateByFristOrderKineticsSeries(featureCounts, rRates, BPPARAM=BPPARAM))
+		return( .estimateRateByFirstOrderKineticsSeries(featureCounts, rRates, BPPARAM=BPPARAM))
 	}else{
-	    return( .estimateRateByFristOrderKineticsSingle(featureCounts, replicate, BPPARAM=BPPARAM))
+	    return( .estimateRateByFirstOrderKineticsSingle(featureCounts, replicate, BPPARAM=BPPARAM))
 	}
 }
 

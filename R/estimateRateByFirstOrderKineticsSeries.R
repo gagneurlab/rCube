@@ -1,8 +1,7 @@
 ## author: Leonhard Wachutka
 
-.estimateRateByFristOrderKineticsSeries <- function(featureCounts, rRates, BPPARAM=NULL, verbose=FALSE)
+.estimateRateByFirstOrderKineticsSeries <- function(featureCounts, rRates, BPPARAM=NULL, verbose=FALSE)
 {
-	
 	jobs <- unique(as.data.table(colData(rRates))[,.(condition,replicate)])
 	if(is.null(BPPARAM))
 	{
@@ -17,7 +16,7 @@
 		
 		
 		fset <- subset(featureCounts,,condition == job$condition & replicate %in% unlist(strsplit(as.character(job$replicate), ':')))
-		res <- .estimateRateByFristOrderKineticsSeriesCondition(fset, r, BPPARAM=BPPARAM, rep=3, verbose=verbose)
+		res <- .estimateRateByFirstOrderKineticsSeriesCondition(fset, r, BPPARAM=BPPARAM, rep=3, verbose=verbose)
 		
 		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'synthesis']) = as.matrix(res[as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gm, ncol=1)
 		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'degradation']) = as.matrix(res[as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gs, ncol=1)
@@ -25,12 +24,10 @@
 	return(rRates)
 }
 
+
 #TODO: move rep into metadata
-.estimateRateByFristOrderKineticsSeriesCondition <- function(featureCounts, replicates, conditions, BPPARAM=NULL, rep=3 , verbose=FALSE)
+.estimateRateByFirstOrderKineticsSeriesCondition <- function(featureCounts, replicates, conditions, BPPARAM=NULL, rep=3, verbose=FALSE)
 {
-	
-	
-	
 	index0 <- 1:nrow(featureCounts)
 	index1 <- lapply(1:rep, function(x) sample(index0))
 	batchSize <- 100
@@ -44,6 +41,7 @@
 	
 }
 
+
 callFit <- function(batch, experiment, verbose=FALSE)
 {
 	if(verbose)
@@ -54,10 +52,10 @@ callFit <- function(batch, experiment, verbose=FALSE)
 	F <- (F/F[1])#[-1]
 	
 	modelTime <- as.numeric(colData(experiment)$labelingTime)
-	modelTime[colData(experiment)$LT=='T'] <- Inf
+	modelTime[colData(experiment)$LT == 'T'] <- Inf
 	ss <- experiment[batch]
 	
-	fit <- SE_fit_rates(assay(ss), modelTime, length=rep(1, nrow(ss)), uc=rep(0, nrow(ss)), puc=0, F=F, gc=0)
+	fit <- .SE_fit_rates(assay(ss), modelTime, length=rep(1, nrow(ss)), uc=rep(0, nrow(ss)), puc=0, F=F, gc=0)
 	rr <- rowRanges(ss)
 	rr$gs <- fit$gs
 	rr$gm <- fit$gm
@@ -65,9 +63,10 @@ callFit <- function(batch, experiment, verbose=FALSE)
 
 }
 
+
 #the steady states have to be on the end, because of the way we handle gc!!!
 #maybe later do a check for this
-SE_fit_rates <- function(counts, ti, length, uc, puc, params.initial=guess_initial2(counts, ti,...), log.out=FALSE, ...)
+.SE_fit_rates <- function(counts, ti, length, uc, puc, params.initial=guess_initial2(counts, ti,...), log.out=FALSE, ...)
 {
 	##Do parametrization
 	p <- parametrize2(params.initial)
@@ -82,7 +81,7 @@ SE_fit_rates <- function(counts, ti, length, uc, puc, params.initial=guess_initi
 	log_trace <- 0
 	if(log.out > 0){log_trace <- log.out}
 	
-	fit<-optim(unlist(as.relistable(params.initial)), SElikelihood2, gr=SElikelihood2.grad, params.fixed, params.initial, counts, control=list(maxit=20000, trace=log_trace), method="BFGS")	
+	fit <- optim(unlist(as.relistable(params.initial)), SElikelihood2, gr=SElikelihood2.grad, params.fixed, params.initial, counts, control=list(maxit=20000, trace=log_trace), method="BFGS")	
 	
 	if(log.out != FALSE){print("Fit finish...")}
 	
@@ -90,9 +89,6 @@ SE_fit_rates <- function(counts, ti, length, uc, puc, params.initial=guess_initi
 	
 	
 	params.all <- merge_and_repar2(fit$par, params.fixed, params.initial)
-	params.all <- append(params.all, list(params.initial=params.initial, fit = fit, gen.num=nrow(counts)))
+	params.all <- append(params.all, list(params.initial=params.initial, fit=fit, gen.num=nrow(counts)))
 	return (params.all)
 }
-
-
-
