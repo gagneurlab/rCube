@@ -50,6 +50,8 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
 .calculateNormalizationBySpikeinGLM <- function(featureCounts, spikeinCounts){
     samples <- rownames(colData(spikeinCounts))
     spikeins <- rowRanges(spikeinCounts)$gene_id
+    conditionsLabeling <- colData(spikeinCounts)$LT
+    
     spikeinDataframe <- function(spikeinCounts){
         counts <- assay(spikeinCounts)
         rowData <- rowRanges(spikeinCounts)
@@ -91,7 +93,7 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
                              data=mat, link="log")
     fittedCounts <- nb_model$fitted.values
 
-    coefs <- coefficients(nb_model)
+    coefs <- stats::coefficients(nb_model)
     intercept <- coefs[1]
     
     sequencingDepths <- exp(coefs[grep("sample", names(coefs))]) 
@@ -123,8 +125,8 @@ estimateSizeFactors <- function(featureCounts, spikeinCounts,
 
 
 calculateNormalizationByMean <- function(featureCounts, spikeinCounts){
-	labled = subset(spikeinCounts, labelingState == 'L')
-	lc = assay(labled)
+	labeled = subset(spikeinCounts, labelingState == 'L')
+	lc = assay(labeled)
 	colData(featureCounts)$sizeFactor = colMeans(lc / rowSums(lc))
 	return(featureCounts)
 }

@@ -132,7 +132,7 @@
     
     ## give worker or use MultiCoreParam
     if(is.null(BPPARAM)){
-        BPPARAM <- MulticoreParam(workers = ncores)
+        BPPARAM <- MulticoreParam()
     }
     BiocParallel::register(BPPARAM, default = TRUE)
     ## BiocParallel::registered()
@@ -224,9 +224,9 @@
         expectedCountsTotal <- .getExpectedCounts(L, labeledAmount, unlabeledAmount, N,
                                           crossContamination[totalSamples], sequencingDepths[totalSamples])
         
-        neg_LL <- -sum(dnbinom(x=counts[labeledSamples], size=labeledDispersion,
+        neg_LL <- -sum(stats::dnbinom(x=counts[labeledSamples], size=labeledDispersion,
                                mu=expectedCountsLabeled, log=TRUE)) -
-            sum(dnbinom(x=counts[totalSamples], size=totalDispersion,
+            sum(stats::dnbinom(x=counts[totalSamples], size=totalDispersion,
                         mu=expectedCountsTotal, log=TRUE)) 
         
         if (logloglik) {
@@ -272,7 +272,7 @@
                          (expectedCounts * (1 + expectedCounts / disp)) )
         
         if (logloglik) {
-            neg_LL <- -sum(dnbinom(x=counts[samples], size=disp, 
+            neg_LL <- -sum(stats::dnbinom(x=counts[samples], size=disp, 
                                    mu=expectedCounts, log=TRUE))
             res <- c(d_a, d_b) / neg_LL
         } else {

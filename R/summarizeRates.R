@@ -1,15 +1,18 @@
 #' Summarize rates for features
 #' 
-#' @description 
+#' @description Estimated rates are averaged for features which overlap with a 
+#' top-level feature.
 #'
 #' @param featureRates An \code{rCubeRate object}, see constructor function 
 #'  \code{\link{createRResultCubeRates}}.
 #' @param topLevelFeatures \code{GRanges} annotation
-#' @param by grouping method ## was this what we intended to do?
+#' @param by grouping method ## TODO, now not used, was this what we intended to do?
 #'
-#' @return Returns a \code{rCubeExperiment} object which contains summarized rates
-#' for the specified topLevelFeatures.
+#' @return Returns a \code{rCubeExperiment} object which contains averaged rates
+#' for the specified \code{topLevelFeatures}.
 #' @export
+#' @import GenomicRanges
+#' @seeAlso \code{\link[GenomicRanges]{findOverlaps}}
 #'
 #' @examples
 #' data(geneRates)
@@ -23,7 +26,7 @@ summarizeRates <- function(featureRates, topLevelFeatures, by=c('mean','median')
     ov <- findOverlaps(rows, topLevelFeatures)
     
     mergedRates <- .createRResultCubeRatesTopLevelFeatures(featureRates, topLevelFeatures, replicate)
-
+    
     mergeRates <- function(subject, rates, ov, by){
         hits <- queryHits(ov)[subjectHits(ov) == subject]
         return(apply(rates, 2, mean, na.rm=T))#match.fun(by))) then na.rm does not work

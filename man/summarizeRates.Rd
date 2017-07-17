@@ -12,14 +12,15 @@ summarizeRates(featureRates, topLevelFeatures, by = c("mean", "median"))
 
 \item{topLevelFeatures}{\code{GRanges} annotation}
 
-\item{by}{grouping method ## was this what we intended to do?}
+\item{by}{grouping method ## TODO, now not used, was this what we intended to do?}
 }
 \value{
-Returns a \code{rCubeExperiment} object which contains summarized rates
-for the specified topLevelFeatures.
+Returns a \code{rCubeExperiment} object which contains averaged rates
+for the specified \code{topLevelFeatures}.
 }
 \description{
-
+Estimated rates are averaged for features which overlap with a 
+top-level feature.
 }
 \examples{
 data(geneRates)

@@ -26,7 +26,8 @@ they belong to all transcript isoform of the corresponding gene.
 \examples{
 # Gencode annotation of MYC gene
 data(exampleExons)
-constitutiveExons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, 1)
+constitutiveExons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, 
+BPPARAM=NULL, ncores=1)
 }
 \seealso{
 \code{\link[BiocParallel]{BiocParallelParam}}

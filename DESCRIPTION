@@ -7,5 +7,5 @@ Maintainer: Leonhard Wachutka <wachutka@in.tum.de>
 Description: Calculate TTSeq rates.
 License: GPL (>=3)
 RoxygenNote: 6.0.1
-Imports: data.table, MASS, DESeq2, BiocParallel
+Imports: methods, data.table, MASS, DESeq2, BiocParallel, S4Vectors, GenomicAlignments, GenomicRanges, IRanges, Rsamtools, lattice, magrittr, stringr
 Depends: SummarizedExperiment

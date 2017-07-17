@@ -20,7 +20,10 @@
 #' @export
 #' @seealso \code{\link{BiocParallelParam}}
 #' @import BiocParallel
-#' @import data.table
+#' @importFrom data.table as.data.table rbindlist
+#' @importFrom stats dnbinom formula optim runif
+#' @importFrom utils as.relistable capture.output
+#' 
 #' @author Leonhard Wachutka, Carina Demel
 #' @examples
 #' ## estimate sequencing depths and cross-contamination values from spike-ins
@@ -40,9 +43,9 @@ estimateRateByFristOrderKinetics = function(featureCounts, replicate, method=c('
 	if(method == 'series')
 	{
 		rRates <- createRResultCubeRates(featureCounts, replicate)
-		return(estimateRateByFristOrderKineticsSeries(featureCounts, rRates, BPPARAM=BPPARAM))
+		return( .estimateRateByFristOrderKineticsSeries(featureCounts, rRates, BPPARAM=BPPARAM))
 	}else{
-	    return(.estimateRateByFristOrderKineticsSingle(featureCounts, replicate, BPPARAM=BPPARAM))
+	    return( .estimateRateByFristOrderKineticsSingle(featureCounts, replicate, BPPARAM=BPPARAM))
 	}
 }
 
@@ -58,6 +61,7 @@ estimateRateByFristOrderKinetics = function(featureCounts, replicate, method=c('
 #'
 #' @return Returns an empty rCubeRate object.
 #' @export
+#' @importFrom methods new
 #' @author Leonhard Wachutka
 #' @rdname rCubeRate
 #'

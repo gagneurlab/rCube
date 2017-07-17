@@ -19,6 +19,7 @@
 #' @return An (empty) \code{rCubeExperiment} container
 #' @export
 #' @import SummarizedExperiment
+#' @importFrom methods new
 #' @import stringr
 #' @author Carina Demel, Leonhard Wachutka
 #' @seealso \code{\link[SummarizedExperiment]{SummarizedExperiment}}

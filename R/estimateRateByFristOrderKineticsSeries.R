@@ -1,6 +1,6 @@
 ## author: Leonhard Wachutka
 
-estimateRateByFristOrderKineticsSeries <- function(featureCounts, rRates, BPPARAM=NULL, verbose=FALSE)
+.estimateRateByFristOrderKineticsSeries <- function(featureCounts, rRates, BPPARAM=NULL, verbose=FALSE)
 {
 	
 	jobs <- unique(as.data.table(colData(rRates))[,.(condition,replicate)])
@@ -17,7 +17,7 @@ estimateRateByFristOrderKineticsSeries <- function(featureCounts, rRates, BPPARA
 		
 		
 		fset <- subset(featureCounts,,condition == job$condition & replicate %in% unlist(strsplit(as.character(job$replicate), ':')))
-		res <- estimateRateByFristOrderKineticsSeriesCondition(fset, r, BPPARAM=BPPARAM, rep=3, verbose=verbose)
+		res <- .estimateRateByFristOrderKineticsSeriesCondition(fset, r, BPPARAM=BPPARAM, rep=3, verbose=verbose)
 		
 		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'synthesis']) = as.matrix(res[as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gm, ncol=1)
 		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'degradation']) = as.matrix(res[as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gs, ncol=1)
@@ -26,7 +26,7 @@ estimateRateByFristOrderKineticsSeries <- function(featureCounts, rRates, BPPARA
 }
 
 #TODO: move rep into metadata
-estimateRateByFristOrderKineticsSeriesCondition <- function(featureCounts, replicates, conditions, BPPARAM=NULL, rep=3 , verbose=FALSE)
+.estimateRateByFristOrderKineticsSeriesCondition <- function(featureCounts, replicates, conditions, BPPARAM=NULL, rep=3 , verbose=FALSE)
 {
 	
 	
@@ -35,10 +35,10 @@ estimateRateByFristOrderKineticsSeriesCondition <- function(featureCounts, repli
 	index1 <- lapply(1:rep, function(x) sample(index0))
 	batchSize <- 100
 	
-	batches <- Reduce(c,lapply(index1, function(x) split(x, ceiling(seq_along(x)/batchSize))))
+	batches <- Reduce(c, lapply(index1, function(x) split(x, ceiling(seq_along(x)/batchSize))))
 	bptasks(BPPARAM) <- length(batches)
 	res <- bplapply(batches, callFit, experiment <- featureCounts, BPPARAM=BPPARAM, verbose=verbose)
-	data <- rbindlist(res)
+	data <- data.table::rbindlist(res)
 	#Take the median of all refits
 	data2 <- data[,.(gm=median(gm), gs=median(gs)), by=.(seqnames, start, end, strand, typ)]
 	
