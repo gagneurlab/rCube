@@ -1,11 +1,12 @@
 Package: rCube
 Title: RNA Rates in R
-Version: 0.1
+Version: 0.0.1
 Date: 2017-05-02
 Author: Leonhard Wachutka, Carina Demel
 Maintainer: Leonhard Wachutka <wachutka@in.tum.de>
 Description: Calculate TTSeq rates.
 License: GPL (>=3)
 RoxygenNote: 6.0.1
-Imports: methods, data.table, MASS, DESeq2, BiocParallel, S4Vectors, GenomicAlignments, GenomicRanges, IRanges, Rsamtools, lattice, magrittr, stringr
+Imports: methods, data.table, MASS, DESeq2, BiocParallel, S4Vectors, GenomicAlignments, GenomicRanges, IRanges, Rsamtools, lattice, magrittr, stringr, grDevices, graphics, stats, utils
 Depends: SummarizedExperiment
+biocViews: Sequencing, DataImport, Normalization, ExperimentalDesign, SystemsBiology, GeneRegulation

@@ -7,8 +7,7 @@
 #' using \code{\link[DESeq2]{DESeq}}.
 #' #TODO describe replicate method
 #'
-#' @importFrom DESeq2 DESeqDataSetFromMatrix
-#' @importFrom DESeq2 DESeq
+#' @import DESeq2
 #' 
 #' @param experiment A \code{rCubeExperiment} object containing feature 
 #' counts for labeled and total RNA-seq samples, see constructor function 
@@ -33,20 +32,20 @@
 #' rowRanges(geneCounts)
 estimateSizeDispersions <- function(experiment, method = c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst','Replicate'))
 {
-	if(method == 'Replicate')
-	{
-		return(.estimateSizeDispersions_replicate(experiment))
-	}else{
-	    return(.estimateSizeDispersionsDESeq(experiment, method))
-	}
+    if(method == 'Replicate')
+    {
+        return(.estimateSizeDispersions_replicate(experiment))
+    }else{
+        return(.estimateSizeDispersionsDESeq(experiment, method))
+    }
 }
 
 
 ## author: Leonhard Wachutka
 .estimateSizeDispersions_replicate <- function(experiment)
 {
-	rowRanges(experiment)$dispersion <- 40
-	return(experiment)
+    rowRanges(experiment)$dispersion <- 40
+    return(experiment)
 }
 
 

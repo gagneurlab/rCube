@@ -1,6 +1,8 @@
 ## author: Carina Demel
 
-.estimateRateByFirstOrderKineticsSingle <- function(featureCounts, replicate=NULL, BPPARAM=NULL)
+.estimateRateByFirstOrderKineticsSingle <- function(featureCounts, 
+                                                    replicate=NULL, 
+                                                    BPPARAM=NULL)
 {
     ## sample information
     conditions <- featureCounts@colData$condition
@@ -39,134 +41,68 @@
         ur <- unique(replicates)
         replicate <- c(as.character(ur), paste(ur, collapse=':'))
     }
-
+    
     N <- 1 ## number of cells, my model does not take into account other numbers
     numberOfIterations <- elementMetadata(featureCounts)$numberOfIterations
     if(is.null(numberOfIterations)){
-        numberOfIterations <- 3 ##TODO (leo calls it rep) integrate into metadata?    
+        numberOfIterations <- 3 ##TODO (leo calls it rep) integrate into metadata?
     }
     
-
+    
     singleConditions <- expand.grid(condition=unique(conditions),
                                     rep=replicate,
                                     gene=genes,
                                     iteration=1:numberOfIterations)
-
-    ## estimation of synthesis and degradation rates for single condition, replicate, and gene
-    estimate <- function(index){
-        message(index)
-        c <- singleConditions$condition[index]
-        rep <- unlist(strsplit(as.character(singleConditions$rep[index]), ':'))
-        
-        gene <- singleConditions$gene[index]
-        labeledSamples <- which(conditions == c & conditionsLabeling == "L" & replicates %in% rep)
-        totalSamples <- which(conditions == c & conditionsLabeling == "T" & replicates %in% rep)
-        samples <- c(labeledSamples, totalSamples)
-        nl <- length(labeledSamples)
-        nt <- length(totalSamples)
-        
-        if (any(counts[gene, samples] > 0) & all(!is.na(dispersion[gene, ]))) {	
-            muInitialGene <- runif(1, 0.01, 0.1)
-            lambdaInitialGene <- runif(1, 0.01, 0.1)
-            
-            alphaInitialGene <- muInitialGene/lambdaInitialGene * 
-                (1-exp(-lambdaInitialGene * labelingTime[labeledSamples[1]]))
-            betaInitialGene <- muInitialGene/lambdaInitialGene - alphaInitialGene
-            
-            tryCatch({
-                fab = .fitAlphaBeta_log_reparam(counts=counts[gene, ], labeledSamples=labeledSamples, 
-                                                totalSamples=totalSamples, L=lengths[gene], N=N, 
-                                                crossContamination=crossContamination, 
-                                                sequencingDepths=sequencingDepths,
-                                                disp=dispersion[gene, ], 
-                                                alphaInitial=alphaInitialGene,
-                                                betaInitial=betaInitialGene)
-                
-                fittingResult <- exp(fab$par)
-                alpha <- fittingResult[1]
-                beta <- fittingResult[2]
-                lambda <- -1 / labelingTime[labeledSamples[1]] * log(beta / (alpha + beta))
-                mu <- (alpha + beta) * lambda
-                hl <- log(2)/lambda
-#TODO maybe don't return extended information
-                return(data.table('synthesis'=mu, 'degradation'=lambda, 'half.life'=hl, 'labeled.amount'=alpha, 'unlabeled.amount'=beta))#, expectedCountsLabeled, expectedCountsTotal))
-            }, error=function(e) {
-                return(data.table('synthesis'=NA, 'degradation'=NA,  'half.life'=NA, 'labeled.amount'=NA, 'unlabeled.amount'=NA))#, rep(NA, nl), rep(NA,nt)))
-            })	
-            
-        }else{
-            return(data.table('synthesis'=NA, 'degradation'=NA, 'half.life'=NA, 'labeled.amount'=NA, 'unlabeled.amount'=NA))#, rep(NA, nl), rep(NA,nt)))
-        }
-        
-    }# end estimate function
     
     ## give worker or use MultiCoreParam
     if(is.null(BPPARAM)){
         BPPARAM <- BiocParallel::MulticoreParam()
     }
     BiocParallel::register(BPPARAM, default=TRUE)
-     
-    res <- BiocParallel::bplapply(1:nrow(singleConditions), estimate)
-    # res <- do.call("rbind", res) #TODO previous without batches for iterations
+    
+    res <- BiocParallel::bplapply(1:nrow(singleConditions), .estimate,
+                                  singleConditions=singleConditions, 
+                                  counts=counts, dispersion=dispersion, 
+                                  conditions=conditions, 
+                                  conditionsLabeling=conditionsLabeling, 
+                                  replicates=replicates, 
+                                  labelingTime=labelingTime, lengths=lengths,
+                                  crossContamination=crossContamination, 
+                                  sequencingDepths=sequencingDepths)
     
     res <- data.table::rbindlist(res)
     #Take the median of all fits
     res <- res[,.(synthesis=median(synthesis, na.rm=TRUE), degradation=median(degradation, na.rm=TRUE)), 
-               by=.(gene=singleConditions$gene, rep=singleConditions$rep, cond=singleConditions$condition)]
-
+                by=.(gene=singleConditions$gene, rep=singleConditions$rep, cond=singleConditions$condition)]
+    
     labTimeCond = sapply(res$cond, function(c) { subset(featureCounts@colData, condition == c & LT == "L" & replicate == "1")$labelingTime})
     res$labeledAmount = res$synthesis/res$degradation * (1-exp(-res$degradation * labTimeCond))
     res$unlabeledAmount <- res$synthesis/res$degradation - res$labeledAmount
     res$half.life <- log(2)/res$degradation
-    # res$labeledSamples <- sapply(1:nrow(res), function(i) which(featureCounts@colData$LT == 'L' & featureCounts@colData$condition == res$cond[i] &
-    #                                 featureCounts@colData$replicate %in% unlist(strsplit(as.character(res$rep[i]), ':'))))
-    # res$totalSamples <- sapply(1:nrow(res), function(i) which(featureCounts@colData$LT == 'T' & featureCounts@colData$condition == res$cond[i] &
-    #                                                                 featureCounts@colData$replicate %in% unlist(strsplit(as.character(res$rep[i]), ':'))))
-    # res$expCountsL <- sapply(1:nrow(res), function(i){
-    #     .getExpectedCounts(lengths[res$gene[i]], res$labeledAmount[i], res$unlabeledAmount[i],
-    #                        N, crossContamination[unlist(res$labeledSamples[i])],
-    #                        sequencingDepths[unlist(res$labeledSamples[i])])
-    #     })
-    # 
-    # res$expCountsT <- sapply(1:nrow(res), function(i){
-    #     .getExpectedCounts(lengths[res$gene[i]], res$labeledAmount[i], res$unlabeledAmount[i],
-    #                        N, crossContamination[unlist(res$totalSamples[i])],
-    #                        sequencingDepths[unlist(res$totalSamples[i])])
-    #     })
-    
     
     # ## empty results object code by LEO in estimate...Kinetics.R
     # ## createRResultCubeRates(featureCounts, replicate)
     rRates <- createRResultCubeRatesExtended(featureCounts, replicate)
-    assay(rRates[,rRates$rate == 'synthesis']) <- matrix(res$synthesis, #res[ ,'synthesis'], 
-                                                        nrow=length(genes), 
-                                                        ncol=length(unique(conditions))*length(replicate), 
-                                                        byrow = TRUE)
-    assay(rRates[,rRates$rate == 'degradation']) <- matrix(res$degradation, #res[ ,'degradation'], 
-                                                          nrow=length(genes),
-                                                          ncol=length(unique(conditions))*length(replicate),
-                                                          byrow = TRUE)
+    assay(rRates[,rRates$rate == 'synthesis']) <- matrix(res$synthesis,
+                                                         nrow=length(genes), 
+                                                         ncol=length(unique(conditions))*length(replicate), 
+                                                         byrow = TRUE)
+    assay(rRates[,rRates$rate == 'degradation']) <- matrix(res$degradation,
+                                                           nrow=length(genes),
+                                                           ncol=length(unique(conditions))*length(replicate),
+                                                           byrow = TRUE)
     assay(rRates[,rRates$rate == 'half.life']) <- matrix(res$half.life,
-                                                        nrow=length(genes),
-                                                        ncol=length(unique(conditions))*length(replicate),
-                                                        byrow = TRUE)
+                                                         nrow=length(genes),
+                                                         ncol=length(unique(conditions))*length(replicate),
+                                                         byrow = TRUE)
     assay(rRates[,rRates$rate == 'labeled.amount']) <- matrix(res$labeledAmount,
-                                                             nrow=length(genes),
-                                                             ncol=length(unique(conditions))*length(replicate),
-                                                             byrow = TRUE)
+                                                              nrow=length(genes),
+                                                              ncol=length(unique(conditions))*length(replicate),
+                                                              byrow = TRUE)
     assay(rRates[,rRates$rate == 'unlabeled.amount']) <- matrix(res$unlabeledAmount,
-                                                               nrow=length(genes),
-                                                               ncol=length(unique(conditions))*length(replicate),
-                                                               byrow = TRUE)
-    # #problem when rep=1:2, then 2 values for exp counts! what
-    # assay(rRates[,rRates$rate == 'expected.labeled.counts']) <- matrix(res$expCountsL,
-    #                                                             nrow=length(genes),
-    #                                                             ncol=length(unique(conditions))*length(replicate),
-    #                                                             byrow = TRUE)
-    # assay(rRates[,rRates$rate == 'expected.unlabeled.counts']) <- matrix(res$expCountsT,
-    #                                                             nrow=length(genes),
-    #                                                             ncol=length(unique(conditions))*length(replicate),
-    #                                                             byrow = TRUE)
+                                                                nrow=length(genes),
+                                                                ncol=length(unique(conditions))*length(replicate),
+                                                                byrow = TRUE)
     return(rRates)
 }
 
@@ -195,101 +131,71 @@
     alphaInitial <- log(alphaInitial)
     betaInitial <- log(betaInitial)
     
-    cost <- function(
-        theta,
-        counts,
-        L,
-        N,
-        crossContamination,
-        sequencingDepths,
-        disp,
-        logloglik,
-        labeledSamples,
-        totalSamples
-    ){
-        l <- theta[1]
-        u <- theta[2]
-        labeledDispersion <- disp[1]
-        totalDispersion <- disp[2]
-        
-        ## reparametrization
-        labeledAmount <- exp(l) ## labeled amount alpha
-        unlabeledAmount <- exp(u) ## unlabeled amount beta
-        
-        expectedCountsLabeled <- .getExpectedCounts(L=L, labeledAmount=labeledAmount,
-                                                    unlabeledAmount=unlabeledAmount, N=N,
-                                                    crossCont=crossContamination[labeledSamples],
-                                                    seqDepths=sequencingDepths[labeledSamples])
-        expectedCountsTotal <- .getExpectedCounts(L=L, labeledAmount=labeledAmount,
-                                                  unlabeledAmount=unlabeledAmount, N=N,
-                                                  crossCont=crossContamination[totalSamples],
-                                                  seqDepths=sequencingDepths[totalSamples])
-        
-        neg_LL <- -sum(stats::dnbinom(x=counts[labeledSamples], size=labeledDispersion,
-                               mu=expectedCountsLabeled, log=TRUE)) -
-            sum(stats::dnbinom(x=counts[totalSamples], size=totalDispersion,
-                        mu=expectedCountsTotal, log=TRUE)) 
-        
-        if (logloglik) {
-            res <- log(neg_LL)
-        } else {
-            res <- neg_LL
-        }
-        return(res)
-    }
-    
-    grad <- function(
-        theta,
-        counts,
-        L,
-        N,
-        crossContamination,
-        sequencingDepths,
-        disp,
-        logloglik,
-        labeledSamples,
-        totalSamples
-    ){
-        l <- theta[1]
-        u <- theta[2]
-        samples <- c(labeledSamples, totalSamples)
-        
-        ## reparametrization
-        labeledAmount <- exp(l) ## labeled amount alpha
-        unlabeledAmount <- exp(u) ## unlabeled amount beta
-        
-        expectedCounts <- N * L * sequencingDepths[samples] *
-            (labeledAmount + crossContamination[samples] * unlabeledAmount)
-        
-        if (length(samples) > 2) { ## replicates
-            disp <- c(rep(disp[1], length(labeledSamples)), 
-                      rep(disp[2], length(totalSamples)))
-        }
-        ## vectorial solution
-        d_a <- - sum((counts[samples] - expectedCounts) * N * L * sequencingDepths[samples] * 
-                         labeledAmount/(expectedCounts * (1 + expectedCounts / disp)))
-        d_b <- - sum((counts[samples] - expectedCounts) * N * L * sequencingDepths[samples] *
-                         (crossContamination[samples] * unlabeledAmount) / 
-                         (expectedCounts * (1 + expectedCounts / disp)) )
-        
-        if (logloglik) {
-            neg_LL <- -sum(stats::dnbinom(x=counts[samples], size=disp, 
-                                   mu=expectedCounts, log=TRUE))
-            res <- c(d_a, d_b) / neg_LL
-        } else {
-            res <- c(d_a, d_b)
-        }
-        return(res)
-    }
-    
     ## minimize negative log likelihood == maximize likelihood
-    fit <- optim(par=c(alphaInitial, betaInitial), fn=cost, gr=grad, 
+    fit <- optim(par=c(alphaInitial, betaInitial), fn=.cost, gr=.grad, 
                  counts=counts, L=L, N=N, crossContamination=crossContamination, 
                  sequencingDepths=sequencingDepths, disp=disp,
                  control=list(maxit=maxit, trace=trace), method="BFGS",
                  logloglik=logloglik, labeledSamples=labeledSamples,
                  totalSamples=totalSamples)
     return(fit)
+}
+
+
+## estimation of synthesis and degradation rates for single condition, replicate, and gene
+.estimate <- function(index, singleConditions, counts, dispersion, conditions, 
+                      conditionsLabeling, replicates, labelingTime, lengths,
+                      crossContamination, sequencingDepths){
+    message(index)
+    c <- singleConditions$condition[index]
+    rep <- unlist(strsplit(as.character(singleConditions$rep[index]), ':'))
+    gene <- singleConditions$gene[index]
+    labeledSamples <- which(conditions == c & conditionsLabeling == "L" & 
+                                replicates %in% rep)
+    totalSamples <- which(conditions == c & conditionsLabeling == "T" &
+                              replicates %in% rep)
+    samples <- c(labeledSamples, totalSamples)
+    nl <- length(labeledSamples)
+    nt <- length(totalSamples)
+    
+    if (any(counts[gene, samples] > 0) & all(!is.na(dispersion[gene, ]))) {
+        muInitialGene <- runif(1, 0.01, 0.1)
+        lambdaInitialGene <- runif(1, 0.01, 0.1)
+        
+        alphaInitialGene <- muInitialGene/lambdaInitialGene * 
+            (1-exp(-lambdaInitialGene * labelingTime[labeledSamples[1]]))
+        betaInitialGene <- muInitialGene/lambdaInitialGene - alphaInitialGene
+        
+        tryCatch({
+            fab = .fitAlphaBeta_log_reparam(counts=counts[gene, ], 
+                                            labeledSamples=labeledSamples, 
+                                            totalSamples=totalSamples, 
+                                            L=lengths[gene], N=N, 
+                                            crossContamination=crossContamination, 
+                                            sequencingDepths=sequencingDepths,
+                                            disp=dispersion[gene, ], 
+                                            alphaInitial=alphaInitialGene,
+                                            betaInitial=betaInitialGene)
+            
+            fittingResult <- exp(fab$par)
+            alpha <- fittingResult[1]
+            beta <- fittingResult[2]
+            lambda <- -1 / labelingTime[labeledSamples[1]] * log(beta / (alpha + beta))
+            mu <- (alpha + beta) * lambda
+            hl <- log(2)/lambda
+            #TODO maybe don't return extended information
+            return(data.table('synthesis'=mu, 'degradation'=lambda,
+                              'half.life'=hl, 
+                              'labeled.amount'=alpha, 'unlabeled.amount'=beta))
+        }, error=function(e) {
+            return(data.table('synthesis'=NA, 'degradation'=NA,  'half.life'=NA,
+                              'labeled.amount'=NA, 'unlabeled.amount'=NA))
+        })
+        
+    }else{
+        return(data.table('synthesis'=NA, 'degradation'=NA, 'half.life'=NA,
+                          'labeled.amount'=NA, 'unlabeled.amount'=NA))
+    }
 }
 
 
@@ -314,3 +220,93 @@
 
 .vgetExpectedCounts <- Vectorize(.getExpectedCounts, vectorize.args=c("crossCont", "seqDepths"))
 
+
+.cost <- function(
+    theta,
+    counts,
+    L,
+    N,
+    crossContamination,
+    sequencingDepths,
+    disp,
+    logloglik,
+    labeledSamples,
+    totalSamples
+){
+    l <- theta[1]
+    u <- theta[2]
+    labeledDispersion <- disp[1]
+    totalDispersion <- disp[2]
+    
+    ## reparametrization
+    labeledAmount <- exp(l) ## labeled amount alpha
+    unlabeledAmount <- exp(u) ## unlabeled amount beta
+    
+    expectedCountsLabeled <- .getExpectedCounts(L=L, labeledAmount=labeledAmount,
+                                                unlabeledAmount=unlabeledAmount, 
+                                                N=N,
+                                                crossCont=crossContamination[labeledSamples],
+                                                seqDepths=sequencingDepths[labeledSamples])
+    expectedCountsTotal <- .getExpectedCounts(L=L, labeledAmount=labeledAmount,
+                                              unlabeledAmount=unlabeledAmount,
+                                              N=N,
+                                              crossCont=crossContamination[totalSamples],
+                                              seqDepths=sequencingDepths[totalSamples])
+    
+    neg_LL <- -sum(stats::dnbinom(x=counts[labeledSamples], size=labeledDispersion,
+                                  mu=expectedCountsLabeled, log=TRUE)) -
+        sum(stats::dnbinom(x=counts[totalSamples], size=totalDispersion,
+                           mu=expectedCountsTotal, log=TRUE)) 
+    
+    if (logloglik) {
+        res <- log(neg_LL)
+    } else {
+        res <- neg_LL
+    }
+    return(res)
+}
+
+## gradient function
+.grad <- function(
+    theta,
+    counts,
+    L,
+    N,
+    crossContamination,
+    sequencingDepths,
+    disp,
+    logloglik,
+    labeledSamples,
+    totalSamples
+){
+    l <- theta[1]
+    u <- theta[2]
+    samples <- c(labeledSamples, totalSamples)
+    
+    ## reparametrization
+    labeledAmount <- exp(l) ## labeled amount alpha
+    unlabeledAmount <- exp(u) ## unlabeled amount beta
+    
+    expectedCounts <- N * L * sequencingDepths[samples] *
+        (labeledAmount + crossContamination[samples] * unlabeledAmount)
+    
+    if (length(samples) > 2) { ## replicates
+        disp <- c(rep(disp[1], length(labeledSamples)), 
+                  rep(disp[2], length(totalSamples)))
+    }
+    ## vectorial solution
+    d_a <- - sum((counts[samples] - expectedCounts) * N * L * sequencingDepths[samples] * 
+                     labeledAmount/(expectedCounts * (1 + expectedCounts / disp)))
+    d_b <- - sum((counts[samples] - expectedCounts) * N * L * sequencingDepths[samples] *
+                     (crossContamination[samples] * unlabeledAmount) / 
+                     (expectedCounts * (1 + expectedCounts / disp)) )
+    
+    if (logloglik) {
+        neg_LL <- -sum(stats::dnbinom(x=counts[samples], size=disp, 
+                                      mu=expectedCounts, log=TRUE))
+        res <- c(d_a, d_b) / neg_LL
+    } else {
+        res <- c(d_a, d_b)
+    }
+    return(res)
+}

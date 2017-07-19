@@ -8,10 +8,11 @@ createConstitutiveFeaturesGRangesFromGRanges(granges, BPPARAM = NULL,
   ncores = 2)
 }
 \arguments{
-\item{granges}{A \code{GRanges} annotation file with exons/introns. Needs columns 
-"gene_id" and "transcript_id" (e.g. gtf from GENCODE)}
+\item{granges}{A \code{GRanges} annotation file with exons/introns. Needs 
+columns "gene_id" and "transcript_id" (e.g. gtf from GENCODE)}
 
-\item{BPPARAM}{Instance of a \code{\link[BiocParallel]{BiocParallelParam}} class, default \code{MulticoreParam}}
+\item{BPPARAM}{Instance of a \code{\link[BiocParallel]{BiocParallelParam}} 
+class, default \code{MulticoreParam}}
 
 \item{ncores}{Number of cores available for parallel computation}
 }
@@ -19,9 +20,10 @@ createConstitutiveFeaturesGRangesFromGRanges(granges, BPPARAM = NULL,
 Returns a GRanges object with constitutive exons.
 }
 \description{
-A function to create constitutive features (i.e. exons or introns) from an
-annotation file. All exonic/intronic bases are considered constitutive, when
-they belong to all transcript isoform of the corresponding gene.
+A function to create constitutive features (i.e. exons or
+introns) from an annotation file. All exonic/intronic bases are considered 
+constitutive, when they belong to all transcript isoform of the corresponding
+gene.
 }
 \examples{
 # Gencode annotation of MYC gene

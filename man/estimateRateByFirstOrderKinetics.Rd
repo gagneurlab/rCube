@@ -11,7 +11,8 @@ estimateRateByFirstOrderKinetics(featureCounts, replicate,
 \item{featureCounts}{A \code{rCubeExperiment} object with feature count table}
 
 \item{replicate}{A vector of integers/strings indicating for which individual
-replicates and for which combination of replicates the results should be calculated.
+replicates and for which combination of replicates the results should be 
+calculated.
 For specifying combinations of replicates, please separate them by a ':'.
 If \code{NULL}, estimates for each replicate individually and all combinations 
 of replicates will be calculated.}
@@ -24,12 +25,13 @@ time points.}
 \code{\link{MulticoreParam}}, \code{\link{SnowParam}}, \code{\link{DoparParam}}.}
 }
 \value{
-Returns a \code{rCubeRates} object with estimated synthesis and degradation
-rates for each feature and sample and the specified replicate combinations
+Returns a \code{rCubeRates} object with estimated synthesis and 
+degradation rates for each feature and sample and the specified replicate 
+combinations
 }
 \description{
-Estimation of synthesis and degradation rates (half-lives) based on
-4sU-labeled and total RNA-seq read counts.
+Estimation of synthesis and degradation rates (half-lives) based
+on 4sU-labeled and total RNA-seq read counts.
 }
 \examples{
 ## estimate sequencing depths and cross-contamination values from spike-ins

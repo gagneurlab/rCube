@@ -23,14 +23,14 @@ combination of replicates for which the results should be calculated.}
 Returns an empty rCubeRate object.
 }
 \description{
-\code{createRResultCubeRates} is a constructor for \code{rCubeExperiment}
-objects which contains slots for synthesis and degradation rates for all
-replicates/combination of replicates.
+\code{createRResultCubeRates} is a constructor for 
+\code{rCubeExperiment} objects which contains slots for synthesis and 
+degradation rates for all replicates/combination of replicates.
 
 \code{createRResultCubeRatesExtended} is a constructor for 
-\code{rCubeExperiment} objects which contains slots for synthesis and degradation rates,
-as well as half.lives, labeled and unlabeled RNA amount estimates for all
-replicates/combination of replicates.
+\code{rCubeExperiment} objects which contains slots for synthesis and 
+degradation rates, as well as half.lives, labeled and unlabeled RNA amount 
+estimates for all replicates/combination of replicates.
 
 \code{rCubeRate} is a subclass of 
 \code{RangedSummarizedExperiment}, used to store estimation results such as

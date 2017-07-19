@@ -1,11 +1,13 @@
 #' @title Extracting constitutive exons or introns from annotation
-#' @description A function to create constitutive features (i.e. exons or introns) from an
-#' annotation file. All exonic/intronic bases are considered constitutive, when
-#' they belong to all transcript isoform of the corresponding gene.
+#' @description A function to create constitutive features (i.e. exons or
+#' introns) from an annotation file. All exonic/intronic bases are considered 
+#' constitutive, when they belong to all transcript isoform of the corresponding
+#' gene.
 #' 
-#' @param granges A \code{GRanges} annotation file with exons/introns. Needs columns 
-#' "gene_id" and "transcript_id" (e.g. gtf from GENCODE)
-#' @param BPPARAM Instance of a \code{\link[BiocParallel]{BiocParallelParam}} class, default \code{MulticoreParam}
+#' @param granges A \code{GRanges} annotation file with exons/introns. Needs 
+#' columns "gene_id" and "transcript_id" (e.g. gtf from GENCODE)
+#' @param BPPARAM Instance of a \code{\link[BiocParallel]{BiocParallelParam}} 
+#' class, default \code{MulticoreParam}
 #' @param ncores Number of cores available for parallel computation
 #' 
 #' @import BiocParallel
@@ -20,13 +22,15 @@
 #' constitutiveExons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, 
 #' BPPARAM=NULL, ncores=1)
 #' @export
-createConstitutiveFeaturesGRangesFromGRanges = function(granges, BPPARAM=NULL, ncores=2){
-
+createConstitutiveFeaturesGRangesFromGRanges = function(granges, 
+                                                        BPPARAM=NULL, 
+                                                        ncores=2)
+{
     if(is.null(BPPARAM)){
-        BPPARAM = MulticoreParam(workers = ncores)
+        BPPARAM = MulticoreParam(workers=ncores)
     }
-    BiocParallel::register(BPPARAM, default = TRUE)
-
+    BiocParallel::register(BPPARAM, default=TRUE)
+    
     ## build constitutive features (exons/introns):
     ## set of (exonic/intronic) bases that belong to each isoform of the gene
     getConstitutiveFeatures <- function(gid){
@@ -39,7 +43,7 @@ createConstitutiveFeaturesGRangesFromGRanges = function(granges, BPPARAM=NULL, n
             w <- which(runValue(cov) == tr_num)
             runLengthsSum <- cumsum(runLength(cov))
             start <- runLengthsSum[w-1] + 1
-         
+            
             if(length(start)>0){
                 end <- runLengthsSum[w]
                 const.feat <- GRanges(seqnames = seqnames(ranges[1]),
@@ -63,7 +67,7 @@ createConstitutiveFeaturesGRangesFromGRanges = function(granges, BPPARAM=NULL, n
     constFeatureList <- BiocParallel::bplapply(gene_ids, getConstitutiveFeatures)
     constFeatureList <- GRangesList(constFeatureList)
     constitutiveFeatures <- do.call("c", constFeatureList)
-   
+    
     featureNumFormatted <- sprintf("%05d", 1:length(constitutiveFeatures))
     names(constitutiveFeatures) <- paste("CF", featureNumFormatted, sep="")
     

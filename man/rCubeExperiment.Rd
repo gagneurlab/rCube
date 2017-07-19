@@ -15,7 +15,7 @@ setupExperiment(rows, designMatrix = NULL, files = NULL)
 \arguments{
 \item{rows}{GRanges containing spike-in/gene/exon/... annotation}
 
-\item{designMatrix}{an optional data.frame containing sample information, see 
+\item{designMatrix}{an optional data.frame containing sample information, see
 constructor functions \code{createDesignMatrix}. Either \code{designMatrix}
 or \code{files} needs to be present.}
 
@@ -38,8 +38,8 @@ An (empty) \code{rCubeExperiment} container
 \code{RangedSummarizedExperiment}, used to store read counts, annotations, and
 sample metadata.
 
-\code{setupExperimentSpikeins} generates a \code{rCubeExperiment} 
-object for spike-ins, which can be used for counting and which is necessary 
+\code{setupExperimentSpikeins} generates a \code{rCubeExperiment}
+object for spike-ins, which can be used for counting and which is necessary
 for normalization and estimation steps.
 
 \code{setupExperiment} generates an empty \code{rCubeExperiment}
@@ -50,8 +50,9 @@ data(spikeins)
 data(spikeinLabeling)
 data(spikeinLengths)
 data(designMatrix)
-spikeinCounts <- setupExperimentSpikeins(rows=spikeins, designMatrix=designMatrix, 
-length=spikeinLengths, labelingState=spikein.labeling)
+spikeinCounts <- setupExperimentSpikeins(rows=spikeins, 
+designMatrix=designMatrix, length=spikeinLengths, 
+labelingState=spikein.labeling)
 
 }
 \seealso{

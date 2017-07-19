@@ -29,7 +29,7 @@ summarizeRates <- function(featureRates, topLevelFeatures, by=c('mean','median')
     
     mergeRates <- function(subject, rates, ov, by){
         hits <- queryHits(ov)[subjectHits(ov) == subject]
-        return(apply(rates, 2, mean, na.rm=T))#match.fun(by))) then na.rm does not work
+        return(apply(rates, 2, mean, na.rm=TRUE))#match.fun(by))) then na.rm does not work
     }
     res <- t(sapply(unique(subjectHits(ov)), mergeRates, rates=rates, ov=ov, by=by))
     assay(mergedRates) <- res

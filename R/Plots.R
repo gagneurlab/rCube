@@ -31,7 +31,7 @@ plotSpikeinCountsVsSample <- function(spikeinCounts)
     rownames(counts) <- spikein.names
     
     df <- melt(counts, value.name='counts')
-
+    
     labeledPalette <- colorRampPalette(c("goldenrod1", "orange", "red"), space="rgb")
     unlabeledPalette <- colorRampPalette(c("darkslategray1", "blue"), space="rgb")
     spikein.colors = c(labeledPalette(sum(rows$labeledSpikein == TRUE)), 
@@ -77,7 +77,7 @@ plotResultsReplicates <- function(featureRates){
 #'
 #'
 #' @export
-#' importFrom graphics abline mtext par plot
+#' @importFrom graphics abline mtext par plot
 #' @rdname diagnosticPlots
 #'
 #' @examples
@@ -100,24 +100,29 @@ plotFittedCounts <- function(featureCounts, featureRates){
         labeledSamples <- which(colData(featureCounts)$condition == row$cond & colData(featureCounts)$replicate %in% rep & colData(featureCounts)$LT == "L")
         totalSamples <- which(colData(featureCounts)$condition == row$cond & colData(featureCounts)$replicate %in% rep & colData(featureCounts)$LT == "T")
         
-        expCountsT <- .vgetExpectedCounts(width(featureCounts), labeledAmount, unlabeledAmount,
-                                          N=1, crossCont[totalSamples],
+        expCountsT <- .vgetExpectedCounts(width(featureCounts), labeledAmount,
+                                          unlabeledAmount, N=1,
+                                          crossCont[totalSamples],
                                           seqDepths[totalSamples])
-        expCountsL <- .vgetExpectedCounts(width(featureCounts), labeledAmount, unlabeledAmount,
-                                          N=1, crossCont[labeledSamples],
+        expCountsL <- .vgetExpectedCounts(width(featureCounts), labeledAmount,
+                                          unlabeledAmount, N=1,
+                                          crossCont[labeledSamples],
                                           seqDepths[labeledSamples])
         
         trueCountsL <- assay(featureCounts[,featureCounts$condition == row$cond & featureCounts$replicate %in% rep & featureCounts$LT == "L"])
         trueCountsT <- assay(featureCounts[,featureCounts$condition == row$cond & featureCounts$replicate %in% rep & featureCounts$LT == "T"])
         
-        suppressWarnings(plot(expCountsL, trueCountsL, log="xy", xlab="Expected Counts", ylab="Observed Counts",
-                              main=paste(row$cond, as.character(row$rep), collapse=" ")))
+        suppressWarnings(plot(expCountsL, trueCountsL, log="xy", 
+                              xlab="Expected Counts", ylab="Observed Counts",
+                              main=paste(row$cond, as.character(row$rep), 
+                                         collapse=" ")))
         mtext("Labeled Counts", col="grey")
         abline(0, 1, col="grey")
-        suppressWarnings(plot(expCountsT, trueCountsT, log="xy", xlab="Expected Counts", ylab="Observed Counts",
-                              main=paste(row$cond, as.character(row$rep), collapse=" ")))
+        suppressWarnings(plot(expCountsT, trueCountsT, log="xy", 
+                              xlab="Expected Counts", ylab="Observed Counts",
+                              main=paste(row$cond, as.character(row$rep), 
+                                         collapse=" ")))
         mtext("Total Counts", col="grey")
         abline(0, 1, col="grey")
     }
-    
 }

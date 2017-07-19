@@ -35,7 +35,7 @@ artificial spikeins, \code{countJunctions} to count reads for junctions.
 }
 \examples{
 
-
+#TODO
 }
 \seealso{
 \code{\link[Rsamtools]{ScanBamParam}}
