@@ -6,7 +6,6 @@
 {
     ## sample information
     conditions <- featureCounts@colData$condition
-    uniqueConditions <- unique(conditions)
     conditionsLabeling <- featureCounts@colData$LT
     labelingTime <- featureCounts@colData$labelingTime
     replicates <- as.character(featureCounts@colData$replicate)
@@ -146,7 +145,7 @@
 .estimate <- function(index, singleConditions, counts, dispersion, conditions, 
                       conditionsLabeling, replicates, labelingTime, lengths,
                       crossContamination, sequencingDepths){
-    message(index)
+    # message(index)
     c <- singleConditions$condition[index]
     rep <- unlist(strsplit(as.character(singleConditions$rep[index]), ':'))
     gene <- singleConditions$gene[index]
@@ -155,9 +154,7 @@
     totalSamples <- which(conditions == c & conditionsLabeling == "T" &
                               replicates %in% rep)
     samples <- c(labeledSamples, totalSamples)
-    nl <- length(labeledSamples)
-    nt <- length(totalSamples)
-    
+
     if (any(counts[gene, samples] > 0) & all(!is.na(dispersion[gene, ]))) {
         muInitialGene <- runif(1, 0.01, 0.1)
         lambdaInitialGene <- runif(1, 0.01, 0.1)

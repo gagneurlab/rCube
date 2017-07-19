@@ -10,7 +10,7 @@
 #' 
 #' @import BiocParallel
 #' @import GenomicAlignments
-#' @importFrom data.table data.table rbindlist copy is.data.table
+#' @importFrom data.table data.table rbindlist copy is.data.table :=  .N
 #' @import magrittr
 #' @import GenomicRanges
 #' @import IRanges
@@ -30,6 +30,7 @@ createJunctionGRangesFromBam <- function(bamFiles,
                                          ncores=2,
                                          BPPARAM=NULL)
 {
+    
     extractSplicedReads <- function(bamFile, chromosome)
     {
         #Length is maximum ScanBam can handle
@@ -91,17 +92,17 @@ bpdtapply <- function(dt, FUN, ..., BPREDO=list(), BPPARAM=bpparam())
 }
 
 
-.test = function()
-{
-    # TODO Test function needs to be removed here. but pls include example data
-    # require(BiocParallel)
-    # require(GenomicAlignments)
-    # require(data.table)
-    # require(magrittr)
-    
-    bamFiles <- c('/data/ouga03/ag_gagneur/project_local/livia_tt_seq_k562/ProcessedData/Star/HT2000/L1_02_Aligned.sortedByCoord.out.bam',
-                  '/data/ouga03/ag_gagneur/project_local/livia_tt_seq_k562/ProcessedData/Star/HT2000/L1_05_Aligned.sortedByCoord.out.bam')
-    
-    mparam <- SnowParam(workers=ncores, tasks=nrow(param), type="SOCK")
-    createJunctionGRangesFromBam(bamFiles, BPPARAM=mparam)
-}
+# .test = function()
+# {
+#     # TODO Test function needs to be removed here. but pls include example data
+#     # require(BiocParallel)
+#     # require(GenomicAlignments)
+#     # require(data.table)
+#     # require(magrittr)
+#     
+#     bamFiles <- c('/data/ouga03/ag_gagneur/project_local/livia_tt_seq_k562/ProcessedData/Star/HT2000/L1_02_Aligned.sortedByCoord.out.bam',
+#                   '/data/ouga03/ag_gagneur/project_local/livia_tt_seq_k562/ProcessedData/Star/HT2000/L1_05_Aligned.sortedByCoord.out.bam')
+#     
+#     mparam <- SnowParam(workers=ncores, tasks=nrow(param), type="SOCK")
+#     createJunctionGRangesFromBam(bamFiles, BPPARAM=mparam)
+# }

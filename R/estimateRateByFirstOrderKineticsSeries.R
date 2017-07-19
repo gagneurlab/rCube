@@ -33,11 +33,11 @@
     
     batches <- Reduce(c, lapply(index1, function(x) split(x, ceiling(seq_along(x)/batchSize))))
     bptasks(BPPARAM) <- length(batches)
-    res <- bplapply(batches, callFit, experiment <- featureCounts, BPPARAM=BPPARAM, verbose=verbose)
+    res <- bplapply(batches, callFit, experiment=featureCounts, BPPARAM=BPPARAM, verbose=verbose)
     data <- data.table::rbindlist(res)
     #Take the median of all refits
     data2 <- data[,.(gm=median(gm), gs=median(gs)), by=.(seqnames, start, end, strand, typ)]
-    
+    #TODO: is data2 returned? then add return statement!
 }
 
 
