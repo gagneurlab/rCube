@@ -40,6 +40,9 @@ geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM'
 ## estimate dispersions for all genes
 geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
 
+## set number of iterations for random initialization
+elementMetadata(geneCounts)$numberOfInterations <- 3
+
 ## estimate synthesis and degradation rates for individual replicates and combination
 rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1,2,"1:2"),
 method='single', BPPARAM=NULL)

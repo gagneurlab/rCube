@@ -2,14 +2,26 @@
 % Please edit documentation in R/Plots.R
 \name{plotSpikeinCountsVsSample}
 \alias{plotSpikeinCountsVsSample}
+\alias{plotResultsReplicates}
+\alias{plotFittedCounts}
 \title{Diagnostic plots}
 \usage{
 plotSpikeinCountsVsSample(spikeinCounts)
+
+plotResultsReplicates(featureRates)
+
+plotFittedCounts(featureCounts, featureRates)
 }
 \arguments{
 \item{spikeinCounts}{A \code{rCubeExperiment} object containing read 
 counts and labeling status for spike-ins, as well as sample information,
 see constructor function \code{\link{setupExperimentSpikeins}}.}
+
+\item{featureRates}{A \code{rCubeRates} object containing estimated labeled
+and total RNA amounts for all desired replicates/conditions.}
+
+\item{featureCounts}{A \code{rCubeExperiment} object containing read counts
+and sample information.}
 }
 \value{
 A \code{trellis} object.
@@ -19,10 +31,18 @@ A \code{trellis} object.
 per sample to check if experiment worked and labeled spike-ins are enriched,
 but unlabeled spike-ins are depleted in labeled samples, whereas all spike-ins
 should be present to a similar extend in total RNA-seq samples.
+
+\code{plotResultsReplicates}
+
+\code{plotFittedCounts} plots for all investigated conditions and
+replicates the observed vs expected read counts in labeled and total RNA-seq
+samples.
 }
 \examples{
 data(spikeinCounts)
 plotSpikeinCountsVsSample(spikeinCounts)
+TODO <-NULL
+data(geneCounts)
 }
 \author{
 Carina Demel

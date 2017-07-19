@@ -5,6 +5,7 @@
 #' The methods \code{"DESeqDispMAP", "DESeqDispFit", "DESeqDispGeneEst"}
 #' estimate gene-specific dispersion values for total and labeled samples, 
 #' using \code{\link[DESeq2]{DESeq}}.
+#' #TODO describe replicate method
 #'
 #' @importFrom DESeq2 DESeqDataSetFromMatrix
 #' @importFrom DESeq2 DESeq

@@ -12,7 +12,7 @@
 #' for the specified \code{topLevelFeatures}.
 #' @export
 #' @import GenomicRanges
-#' @seeAlso \code{\link[GenomicRanges]{findOverlaps}}
+#' @seealso \code{\link[GenomicRanges]{findOverlaps}}
 #'
 #' @examples
 #' data(geneRates)

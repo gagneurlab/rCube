@@ -3,7 +3,7 @@ guess_initial2 <- function(counts, ti, gc, F)
 	F <- F/F[1]
 	F <- F[-1]
 	gen.num <- nrow(counts)
-	numFinite <- sum(is.finite(ti))
+	numFinite <- sum(is.finite(ti)) #TODO this is not used
 	params.initial <- list(gl=runif(gen.num,0.01,0.1), gs=runif(gen.num,0.01,0.1), gm=runif(gen.num,10,500), F=F, gc=gc)
 	return (params.initial)
 }

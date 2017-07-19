@@ -26,6 +26,7 @@ estimate gene-specific dispersion values.
 The methods \code{"DESeqDispMAP", "DESeqDispFit", "DESeqDispGeneEst"}
 estimate gene-specific dispersion values for total and labeled samples, 
 using \code{\link[DESeq2]{DESeq}}.
+#TODO describe replicate method
 }
 \examples{
 data(geneCounts)

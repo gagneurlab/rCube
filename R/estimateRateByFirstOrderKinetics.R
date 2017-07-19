@@ -34,6 +34,9 @@
 #' ## estimate dispersions for all genes
 #' geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
 #' 
+#' ## set number of iterations for random initialization
+#' elementMetadata(geneCounts)$numberOfInterations <- 3
+#' 
 #' ## estimate synthesis and degradation rates for individual replicates and combination
 #' rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1,2,"1:2"),
 #' method='single', BPPARAM=NULL)
@@ -82,8 +85,8 @@ createRResultCubeRates = function(featureCounts, replicate)
 	colnames(se) <- dm$sample
 	se <- new("rCubeRates", se)
 	return(se)
-	
 }
+
 
 #' @description \code{createRResultCubeRatesExtended} is a constructor for 
 #' \code{rCubeExperiment} objects which contains slots for synthesis and degradation rates,
@@ -110,5 +113,4 @@ createRResultCubeRatesExtended <- function(featureCounts, replicate)
     colnames(se) <- dm$sample
     se <- new("rCubeRates", se)
     return(se)
-    
 }

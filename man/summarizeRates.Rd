@@ -28,3 +28,6 @@ rows <- rowRanges(geneRates)
 topLevelFeatures <- reduce(rows)
 topLevelFeaturesRates <- summarizeRates(geneRates, topLevelFeatures, by='mean')
 }
+\seealso{
+\code{\link[GenomicRanges]{findOverlaps}}
+}
