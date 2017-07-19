@@ -1,4 +1,4 @@
-##TODO CARINA modified here because of error with shift function in SummarizedExp and data.table
+##TODO CARINA modified import data.table here because of error with shift function in SummarizedExp and data.table
 
 #' Title
 #' 
@@ -15,6 +15,8 @@
 #' @import GenomicRanges
 #' @import IRanges
 #' @import Rsamtools
+#' @importFrom data.table data.table
+#' 
 #'
 #' @return Returns a GRanges object with junctions.
 #' @author Leonhard Wachutka
@@ -36,19 +38,19 @@ createJunctionGRangesFromBam <- function(bamFiles, support=10, ncores=2, BPPARAM
 		return(sc)
 	}
 	chrs <- unique(unlist(lapply(bamFiles, getChrName)))
-	param <- data.table(expand.grid(chromosome=chrs, bamFile=bamFiles, stringsAsFactors=FALSE))
+	param <- data.table::data.table(expand.grid(chromosome=chrs, bamFile=bamFiles, stringsAsFactors=FALSE))
 	
 	if(is.null(BPPARAM))
 	{
-		BPPARAM <- MulticoreParam(workers=ncores, progressbar=TRUE)
+		BPPARAM <- BiocParallel::MulticoreParam(workers=ncores, progressbar=TRUE)
 		#BPPARAM <- SerialParam()
 		#BPPARAM <- SnowParam(workers=ncores, tasks=nrow(param), type="SOCK", progressbar=TRUE)
 	}
 	bptasks(BPPARAM) <- nrow(param)
 	res <- rbindlist(bpdtapply(param, extractSplicedReads, BPPARAM=BPPARAM))
-	res <- res[,.(count=sum(count)), by=c("seqnames", "start", "end", "strand")][count>=support,c("seqnames", "start", "end", "strand")]
+	res <- res[,.(count=sum(count)), by=c("seqnames", "start", "end", "strand")][count >= support, c("seqnames", "start", "end", "strand")]
 	res <- jToDA(res)
-	res <- unique(res,by=c("seqnames", "start", "end", "strand", "typ"))
+	res <- unique(res, by=c("seqnames", "start", "end", "strand", "typ"))
 	return(sort(GenomicRanges::GRanges(res)))
 }
 
@@ -64,6 +66,7 @@ bpdtapply <- function(dt, FUN, ..., BPREDO=list(), BPPARAM=bpparam())
 	stopifnot(is.data.table(dt))
 	bplapply(split(dt, 1:NROW(dt)), bpdtapply_helper, FUNEXPORT=FUN, BPREDO=BPREDO, BPPARAM=BPPARAM, ...)
 }
+
 
 bpdtapply_helper <- function(args, FUNEXPORT, ...)
 {

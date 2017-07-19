@@ -1,9 +1,10 @@
 ## author: Leonhard Wachutka
 
 #' @rdname Counting
+#' @export
 #' @examples
 #' 
-countSpikeins <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL , verbose=FALSE)
+countSpikeins <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
 {
 	bamFiles <- colData(experimentalSetup)$filename
 	region <- rowRanges(experimentalSetup)
@@ -27,6 +28,6 @@ countSpikeins <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scan
 	#this will split the Readpairs by CIGAR and merge(union) the resulting reads to avoid double counting of the two ends
 	exploded_reads <- readGAlignmentPairs(bamFile, param=scanBamParam)
 	exploded_reads <- reduce(grglist(exploded_reads))
-	count <- countOverlaps(region,exploded_reads,minoverlap=2)
+	count <- countOverlaps(region, exploded_reads, minoverlap=2)
 	return(count)
 }

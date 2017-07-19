@@ -5,7 +5,7 @@
 	jobs <- unique(as.data.table(colData(rRates))[,.(condition,replicate)])
 	if(is.null(BPPARAM))
 	{
-		BPPARAM <- MulticoreParam(progressbar=TRUE)
+		BPPARAM <- BiocParallel::MulticoreParam(progressbar=TRUE)
 		#BPPARAM = SerialParam()
 	}
 	for (i in 1:nrow(jobs))
@@ -13,13 +13,12 @@
 		job <- jobs[i]	
 		
 		message(date(), ' Estimate rates for ', capture.output(job))
-		
-		
+
 		fset <- subset(featureCounts,,condition == job$condition & replicate %in% unlist(strsplit(as.character(job$replicate), ':')))
 		res <- .estimateRateByFirstOrderKineticsSeriesCondition(fset, r, BPPARAM=BPPARAM, rep=3, verbose=verbose)
 		
-		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'synthesis']) = as.matrix(res[as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gm, ncol=1)
-		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'degradation']) = as.matrix(res[as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gs, ncol=1)
+		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'synthesis']) = as.matrix(res[data.table::as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gm, ncol=1)
+		assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'degradation']) = as.matrix(res[data.table::as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gs, ncol=1)
 	}
 	return(rRates)
 }

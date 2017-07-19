@@ -5,4 +5,4 @@
 #' synthesis and degradation rates
 #' 
 #' @rdname rCubeRate
-setClass("rCubeRates",contains = "RangedSummarizedExperiment")
+setClass("rCubeRates", contains="RangedSummarizedExperiment")

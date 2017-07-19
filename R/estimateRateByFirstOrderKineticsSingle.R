@@ -41,7 +41,11 @@
     }
 
     N <- 1 ## number of cells, my model does not take into account other numbers
-    numberOfIterations <- 3 ##TODO (leo calls it rep) integrate into metadata?
+    numberOfIterations <- elementMetadata(featureCounts)$numberOfIterations
+    if(is.null(numberOfIterations)){
+        numberOfIterations <- 3 ##TODO (leo calls it rep) integrate into metadata?    
+    }
+    
 
     singleConditions <- expand.grid(condition=unique(conditions),
                                     rep=replicate,
@@ -50,6 +54,7 @@
 
     ## estimation of synthesis and degradation rates for single condition, replicate, and gene
     estimate <- function(index){
+        message(index)
         c <- singleConditions$condition[index]
         rep <- unlist(strsplit(as.character(singleConditions$rep[index]), ':'))
         
@@ -69,13 +74,13 @@
             betaInitialGene <- muInitialGene/lambdaInitialGene - alphaInitialGene
             
             tryCatch({
-                fab = .fitAlphaBeta_log_reparam(counts[gene, ], labeledSamples, 
-                                               totalSamples, lengths[gene], N, 
-                                               crossContamination=crossContamination, 
-                                               sequencingDepths=sequencingDepths,
-                                               disp=dispersion[gene, ], 
-                                               alphaInitial=alphaInitialGene,
-                                               betaInitial=betaInitialGene)
+                fab = .fitAlphaBeta_log_reparam(counts=counts[gene, ], labeledSamples=labeledSamples, 
+                                                totalSamples=totalSamples, L=lengths[gene], N=N, 
+                                                crossContamination=crossContamination, 
+                                                sequencingDepths=sequencingDepths,
+                                                disp=dispersion[gene, ], 
+                                                alphaInitial=alphaInitialGene,
+                                                betaInitial=betaInitialGene)
                 
                 fittingResult <- exp(fab$par)
                 alpha <- fittingResult[1]
@@ -84,13 +89,13 @@
                 mu <- (alpha + beta) * lambda
                 hl <- log(2)/lambda
 #TODO maybe don't return extended information
-                return(list('synthesis'=mu, 'degradation'=lambda, 'half.life'=hl, 'labeled.amount'=alpha, 'unlabeled.amount'=beta))#, expectedCountsLabeled, expectedCountsTotal))
+                return(data.table('synthesis'=mu, 'degradation'=lambda, 'half.life'=hl, 'labeled.amount'=alpha, 'unlabeled.amount'=beta))#, expectedCountsLabeled, expectedCountsTotal))
             }, error=function(e) {
-                return(list('synthesis'=NA, 'degradation'=NA,  'half.life'=NA, 'labeled.amount'=NA, 'unlabeled.amount'=NA))#, rep(NA, nl), rep(NA,nt)))
+                return(data.table('synthesis'=NA, 'degradation'=NA,  'half.life'=NA, 'labeled.amount'=NA, 'unlabeled.amount'=NA))#, rep(NA, nl), rep(NA,nt)))
             })	
             
         }else{
-            return(list('synthesis'=NA, 'degradation'=NA, 'half.life'=NA, 'labeled.amount'=NA, 'unlabeled.amount'=NA))#, rep(NA, nl), rep(NA,nt)))
+            return(data.table('synthesis'=NA, 'degradation'=NA, 'half.life'=NA, 'labeled.amount'=NA, 'unlabeled.amount'=NA))#, rep(NA, nl), rep(NA,nt)))
         }
         
     }# end estimate function
@@ -102,38 +107,70 @@
     BiocParallel::register(BPPARAM, default=TRUE)
      
     res <- BiocParallel::bplapply(1:nrow(singleConditions), estimate)
-    # res <- do.call("rbind", res) #TODO previous without batches
+    # res <- do.call("rbind", res) #TODO previous without batches for iterations
     
     res <- data.table::rbindlist(res)
     #Take the median of all fits
-    res <- res[,.(synthesis=median(synthesis, na.rm=TRUE), degradation=median(degradation, na.rm=TRUE)), by=.(singleConditions$gene, singleConditions$rep, singleConditions$condition)]
+    res <- res[,.(synthesis=median(synthesis, na.rm=TRUE), degradation=median(degradation, na.rm=TRUE)), 
+               by=.(gene=singleConditions$gene, rep=singleConditions$rep, cond=singleConditions$condition)]
 
+    labTimeCond = sapply(res$cond, function(c) { subset(featureCounts@colData, condition == c & LT == "L" & replicate == "1")$labelingTime})
+    res$labeledAmount = res$synthesis/res$degradation * (1-exp(-res$degradation * labTimeCond))
+    res$unlabeledAmount <- res$synthesis/res$degradation - res$labeledAmount
+    res$half.life <- log(2)/res$degradation
+    # res$labeledSamples <- sapply(1:nrow(res), function(i) which(featureCounts@colData$LT == 'L' & featureCounts@colData$condition == res$cond[i] &
+    #                                 featureCounts@colData$replicate %in% unlist(strsplit(as.character(res$rep[i]), ':'))))
+    # res$totalSamples <- sapply(1:nrow(res), function(i) which(featureCounts@colData$LT == 'T' & featureCounts@colData$condition == res$cond[i] &
+    #                                                                 featureCounts@colData$replicate %in% unlist(strsplit(as.character(res$rep[i]), ':'))))
+    # res$expCountsL <- sapply(1:nrow(res), function(i){
+    #     .getExpectedCounts(lengths[res$gene[i]], res$labeledAmount[i], res$unlabeledAmount[i],
+    #                        N, crossContamination[unlist(res$labeledSamples[i])],
+    #                        sequencingDepths[unlist(res$labeledSamples[i])])
+    #     })
+    # 
+    # res$expCountsT <- sapply(1:nrow(res), function(i){
+    #     .getExpectedCounts(lengths[res$gene[i]], res$labeledAmount[i], res$unlabeledAmount[i],
+    #                        N, crossContamination[unlist(res$totalSamples[i])],
+    #                        sequencingDepths[unlist(res$totalSamples[i])])
+    #     })
+    
+    
     # ## empty results object code by LEO in estimate...Kinetics.R
     # ## createRResultCubeRates(featureCounts, replicate)
     rRates <- createRResultCubeRatesExtended(featureCounts, replicate)
-
-    assay(rRates[,rRates$rate == 'synthesis']) <- matrix(res[ ,'synthesis'], 
+    assay(rRates[,rRates$rate == 'synthesis']) <- matrix(res$synthesis, #res[ ,'synthesis'], 
                                                         nrow=length(genes), 
                                                         ncol=length(unique(conditions))*length(replicate), 
                                                         byrow = TRUE)
-    assay(rRates[,rRates$rate == 'degradation']) <- matrix(res[ ,'degradation'], 
+    assay(rRates[,rRates$rate == 'degradation']) <- matrix(res$degradation, #res[ ,'degradation'], 
                                                           nrow=length(genes),
                                                           ncol=length(unique(conditions))*length(replicate),
                                                           byrow = TRUE)
-    assay(rRates[,rRates$rate == 'half.life']) <- matrix(res[ ,'half.life'], 
-                                                        nrow=length(genes), 
-                                                        ncol=length(unique(conditions))*length(replicate), 
+    assay(rRates[,rRates$rate == 'half.life']) <- matrix(res$half.life,
+                                                        nrow=length(genes),
+                                                        ncol=length(unique(conditions))*length(replicate),
                                                         byrow = TRUE)
-    assay(rRates[,rRates$rate == 'labeled.amount']) <- matrix(res[ ,'labeled.amount'], 
+    assay(rRates[,rRates$rate == 'labeled.amount']) <- matrix(res$labeledAmount,
                                                              nrow=length(genes),
                                                              ncol=length(unique(conditions))*length(replicate),
                                                              byrow = TRUE)
-    assay(rRates[,rRates$rate == 'unlabeled.amount']) <- matrix(res[ ,'unlabeled.amount'],
+    assay(rRates[,rRates$rate == 'unlabeled.amount']) <- matrix(res$unlabeledAmount,
                                                                nrow=length(genes),
                                                                ncol=length(unique(conditions))*length(replicate),
                                                                byrow = TRUE)
+    # #problem when rep=1:2, then 2 values for exp counts! what
+    # assay(rRates[,rRates$rate == 'expected.labeled.counts']) <- matrix(res$expCountsL,
+    #                                                             nrow=length(genes),
+    #                                                             ncol=length(unique(conditions))*length(replicate),
+    #                                                             byrow = TRUE)
+    # assay(rRates[,rRates$rate == 'expected.unlabeled.counts']) <- matrix(res$expCountsT,
+    #                                                             nrow=length(genes),
+    #                                                             ncol=length(unique(conditions))*length(replicate),
+    #                                                             byrow = TRUE)
     return(rRates)
 }
+
+
 
 
 
@@ -179,10 +216,14 @@
         labeledAmount <- exp(l) ## labeled amount alpha
         unlabeledAmount <- exp(u) ## unlabeled amount beta
         
-        expectedCountsLabeled <- .getExpectedCounts(L, labeledAmount, unlabeledAmount, N,
-                                          crossContamination[labeledSamples], sequencingDepths[labeledSamples])
-        expectedCountsTotal <- .getExpectedCounts(L, labeledAmount, unlabeledAmount, N,
-                                          crossContamination[totalSamples], sequencingDepths[totalSamples])
+        expectedCountsLabeled <- .getExpectedCounts(L=L, labeledAmount=labeledAmount,
+                                                    unlabeledAmount=unlabeledAmount, N=N,
+                                                    crossCont=crossContamination[labeledSamples],
+                                                    seqDepths=sequencingDepths[labeledSamples])
+        expectedCountsTotal <- .getExpectedCounts(L=L, labeledAmount=labeledAmount,
+                                                  unlabeledAmount=unlabeledAmount, N=N,
+                                                  crossCont=crossContamination[totalSamples],
+                                                  seqDepths=sequencingDepths[totalSamples])
         
         neg_LL <- -sum(stats::dnbinom(x=counts[labeledSamples], size=labeledDispersion,
                                mu=expectedCountsLabeled, log=TRUE)) -
@@ -256,9 +297,20 @@
 ## RNA amounts
 .getExpectedCounts <- function(L, labeledAmount, unlabeledAmount, N, crossCont, seqDepths)
 {
-    exp.counts <- t(N) * L * t(seqDepths * (t(labeledAmount) + crossCont * t(unlabeledAmount)))
-    return(exp.counts)
+    # if(is.na(labeledAmount) & is.na(unlabeledAmount)){
+    if(all(is.na(labeledAmount)) & all(is.na(unlabeledAmount))){
+        return(rep(NA, length(crossCont))) #used if multiple samples are calculated
+    }else{
+        # exp.counts <- t(N) * L * t(seqDepths * (t(labeledAmount) + crossCont * t(unlabeledAmount)))
+        # #TODO I removed N because of ERror with "  non-conformable arrays" and I am not using it anywhere else (only when calculating for rep 1 and 2 (2 seqDepth and crossCont values))
+        exp.counts <- L * t(seqDepths * (t(labeledAmount) + crossCont * t(unlabeledAmount)))
+        # L * t(seqDepths * t(as.vector(labeledAmount) + t(outer(crossCont, unlabeledAmount)[,,1])))
+        # L * t(seqDepths * t(as.vector(labeledAmount) + t(matrix(outer(crossCont, unlabeledAmount),nrow=length(unlabeledAmount),byrow = T))))
+        
+        return(exp.counts)
+    }
 }
 
 
+.vgetExpectedCounts <- Vectorize(.getExpectedCounts, vectorize.args=c("crossCont", "seqDepths"))
 
