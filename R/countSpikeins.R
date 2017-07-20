@@ -11,7 +11,7 @@ countSpikeins <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scan
     for (fn in bamFiles)
     {
         if(verbose){
-            message(date(),' Counting spikeins for ', fn)
+            message(date(), ' Counting spikeins for ', fn)
         }
         
         counts <- .countSpike(fn, region, scanBamParam)
@@ -21,7 +21,7 @@ countSpikeins <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scan
 }
 
 
-.countSpike = function(bamFile, region, scanBamParam)
+.countSpike <- function(bamFile, region, scanBamParam)
 {
     
     bamWhich(scanBamParam) <- region

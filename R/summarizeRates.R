@@ -19,7 +19,7 @@
 #' rows <- rowRanges(geneRates)
 #' topLevelFeatures <- reduce(rows)
 #' topLevelFeaturesRates <- summarizeRates(geneRates, topLevelFeatures, by='mean')
-summarizeRates <- function(featureRates, topLevelFeatures, by=c('mean','median'))
+summarizeRates <- function(featureRates, topLevelFeatures, by=c('mean', 'median'))
 {
     rows <- rowRanges(featureRates)
     rates <- assay(featureRates)
@@ -28,11 +28,11 @@ summarizeRates <- function(featureRates, topLevelFeatures, by=c('mean','median')
                                                             topLevelFeatures)
     mergeRates <- function(subject, rates, ov, by){
         hits <- queryHits(ov)[subjectHits(ov) == subject]
-        return(apply(rates[hits,], 2, match.fun(by), na.rm=TRUE))
+        return(apply(rates[hits, ], 2, match.fun(by), na.rm=TRUE))
     }
     res <- t(sapply(unique(subjectHits(ov)), mergeRates, rates=rates, ov=ov, 
                     by=by))
-    assay(mergedRates)[unique(subjectHits(ov)),] <- res
+    assay(mergedRates)[unique(subjectHits(ov)), ] <- res
     
     return(mergedRates)
 }

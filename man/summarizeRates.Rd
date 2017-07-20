@@ -12,7 +12,7 @@ summarizeRates(featureRates, topLevelFeatures, by = c("mean", "median"))
 
 \item{topLevelFeatures}{\code{GRanges} annotation}
 
-\item{by}{grouping method ## TODO, now not used, was this what we intended to do?}
+\item{by}{grouping method, one of 'mean', 'median'}
 }
 \value{
 Returns a \code{rCubeExperiment} object which contains averaged rates

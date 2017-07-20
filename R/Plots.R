@@ -34,12 +34,12 @@ plotSpikeinCountsVsSample <- function(spikeinCounts)
     
     labeledPalette <- colorRampPalette(c("goldenrod1", "orange", "red"), space="rgb")
     unlabeledPalette <- colorRampPalette(c("darkslategray1", "blue"), space="rgb")
-    spikein.colors = c(labeledPalette(sum(rows$labeledSpikein == TRUE)), 
+    spikein.colors <- c(labeledPalette(sum(rows$labeledSpikein == TRUE)), 
                        unlabeledPalette(sum(rows$labeledSpikein == FALSE)))
     
     names(spikein.colors) <- c(spikein.names[rows$labeledSpikein == TRUE], 
                                spikein.names[rows$labeledSpikein == FALSE])
-    xyplot(counts ~ Var2, scales=list(y = list(log = 2)), data=df, pch=16, 
+    xyplot(counts ~ Var2, scales=list(y=list(log=2)), data=df, pch=16, 
            col=spikein.colors[as.character(df$Var1)], ylab="Spike-in Counts", 
            xlab="Sample", key=list(space="bottom", columns=2,
                                    points=list(col=spikein.colors, pch=16),
@@ -58,7 +58,7 @@ plotSpikeinCountsVsSample <- function(spikeinCounts)
 #' @examples
 #' TODO <-NULL
 plotResultsReplicates <- function(featureRates){
-    synthesisRates <- assay(featureRates)[,featureRates$rate == 'synthesis']
+    synthesisRates <- assay(featureRates)[, featureRates$rate == 'synthesis']
     # when individual rates were estimated and against combination?
     #todo for each condition
     
@@ -93,8 +93,8 @@ plotFittedCounts <- function(featureCounts, featureRates){
     
     for(r in 1:nrow(res.batches)){
         row <- res.batches[r,]
-        labeledAmount <- assay(featureRates[,featureRates$condition == row$cond & featureRates$replicate == row$rep & featureRates$rate == 'labeled.amount'])
-        unlabeledAmount <- assay(featureRates[,featureRates$condition == row$cond & featureRates$replicate == row$rep & featureRates$rate == 'unlabeled.amount'])
+        labeledAmount <- assay(featureRates[, featureRates$condition == row$cond & featureRates$replicate == row$rep & featureRates$rate == 'labeled.amount'])
+        unlabeledAmount <- assay(featureRates[, featureRates$condition == row$cond & featureRates$replicate == row$rep & featureRates$rate == 'unlabeled.amount'])
         
         rep <- unlist(strsplit(as.character(row$rep), ':'))
         labeledSamples <- which(colData(featureCounts)$condition == row$cond & colData(featureCounts)$replicate %in% rep & colData(featureCounts)$LT == "L")
@@ -109,8 +109,8 @@ plotFittedCounts <- function(featureCounts, featureRates){
                                           crossCont[labeledSamples],
                                           seqDepths[labeledSamples])
         
-        trueCountsL <- assay(featureCounts[,featureCounts$condition == row$cond & featureCounts$replicate %in% rep & featureCounts$LT == "L"])
-        trueCountsT <- assay(featureCounts[,featureCounts$condition == row$cond & featureCounts$replicate %in% rep & featureCounts$LT == "T"])
+        trueCountsL <- assay(featureCounts[, featureCounts$condition == row$cond & featureCounts$replicate %in% rep & featureCounts$LT == "L"])
+        trueCountsT <- assay(featureCounts[, featureCounts$condition == row$cond & featureCounts$replicate %in% rep & featureCounts$LT == "T"])
         
         suppressWarnings(plot(expCountsL, trueCountsL, log="xy", 
                               xlab="Expected Counts", ylab="Observed Counts",

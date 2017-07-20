@@ -17,7 +17,7 @@ counts, length and labeling status for spike-ins, as well as sample
 information, see constructor function \code{\link{setupExperimentSpikeins}}.}
 
 \item{method}{string specifying which normalization method should be used,
-one of \code{('spikeinGLM','spikeinMean','jointModel')}.}
+one of \code{('spikeinGLM', 'spikeinMean', 'jointModel')}.}
 }
 \value{
 An updated \code{rCubeExperiment} object for features with sequencing

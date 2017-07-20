@@ -36,8 +36,8 @@ createJunctionGRangesFromBam <- function(bamFiles,
         #Length is maximum ScanBam can handle
         which <- GRanges(seqnames=as.character(chromosome), IRanges(1, 536870912))
         spliced_reads <- GenomicAlignments::readGAlignmentPairs(bamFile, param=ScanBamParam(which=which, flag=scanBamFlag(isSecondaryAlignment=FALSE)))%>%junctions()%>%reduce()%>%unlist()%>%as.data.table()
-        sc <- spliced_reads[,.(count = .N), by=c("seqnames","start","end","strand")]
-        #message('Loaded: ',bamFile,'...',chromosome)
+        sc <- spliced_reads[, .(count= .N), by=c("seqnames", "start", "end", "strand")]
+        #message('Loaded: ', bamFile, '...', chromosome)
         return(sc)
     }
     chrs <- unique(unlist(lapply(bamFiles, .getChrName)))
@@ -53,7 +53,7 @@ createJunctionGRangesFromBam <- function(bamFiles,
     }
     bptasks(BPPARAM) <- nrow(param)
     res <- rbindlist(bpdtapply(param, extractSplicedReads, BPPARAM=BPPARAM))
-    res <- res[,.(count=sum(count)), by=c("seqnames", "start", "end", "strand")][count >= support, c("seqnames", "start", "end", "strand")]
+    res <- res[, .(count=sum(count)), by=c("seqnames", "start", "end", "strand")][count >= support, c("seqnames", "start", "end", "strand")]
     res <- .jToDA(res)
     res <- unique(res, by=c("seqnames", "start", "end", "strand", "typ"))
     return(sort(GenomicRanges::GRanges(res)))
@@ -82,12 +82,12 @@ bpdtapply <- function(dt, FUN, ..., BPREDO=list(), BPPARAM=bpparam())
 .jToDA <- function(junctionsIn)
 {
     junctions <- copy(junctionsIn)
-    junctions[,start:=start-1] #TODO Carina asks if this is ok like this, is there not an assignment missing?
+    junctions[, start:=start-1] #TODO Carina asks if this is ok like this, is there not an assignment missing?
     temp <- junctions
-    da <- rbind(junctions[,.(start,end=start+1,typ=ifelse(strand == '+','donor','acceptor')),by=c('seqnames','strand')],
-                junctions[,.(start=end,end=end+1,typ=ifelse(strand != '+','donor','acceptor')),by=c('seqnames','strand')]
+    da <- rbind(junctions[, .(start, end=start+1, typ=ifelse(strand == '+', 'donor', 'acceptor')), by=c('seqnames', 'strand')],
+                junctions[, .(start=end, end=end+1, typ=ifelse(strand != '+', 'donor', 'acceptor')), by=c('seqnames', 'strand')]
     )
-    junctionsIn[,typ:='junction']
+    junctionsIn[, typ := 'junction']
     return(rbind(junctionsIn, da))
 }
 

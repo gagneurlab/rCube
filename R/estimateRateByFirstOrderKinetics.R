@@ -41,11 +41,11 @@
 #' elementMetadata(geneCounts)$numberOfInterations <- 3
 #' 
 #' ## estimate synthesis and degradation rates for individual replicates and combination
-#' rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1,2,"1:2"),
+#' rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1, 2, "1:2"),
 #' method='single', BPPARAM=NULL)
 estimateRateByFirstOrderKinetics <- function(featureCounts,
                                              replicate,
-                                             method=c('series','single'),
+                                             method=c('series', 'single'),
                                              BPPARAM=NULL)
 {
     if(method == 'series')
@@ -79,9 +79,9 @@ estimateRateByFirstOrderKinetics <- function(featureCounts,
 #'
 #' @examples
 #' data(geneCounts)
-#' rates <- createRResultCubeRates(geneCounts, replicate=c(1,2,'1:2'))
+#' rates <- createRResultCubeRates(geneCounts, replicate=c(1, 2, '1:2'))
 #' rates
-createRResultCubeRates = function(featureCounts, replicate)
+createRResultCubeRates <- function(featureCounts, replicate)
 {
     #designmatrix
     cond <- unique(featureCounts$condition)
@@ -110,7 +110,7 @@ createRResultCubeRates = function(featureCounts, replicate)
 #'
 #' @examples
 #' #' data(geneCounts)
-#' rates <- createRResultCubeRatesExtended(geneCounts, replicate=c(1,2,'1:2'))
+#' rates <- createRResultCubeRatesExtended(geneCounts, replicate=c(1, 2, '1:2'))
 #' rates
 createRResultCubeRatesExtended <- function(featureCounts, replicate)
 {

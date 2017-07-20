@@ -33,8 +33,8 @@
 #' spikeinCounts <- setupExperimentSpikeins(rows=spikeins, 
 #' designMatrix=designMatrix, length=spikeinLengths, 
 #' labelingState=spikein.labeling)
-setupExperimentSpikeins <- function(rows, designMatrix = NULL, files = NULL, 
-                                    length = NULL, labelingState, counts=NULL){
+setupExperimentSpikeins <- function(rows, designMatrix=NULL, files=NULL, 
+                                    length=NULL, labelingState, counts=NULL){
     
     stopifnot(!(is.null(designMatrix) & is.null(files)))
     if(is.null(designMatrix))
@@ -49,16 +49,16 @@ setupExperimentSpikeins <- function(rows, designMatrix = NULL, files = NULL,
     }
     if(is.null(counts))
     {
-        counts <- matrix(NA, nrow = length(rows), ncol = nrow(designMatrix))
+        counts <- matrix(NA, nrow=length(rows), ncol=nrow(designMatrix))
         rownames(counts) <- names(rows)
     }
     
     rows$labelingState <- factor(labelingState[names(rows)])
-    rows$labeledSpikein <- ifelse(rows$labelingState=="L", TRUE, FALSE) ### I use this now for Normalization.R
+    rows$labeledSpikein <- ifelse(rows$labelingState == "L", TRUE, FALSE) ### I use this now for Normalization.R
     
     rowData <- data.frame(length=rows$length, labelingState=labelingState, 
                           row.names=names(rows))
-    spikeins.SE <- SummarizedExperiment(assays=list("counts"=counts[names(rows),]), rowRanges=rows, colData=designMatrix)
+    spikeins.SE <- SummarizedExperiment(assays=list("counts"=counts[names(rows), ]), rowRanges=rows, colData=designMatrix)
     colnames(spikeins.SE) <- designMatrix$sample
     spikeins <- new("rCubeExperiment", spikeins.SE)
     return(spikeins)
@@ -90,14 +90,14 @@ setupExperiment <- function(rows, designMatrix=NULL, files=NULL){
 
 
 # TODO is this not being exported? prefix function with a '.'
-createDesignMatrix = function(files)
+createDesignMatrix <- function(files)
 {
     designMatrix <- data.table(filename=files)
-    designMatrix[,stringr::str_extract(basename(filename),'([^_]+)')]
-    designMatrix[,sample:=stringr::str_extract(basename(filename),'([^_]+_){3}[^_^.]+')]
-    designMatrix[,condition:=as.factor(stringr::str_extract(sample,'[^_]+'))]
-    designMatrix[,LT:=as.factor(stringr::str_extract(sample,'(?<=_)[LT]+'))]
-    designMatrix[,labelingTime:=as.numeric(stringr::str_extract(sample,'(?<=_)[0-9]+'))]
-    designMatrix[,replicate:=as.factor(stringr::str_extract(sample,'(?<=_)[^_]*$'))]
+    designMatrix[, stringr::str_extract(basename(filename), '([^_]+)')]
+    designMatrix[, sample:=stringr::str_extract(basename(filename), '([^_]+_){3}[^_^.]+')]
+    designMatrix[, condition:=as.factor(stringr::str_extract(sample, '[^_]+'))]
+    designMatrix[, LT:=as.factor(stringr::str_extract(sample, '(?<=_)[LT]+'))]
+    designMatrix[, labelingTime:=as.numeric(stringr::str_extract(sample, '(?<=_)[0-9]+'))]
+    designMatrix[, replicate:=as.factor(stringr::str_extract(sample, '(?<=_)[^_]*$'))]
     return(designMatrix)
 }

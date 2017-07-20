@@ -57,7 +57,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
         s <- subset(experimentalSetup, typ == 'junction', filename == fn)
         assays(experimentalSetup[rowRanges(experimentalSetup)$typ == 'junction',
                                  experimentalSetup[['filename']] == fn])[['counts']] <- 
-            as.matrix(merge(rowRanges(s),resByFilename[[fn]], all.x = TRUE)$count, ncol = 1)
+            as.matrix(merge(rowRanges(s), resByFilename[[fn]], all.x=TRUE)$count, ncol=1)
         # TODO LEO CHECK: Carina removed S4Vectors:: before merge because of Warnings in R CMD check
     }
     
@@ -70,7 +70,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
         end <- (1:ceiling(maxIndex/stepSize)) * stepSize
         start <- end - stepSize + 1
         end[length(end)] <- maxIndex
-        data.frame(start,end)
+        data.frame(start, end)
     }
     
     region <- subset(rowRanges(experimentalSetup), 
@@ -88,13 +88,13 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
         if(verbose){
             message(date(),' Reduce da for ', fn)
         }
-        counts  <- Reduce(pmax.int,res)
+        counts  <- Reduce(pmax.int, res)
         if(verbose){
             message(date(),' Assign da for ', fn)
         }
         assays(experimentalSetup[rowRanges(experimentalSetup)$typ == 'donor' | 
                                 rowRanges(experimentalSetup)$typ == 'acceptor', 
-                                experimentalSetup[['filename']] == fn])[['counts']] <- as.matrix(counts,ncol=1)
+                                experimentalSetup[['filename']] == fn])[['counts']] <- as.matrix(counts, ncol=1)
     }
     
     # Zero out NA lines.
@@ -152,7 +152,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
     mcols(junctionsCounts)$count <- countOverlaps(
         junctionsCounts,
         junctions,
-        type = 'equal'
+        type='equal'
     )
     values(junctionsCounts) <- cbind(values(junctionsCounts), 
                                      data.frame(filename=bamFile))

@@ -38,10 +38,10 @@ synthesis and degradation rates
 }
 \examples{
 data(geneCounts)
-rates <- createRResultCubeRates(geneCounts, replicate=c(1,2,'1:2'))
+rates <- createRResultCubeRates(geneCounts, replicate=c(1, 2, '1:2'))
 rates
 #' data(geneCounts)
-rates <- createRResultCubeRatesExtended(geneCounts, replicate=c(1,2,'1:2'))
+rates <- createRResultCubeRatesExtended(geneCounts, replicate=c(1, 2, '1:2'))
 rates
 }
 \author{

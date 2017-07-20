@@ -22,12 +22,12 @@
 #' constitutiveExons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, 
 #' BPPARAM=NULL, ncores=1)
 #' @export
-createConstitutiveFeaturesGRangesFromGRanges = function(granges, 
+createConstitutiveFeaturesGRangesFromGRanges <- function(granges, 
                                                         BPPARAM=NULL, 
                                                         ncores=2)
 {
     if(is.null(BPPARAM)){
-        BPPARAM = MulticoreParam(workers=ncores)
+        BPPARAM <- MulticoreParam(workers=ncores)
     }
     BiocParallel::register(BPPARAM, default=TRUE)
     
@@ -46,24 +46,23 @@ createConstitutiveFeaturesGRangesFromGRanges = function(granges,
             
             if(length(start)>0){
                 end <- runLengthsSum[w]
-                const.feat <- GRanges(seqnames = seqnames(ranges[1]),
-                                      ranges = IRanges(start = start, end = end),
-                                      strand = strand(ranges[1]),
-                                      type = factor("constitutive feature"),
-                                      gene_id = rep(gid,length(start)))
+                const.feat <- GRanges(seqnames=seqnames(ranges[1]),
+                                      ranges=IRanges(start=start, end=end),
+                                      strand=strand(ranges[1]),
+                                      type=factor("constitutive feature"),
+                                      gene_id=rep(gid, length(start)))
             }else{
                 const.feat <- GRanges()
             }
         }else{
             const.feat <- ranges
-            elementMetadata(const.feat) <- data.frame(type = factor("constitutive feature"),
-                                                      gene_id = gid)
+            elementMetadata(const.feat) <- data.frame(type=factor("constitutive feature"), gene_id=gid)
         }
         
         return(const.feat)
     }
     
-    gene_ids = unique(granges$gene_id)
+    gene_ids <- unique(granges$gene_id)
     constFeatureList <- BiocParallel::bplapply(gene_ids, getConstitutiveFeatures)
     constFeatureList <- GRangesList(constFeatureList)
     constitutiveFeatures <- do.call("c", constFeatureList)

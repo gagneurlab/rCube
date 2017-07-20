@@ -30,7 +30,7 @@
 #'
 #' geneCounts <- estimateSizeDispersions(geneCounts, method='Replicate')
 #' rowRanges(geneCounts)
-estimateSizeDispersions <- function(experiment, method = c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst','Replicate'))
+estimateSizeDispersions <- function(experiment, method=c('DESeqDispMAP', 'DESeqDispFit', 'DESeqDispGeneEst', 'Replicate'))
 {
     if(method == 'Replicate')
     {
@@ -50,7 +50,7 @@ estimateSizeDispersions <- function(experiment, method = c('DESeqDispMAP','DESeq
 
 
 ## author: Carina Demel
-.estimateSizeDispersionsDESeq <- function(experiment, method = c('DESeqDispMAP','DESeqDispFit','DESeqDispGeneEst'))
+.estimateSizeDispersionsDESeq <- function(experiment, method=c('DESeqDispMAP', 'DESeqDispFit', 'DESeqDispGeneEst'))
 {
     counts <- assay(experiment)
     colData <- colData(experiment)
@@ -59,19 +59,19 @@ estimateSizeDispersions <- function(experiment, method = c('DESeqDispMAP','DESeq
     expDesignTotal <- subset(colData, labeledSample == 'T')
     message(paste(
         "For the Total gene dispersion, the following samples are used:", 
-        paste(rownames(expDesignTotal), collapse = ", ")))  
+        paste(rownames(expDesignTotal), collapse=", ")))  
     deseqMatrixTotal <- suppressWarnings(DESeq2::DESeqDataSetFromMatrix(
-        counts[ ,labeledSample == 'T'], colData = expDesignTotal,
-        design = formula(~ condition)))
+        counts[, labeledSample == 'T'], colData=expDesignTotal,
+        design=formula(~ condition)))
     ddsTotal <- suppressMessages(DESeq2::DESeq(deseqMatrixTotal))
     
     expDesignLabeled <- subset(colData, labeledSample == 'L')
     message(paste(
         "For the Labeled gene dispersion, the following samples are used:",
-        paste(rownames(expDesignLabeled), collapse = ", ")))  
+        paste(rownames(expDesignLabeled), collapse=", ")))  
     deseqMatrixLabeled <- suppressWarnings(DESeq2::DESeqDataSetFromMatrix(
-        counts[ ,labeledSample == 'L'], colData = expDesignLabeled,
-        design = formula(~ condition)))
+        counts[, labeledSample == 'L'], colData=expDesignLabeled,
+        design=formula(~ condition)))
     ddsLabeled <- suppressMessages(DESeq2::DESeq(deseqMatrixLabeled))
     
     suppressWarnings(

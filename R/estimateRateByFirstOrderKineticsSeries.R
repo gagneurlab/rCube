@@ -2,11 +2,11 @@
 
 .estimateRateByFirstOrderKineticsSeries <- function(featureCounts, rRates, BPPARAM=NULL, verbose=FALSE)
 {
-    jobs <- unique(as.data.table(colData(rRates))[,.(condition,replicate)])
+    jobs <- unique(as.data.table(colData(rRates))[, .(condition, replicate)])
     if(is.null(BPPARAM))
     {
         BPPARAM <- BiocParallel::MulticoreParam(progressbar=TRUE)
-        #BPPARAM = SerialParam()
+        #BPPARAM <- SerialParam()
     }
     for (i in 1:nrow(jobs))
     {
@@ -14,11 +14,11 @@
         
         message(date(), ' Estimate rates for ', capture.output(job))
         
-        fset <- subset(featureCounts,,condition == job$condition & replicate %in% unlist(strsplit(as.character(job$replicate), ':')))
+        fset <- subset(featureCounts, , condition == job$condition & replicate %in% unlist(strsplit(as.character(job$replicate), ':')))
         res <- .estimateRateByFirstOrderKineticsSeriesCondition(fset, r, BPPARAM=BPPARAM, rep=3, verbose=verbose)
         
-        assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'synthesis']) = as.matrix(res[data.table::as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gm, ncol=1)
-        assay(rRates[,rRates$condition==job$condition & rRates$replicate == job$replicate & rRates$rate == 'degradation']) = as.matrix(res[data.table::as.data.table(rowRanges(rRates)), on=.(seqnames,start,end,strand,typ)]$gs, ncol=1)
+        assay(rRates[, rRates$condition == job$condition & rRates$replicate == job$replicate & rRates$rate == 'synthesis']) <- as.matrix(res[data.table::as.data.table(rowRanges(rRates)), on=.(seqnames, start, end, strand, typ)]$gm, ncol=1)
+        assay(rRates[, rRates$condition == job$condition & rRates$replicate == job$replicate & rRates$rate == 'degradation']) <- as.matrix(res[data.table::as.data.table(rowRanges(rRates)), on=.(seqnames, start, end, strand, typ)]$gs, ncol=1)
     }
     return(rRates)
 }
@@ -36,7 +36,7 @@
     res <- bplapply(batches, callFit, experiment=featureCounts, BPPARAM=BPPARAM, verbose=verbose)
     data <- data.table::rbindlist(res)
     #Take the median of all refits
-    data2 <- data[,.(gm=median(gm), gs=median(gs)), by=.(seqnames, start, end, strand, typ)]
+    data2 <- data[, .(gm=median(gm), gs=median(gs)), by=.(seqnames, start, end, strand, typ)]
     #TODO: is data2 returned? then add return statement!
 }
 
@@ -65,13 +65,13 @@ callFit <- function(batch, experiment, verbose=FALSE)
 
 #the steady states have to be on the end, because of the way we handle gc!!!
 #maybe later do a check for this
-.SE_fit_rates <- function(counts, ti, length, uc, puc, params.initial=guess_initial2(counts, ti,...), log.out=FALSE, ...)
+.SE_fit_rates <- function(counts, ti, length, uc, puc, params.initial=guess_initial2(counts, ti, ...), log.out=FALSE, ...)
 {
     ##Do parametrization
     p <- parametrize2(params.initial)
     #Do this so params are in the right order, we cant assume this since there could be user defined params.initial
-    params.initial <- list(gs=p$gs,gm=p$gm)
-    #ubias = 1-(puc)^uc
+    params.initial <- list(gs=p$gs, gm=p$gm)
+    #ubias <- 1-(puc)^uc
     #try with 0 ubias
     ubias <- 1
     params.fixed <- list(t=ti, F0=1, ga=40, N=nrow(counts), numFinite=sum(is.finite(ti)), l=length, gl=p$gl, gc=p$gc, F=p$F, uc=ubias)
