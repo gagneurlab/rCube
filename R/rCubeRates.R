@@ -5,4 +5,5 @@
 #' synthesis and degradation rates
 #' 
 #' @rdname rCubeRate
+#' @export
 setClass("rCubeRates", contains="RangedSummarizedExperiment")

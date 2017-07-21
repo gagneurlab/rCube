@@ -52,7 +52,7 @@
                                     rep=replicate,
                                     gene=genes,
                                     iteration=1:numberOfIterations)
-    
+
     ## give worker or use MultiCoreParam
     if(is.null(BPPARAM)){
         BPPARAM <- BiocParallel::MulticoreParam()
@@ -67,8 +67,8 @@
                                   replicates=replicates, 
                                   labelingTime=labelingTime, lengths=lengths,
                                   crossContamination=crossContamination, 
-                                  sequencingDepths=sequencingDepths)
-    
+                                  sequencingDepths=sequencingDepths, N=N)
+   
     res <- data.table::rbindlist(res)
     #Take the median of all fits
     res <- res[,.(synthesis=median(synthesis, na.rm=TRUE), degradation=median(degradation, na.rm=TRUE)), 
@@ -95,7 +95,7 @@
 ## estimation of synthesis and degradation rates for single condition, replicate, and gene
 .estimate <- function(index, singleConditions, counts, dispersion, conditions, 
                       conditionsLabeling, replicates, labelingTime, lengths,
-                      crossContamination, sequencingDepths){
+                      crossContamination, sequencingDepths, N){
     # message(index)
     c <- singleConditions$condition[index]
     rep <- unlist(strsplit(as.character(singleConditions$rep[index]), ':'))
