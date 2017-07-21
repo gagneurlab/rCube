@@ -1,10 +1,10 @@
 Package: rCube
 Title: RNA Rates in R
-Version: 0.0.1
+Version: 1.1.0
 Date: 2017-05-02
 Author: Leonhard Wachutka, Carina Demel
 Maintainer: Leonhard Wachutka <wachutka@in.tum.de>
-Description: Calculate TTSeq rates.
+Description: Calculate rates of RNA metabolism (synthesis, splicing, degradation) from 4sU/TT-seq and RNA-seq data.
 License: GPL (>=3)
 RoxygenNote: 6.0.1
 Imports: methods, data.table, MASS, DESeq2, BiocParallel, S4Vectors, GenomicAlignments, GenomicRanges, IRanges, Rsamtools, lattice, magrittr, stringr, grDevices, graphics, stats, utils
