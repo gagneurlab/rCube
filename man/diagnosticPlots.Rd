@@ -10,7 +10,8 @@ plotSpikeinCountsVsSample(spikeinCounts)
 
 plotResultsReplicates(featureRates)
 
-plotFittedCounts(featureCounts, featureRates)
+plotFittedCounts(featureCounts, featureRates, condition = NULL,
+  replicate = NULL)
 }
 \arguments{
 \item{spikeinCounts}{A \code{rCubeExperiment} object containing read 
@@ -22,6 +23,10 @@ and total RNA amounts for all desired replicates/conditions.}
 
 \item{featureCounts}{A \code{rCubeExperiment} object containing read counts
 and sample information.}
+
+\item{condition}{bla}
+
+\item{replicate}{bla}
 }
 \value{
 A \code{trellis} object.
@@ -41,8 +46,13 @@ samples.
 \examples{
 data(spikeinCounts)
 plotSpikeinCountsVsSample(spikeinCounts)
-TODO <-NULL
+data(geneRates)
+plotResultsReplicates(geneRates)
+data(spikeinCounts)
 data(geneCounts)
+geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM')
+data(geneRates)
+plotFittedCounts(geneCounts, geneRates, "A", "1")
 }
 \author{
 Carina Demel

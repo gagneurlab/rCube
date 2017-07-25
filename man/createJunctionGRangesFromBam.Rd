@@ -24,8 +24,8 @@ Title
 }
 \examples{
 # Gencode annotation of MYC gene
-data(example.exons)
-constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(example.exons, 1)
+data(exampleExons)
+constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, BPPARAM=NULL, 1)
 }
 \author{
 Leonhard Wachutka

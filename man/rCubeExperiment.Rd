@@ -15,9 +15,8 @@ setupExperiment(rows, designMatrix = NULL, files = NULL)
 \arguments{
 \item{rows}{GRanges containing spike-in/gene/exon/... annotation}
 
-\item{designMatrix}{an optional data.frame containing sample information, see
-constructor functions \code{createDesignMatrix}. Either \code{designMatrix}
-or \code{files} needs to be present.}
+\item{designMatrix}{an optional data.frame containing sample information.
+Either \code{designMatrix} or \code{files} needs to be present.}
 
 \item{files}{An optional vector of sample file names in the format 
 'condition_L|T_labelingTime_Replicate.bam'. Either \code{designMatrix}
@@ -52,7 +51,7 @@ data(spikeinLengths)
 data(designMatrix)
 spikeinCounts <- setupExperimentSpikeins(rows=spikeins, 
 designMatrix=designMatrix, length=spikeinLengths, 
-labelingState=spikein.labeling)
+labelingState=spikeinLabeling)
 
 }
 \seealso{

@@ -5,9 +5,8 @@
 #' for normalization and estimation steps.
 #'
 #' @param rows GRanges containing spike-in/gene/exon/... annotation
-#' @param designMatrix an optional data.frame containing sample information, see
-#' constructor functions \code{createDesignMatrix}. Either \code{designMatrix}
-#' or \code{files} needs to be present.
+#' @param designMatrix an optional data.frame containing sample information.
+#' Either \code{designMatrix} or \code{files} needs to be present.
 #' @param files An optional vector of sample file names in the format 
 #' 'condition_L|T_labelingTime_Replicate.bam'. Either \code{designMatrix}
 #' or \code{files} needs to be present.
@@ -32,14 +31,14 @@
 #' data(designMatrix)
 #' spikeinCounts <- setupExperimentSpikeins(rows=spikeins, 
 #' designMatrix=designMatrix, length=spikeinLengths, 
-#' labelingState=spikein.labeling)
+#' labelingState=spikeinLabeling)
 setupExperimentSpikeins <- function(rows, designMatrix=NULL, files=NULL, 
                                     length=NULL, labelingState, counts=NULL){
     
-    stopifnot(!(is.null(designMatrix) & is.null(files)))
+    stopifnot(!(is.null(designMatrix) & is.null(files) ) & !is.null(names(rows)))
     if(is.null(designMatrix))
     {
-        designMatrix <- createDesignMatrix(files)
+        designMatrix <- .createDesignMatrix(files)
     }
     if(!is.null(length))
     {
@@ -54,10 +53,10 @@ setupExperimentSpikeins <- function(rows, designMatrix=NULL, files=NULL,
     }
     
     rows$labelingState <- factor(labelingState[names(rows)])
-    rows$labeledSpikein <- ifelse(rows$labelingState == "L", TRUE, FALSE) ### I use this now for Normalization.R
+    rows$labeledSpikein <- ifelse(rows$labelingState == "L", TRUE, FALSE)
     
     rowData <- data.frame(length=rows$length, labelingState=labelingState, 
-                          row.names=names(rows))
+                            row.names=names(rows))
     spikeins.SE <- SummarizedExperiment(assays=list("counts"=counts[names(rows), ]), rowRanges=rows, colData=designMatrix)
     colnames(spikeins.SE) <- designMatrix$sample
     spikeins <- new("rCubeExperiment", spikeins.SE)
@@ -78,7 +77,7 @@ setupExperiment <- function(rows, designMatrix=NULL, files=NULL){
     stopifnot(!(is.null(designMatrix) & is.null(files)))
     if(is.null(designMatrix))
     {
-        designMatrix <- createDesignMatrix(files)
+        designMatrix <- .createDesignMatrix(files)
     }
     
     counts <- matrix(NA, nrow=length(rows), ncol=nrow(designMatrix))
@@ -89,15 +88,16 @@ setupExperiment <- function(rows, designMatrix=NULL, files=NULL){
 }
 
 
-# TODO is this not being exported? prefix function with a '.'
-createDesignMatrix <- function(files)
+# TODO is this not being exported?
+# else we need example and roxygen comment
+.createDesignMatrix <- function(files)
 {
     designMatrix <- data.table(filename=files)
     designMatrix[, stringr::str_extract(basename(filename), '([^_]+)')]
-    designMatrix[, sample:=stringr::str_extract(basename(filename), '([^_]+_){3}[^_^.]+')]
-    designMatrix[, condition:=as.factor(stringr::str_extract(sample, '[^_]+'))]
-    designMatrix[, LT:=as.factor(stringr::str_extract(sample, '(?<=_)[LT]+'))]
-    designMatrix[, labelingTime:=as.numeric(stringr::str_extract(sample, '(?<=_)[0-9]+'))]
-    designMatrix[, replicate:=as.factor(stringr::str_extract(sample, '(?<=_)[^_]*$'))]
+    designMatrix[, sample := stringr::str_extract(basename(filename), '([^_]+_){3}[^_^.]+')]
+    designMatrix[, condition := as.factor(stringr::str_extract(sample, '[^_]+'))]
+    designMatrix[, LT := as.factor(stringr::str_extract(sample, '(?<=_)[LT]+'))]
+    designMatrix[, labelingTime := as.numeric(stringr::str_extract(sample, '(?<=_)[0-9]+'))]
+    designMatrix[, replicate := as.factor(stringr::str_extract(sample, '(?<=_)[^_]*$'))]
     return(designMatrix)
 }

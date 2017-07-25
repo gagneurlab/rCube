@@ -43,11 +43,11 @@ geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM'
 geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
 
 ## set number of iterations for random initialization
-elementMetadata(geneCounts)$numberOfInterations <- 3
+elementMetadata(geneCounts)$numberOfInterations <- 1
 
 ## estimate synthesis and degradation rates for individual replicates and combination
 rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1, 2, "1:2"),
-method='single', BPPARAM=NULL)
+method='single', BPPARAM=BiocParallel::MulticoreParam(1))
 }
 \seealso{
 \code{\link{BiocParallelParam}}

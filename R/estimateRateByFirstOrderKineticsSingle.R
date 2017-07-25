@@ -68,7 +68,7 @@
                                   labelingTime=labelingTime, lengths=lengths,
                                   crossContamination=crossContamination, 
                                   sequencingDepths=sequencingDepths, N=N)
-   
+    # message(date(), 'Reformat result rates')
     res <- data.table::rbindlist(res)
     #Take the median of all fits
     res <- res[,.(synthesis=median(synthesis, na.rm=TRUE), degradation=median(degradation, na.rm=TRUE)), 
@@ -106,6 +106,8 @@
                               replicates %in% rep)
     samples <- c(labeledSamples, totalSamples)
 
+    # message(date(), ' Estimate rates for ', capture.output(c), capture.output(rep), capture.output(gene))
+    
     if (any(counts[gene, samples] > 0) & all(!is.na(dispersion[gene, ]))) {
         muInitialGene <- runif(1, 0.01, 0.1)
         lambdaInitialGene <- runif(1, 0.01, 0.1)
@@ -199,9 +201,7 @@
     }
 }
 
-
 .vgetExpectedCounts <- Vectorize(.getExpectedCounts, vectorize.args=c("crossCont", "seqDepths"))
-
 
 .cost <- function(
     theta,

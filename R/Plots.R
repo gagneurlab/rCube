@@ -54,15 +54,22 @@ plotSpikeinCountsVsSample <- function(spikeinCounts)
 #'
 #' @export
 #' @rdname diagnosticPlots
+#' @import graphics
 #'
 #' @examples
-#' TODO <-NULL
+#' data(geneRates)
+#' plotResultsReplicates(geneRates)
 plotResultsReplicates <- function(featureRates){
-    synthesisRates <- assay(featureRates)[, featureRates$rate == 'synthesis']
-    # when individual rates were estimated and against combination?
-    #todo for each condition
+    # nplots <- expand.grid(cond=unique(colData(featureRates)$condition), rate=c('synthesis', 'degradation'))
     
-    #todo for sr/hl
+    
+    for(cond in unique(colData(featureRates)$condition)){
+        for(rate in c('synthesis', 'degradation')){
+            rates <- assay(featureRates)[, featureRates$rate == rate & featureRates$condition == cond]
+            pairs(rates)
+        }
+    }
+    
 }
 
 
@@ -74,6 +81,8 @@ plotResultsReplicates <- function(featureRates){
 #' and sample information.
 #' @param featureRates A \code{rCubeRates} object containing estimated labeled
 #' and total RNA amounts for all desired replicates/conditions.
+#' @param condition bla
+#' @param replicate bla
 #'
 #'
 #' @export
@@ -81,18 +90,23 @@ plotResultsReplicates <- function(featureRates){
 #' @rdname diagnosticPlots
 #'
 #' @examples
+#' data(spikeinCounts)
 #' data(geneCounts)
-# ## plotFittedCounts(geneCounts, rRates)
-plotFittedCounts <- function(featureCounts, featureRates){
+#' geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM')
+#' data(geneRates)
+#' plotFittedCounts(geneCounts, geneRates, "A", "1")
+plotFittedCounts <- function(featureCounts, featureRates, condition=NULL, replicate=NULL){
     res.batches <- unique(data.frame(cond=colData(featureRates)$condition, rep=colData(featureRates)$replicate))
+    res.batches <- res.batches[which(res.batches$cond %in% condition & res.batches$rep %in% replicate),]
     
     crossCont <- colData(featureCounts)$cross.contamination
     seqDepths <- colData(featureCounts)$sequencing.depth
-    
+
+    op <- par(no.readonly = TRUE)
     par(mfrow=c(nrow(res.batches), 2))
     
     for(r in 1:nrow(res.batches)){
-        row <- res.batches[r,]
+        row <- res.batches[r, ]
         labeledAmount <- assay(featureRates[, featureRates$condition == row$cond & featureRates$replicate == row$rep & featureRates$rate == 'labeled.amount'])
         unlabeledAmount <- assay(featureRates[, featureRates$condition == row$cond & featureRates$replicate == row$rep & featureRates$rate == 'unlabeled.amount'])
         
@@ -109,8 +123,12 @@ plotFittedCounts <- function(featureCounts, featureRates){
                                           crossCont[labeledSamples],
                                           seqDepths[labeledSamples])
         
-        trueCountsL <- assay(featureCounts[, featureCounts$condition == row$cond & featureCounts$replicate %in% rep & featureCounts$LT == "L"])
-        trueCountsT <- assay(featureCounts[, featureCounts$condition == row$cond & featureCounts$replicate %in% rep & featureCounts$LT == "T"])
+        trueCountsL <- assay(featureCounts[, featureCounts$condition == row$cond &
+                                            featureCounts$replicate %in% rep &
+                                            featureCounts$LT == "L"])
+        trueCountsT <- assay(featureCounts[, featureCounts$condition == row$cond &
+                                            featureCounts$replicate %in% rep &
+                                            featureCounts$LT == "T"])
         
         suppressWarnings(plot(expCountsL, trueCountsL, log="xy", 
                               xlab="Expected Counts", ylab="Observed Counts",
@@ -125,4 +143,5 @@ plotFittedCounts <- function(featureCounts, featureRates){
         mtext("Total Counts", col="grey")
         abline(0, 1, col="grey")
     }
+    par(op) ### Reset to previous plotting settings
 }

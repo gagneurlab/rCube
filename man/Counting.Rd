@@ -14,20 +14,24 @@ countSpikeins(experimentalSetup, scanBamParam = ScanBamParam(flag =
   verbose = FALSE)
 }
 \arguments{
-\item{experimentalSetup}{An empty \code{rCubeExperiment} object for spikeins/junctions,
-see \code{\link{setupExperimentSpikeins}} and \code{\link{setupExperiment}}.}
+\item{experimentalSetup}{An empty \code{rCubeExperiment} object for 
+spikeins/junctions, see \code{\link{setupExperimentSpikeins}} and 
+\code{\link{setupExperiment}}.}
 
-\item{scanBamParam}{Parameter to specify which fields are imported from a BAM file.}
+\item{scanBamParam}{Parameter to specify which fields are imported from a BAM
+file.}
 
 \item{BPPARAM}{An instance of a \code{BiocParallelParam} class, e.g., 
-\code{\link{MulticoreParam}}, \code{\link{SnowParam}}, \code{\link{DoparParam}}.}
+\code{\link{MulticoreParam}}, \code{\link{SnowParam}}, 
+\code{\link{DoparParam}}.}
 
 \item{ncores}{Number of cores to be used for parallel computation.}
 
 \item{verbose}{If true, status messages are printed.}
 }
 \value{
-An updated \code{rCubeExperiment} container, with spike-in read counts
+An updated \code{rCubeExperiment} container, with spike-in read 
+counts.
 }
 \description{
 \code{countSpikeins} provides a framework to count reads for 

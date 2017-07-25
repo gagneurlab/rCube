@@ -22,8 +22,8 @@
 #' 
 #' @examples
 #' # Gencode annotation of MYC gene
-#' data(example.exons)
-#' constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(example.exons, 1)
+#' data(exampleExons)
+#' constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, BPPARAM=NULL, 1)
 #' @export
 createJunctionGRangesFromBam <- function(bamFiles, 
                                          support=10,
@@ -35,7 +35,7 @@ createJunctionGRangesFromBam <- function(bamFiles,
     {
         #Length is maximum ScanBam can handle
         which <- GRanges(seqnames=as.character(chromosome), IRanges(1, 536870912))
-        spliced_reads <- GenomicAlignments::readGAlignmentPairs(bamFile, param=ScanBamParam(which=which, flag=scanBamFlag(isSecondaryAlignment=FALSE)))%>%junctions()%>%reduce()%>%unlist()%>%as.data.table()
+        spliced_reads <- GenomicAlignments::readGAlignmentPairs(bamFile, param=ScanBamParam(which=which, flag=scanBamFlag(isSecondaryAlignment=FALSE))) %>% junctions() %>% reduce() %>% unlist() %>% as.data.table()
         sc <- spliced_reads[, .(count= .N), by=c("seqnames", "start", "end", "strand")]
         #message('Loaded: ', bamFile, '...', chromosome)
         return(sc)

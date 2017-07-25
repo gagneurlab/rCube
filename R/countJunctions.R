@@ -5,11 +5,14 @@
 #' @description \code{countSpikeins} provides a framework to count reads for 
 #' artificial spikeins, \code{countJunctions} to count reads for junctions.
 #'
-#' @param experimentalSetup  An empty \code{rCubeExperiment} object for spikeins/junctions,
-#' see \code{\link{setupExperimentSpikeins}} and \code{\link{setupExperiment}}.
-#' @param scanBamParam Parameter to specify which fields are imported from a BAM file.
+#' @param experimentalSetup An empty \code{rCubeExperiment} object for 
+#' spikeins/junctions, see \code{\link{setupExperimentSpikeins}} and 
+#' \code{\link{setupExperiment}}.
+#' @param scanBamParam Parameter to specify which fields are imported from a BAM
+#' file.
 #' @param BPPARAM An instance of a \code{BiocParallelParam} class, e.g., 
-#' \code{\link{MulticoreParam}}, \code{\link{SnowParam}}, \code{\link{DoparParam}}.
+#' \code{\link{MulticoreParam}}, \code{\link{SnowParam}}, 
+#' \code{\link{DoparParam}}.
 #' @param ncores Number of cores to be used for parallel computation.
 #' @param verbose If true, status messages are printed.
 #' 
@@ -20,7 +23,8 @@
 #' @import Rsamtools
 #' @import S4Vectors
 #' 
-#' @return An updated \code{rCubeExperiment} container, with spike-in read counts
+#' @return An updated \code{rCubeExperiment} container, with spike-in read 
+#' counts.
 #' @export
 #' @author Leonhard Wachutka
 #' @rdname Counting
@@ -36,8 +40,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
     param <- data.table(expand.grid(chromosome=chrs, bamFile=bamFiles,
                                     stringsAsFactors=FALSE))
     
-    if(is.null(BPPARAM))
-    {
+    if(is.null(BPPARAM)){
         #BPPARAM <- MulticoreParam(workers=ncores, progressbar=TRUE)
         BPPARAM <- MulticoreParam(workers=ncores, progressbar=TRUE, log=FALSE)
         #BPPARAM <- SerialParam()
@@ -56,7 +59,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
     {
         s <- subset(experimentalSetup, typ == 'junction', filename == fn)
         assays(experimentalSetup[rowRanges(experimentalSetup)$typ == 'junction',
-                                 experimentalSetup[['filename']] == fn])[['counts']] <- 
+                                experimentalSetup[['filename']] == fn])[['counts']] <- 
             as.matrix(merge(rowRanges(s), resByFilename[[fn]], all.x=TRUE)$count, ncol=1)
         # TODO LEO CHECK: Carina removed S4Vectors:: before merge because of Warnings in R CMD check
     }
@@ -74,7 +77,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
     }
     
     region <- subset(rowRanges(experimentalSetup), 
-                     typ == 'donor' | typ == 'acceptor')
+                    typ == 'donor' | typ == 'acceptor')
     param <- data.table(buildIndex(length(region), stepSize=500))
     #param = param[1:10]
     for (fn in bamFiles)
@@ -84,7 +87,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
         }
         bptasks(BPPARAM) <- nrow(param)
         res <- bpdtapply(param, .countDA, bamFile=fn, region=region, 
-                         scanBamParam=scanBamParam, BPPARAM=BPPARAM)
+                        scanBamParam=scanBamParam, BPPARAM=BPPARAM)
         if(verbose){
             message(date(),' Reduce da for ', fn)
         }
@@ -121,10 +124,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
 .countSplitReadsPerChromosome <- function(chromosome, bamFile, scanBamParam){
     # restrict to the chromosome only
     
-    bamWhich(scanBamParam) <- GRanges(
-        seqnames=chromosome,
-        ranges=IRanges(0, 536870912)
-    )
+    bamWhich(scanBamParam) <- GRanges(seqnames=chromosome, ranges=IRanges(0, 536870912))
     
     # get reads from bam file
     galignment <- readGAlignmentPairs(bamFile, param=scanBamParam)
@@ -155,7 +155,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
         type='equal'
     )
     values(junctionsCounts) <- cbind(values(junctionsCounts), 
-                                     data.frame(filename=bamFile))
+                                    data.frame(filename=bamFile))
     # sort it and return the GRange object
     return(sort(junctionsCounts))
 }
