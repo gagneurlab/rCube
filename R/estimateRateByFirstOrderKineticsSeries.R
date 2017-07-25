@@ -65,10 +65,10 @@ callFit <- function(batch, experiment, verbose=FALSE)
 
 #the steady states have to be on the end, because of the way we handle gc!!!
 #maybe later do a check for this
-.SE_fit_rates <- function(counts, ti, length, uc, puc, params.initial=guess_initial2(counts, ti, ...), log.out=FALSE, ...)
+.SE_fit_rates <- function(counts, ti, length, uc, puc, params.initial=.guess_initial2(counts, ti, ...), log.out=FALSE, ...)
 {
     ##Do parametrization
-    p <- parametrize2(params.initial)
+    p <- .parametrize2(params.initial)
     #Do this so params are in the right order, we cant assume this since there could be user defined params.initial
     params.initial <- list(gs=p$gs, gm=p$gm)
     #ubias <- 1-(puc)^uc
@@ -80,14 +80,14 @@ callFit <- function(batch, experiment, verbose=FALSE)
     log_trace <- 0
     if(log.out > 0){log_trace <- log.out}
     
-    fit <- optim(unlist(as.relistable(params.initial)), SElikelihood2, gr=SElikelihood2.grad, params.fixed, params.initial, counts, control=list(maxit=20000, trace=log_trace), method="BFGS")
+    fit <- optim(unlist(as.relistable(params.initial)), .SElikelihood2, gr=.SElikelihood2.grad, params.fixed, params.initial, counts, control=list(maxit=20000, trace=log_trace), method="BFGS")
     
     if(log.out != FALSE){print("Fit finish...")}
     
     #Undo parametrization of fitted values and collecting them for output
     
     
-    params.all <- merge_and_repar2(fit$par, params.fixed, params.initial)
+    params.all <- .merge_and_repar2(fit$par, params.fixed, params.initial)
     params.all <- append(params.all, list(params.initial=params.initial, fit=fit, gen.num=nrow(counts)))
     return (params.all)
 }

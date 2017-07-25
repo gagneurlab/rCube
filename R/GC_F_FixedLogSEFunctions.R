@@ -1,7 +1,7 @@
 ## author: Leonhard Wachutka
 
 ## TODO: Leo, the F invokes a warning with biocCheck as it thinks you mean FALSE. maybe you can rename it?
-guess_initial2 <- function(counts, ti, gc, F)
+.guess_initial2 <- function(counts, ti, gc, F)
 {
     F <- F/F[1]
     F <- F[-1]
@@ -16,7 +16,7 @@ guess_initial2 <- function(counts, ti, gc, F)
 }
 
 
-parametrize2 <- function(p.initial)
+.parametrize2 <- function(p.initial)
 {
     p <- p.initial
     p$gl <- log(p$gl)
@@ -28,7 +28,7 @@ parametrize2 <- function(p.initial)
 }
 
 
-merge_and_repar2 <- function(p.free, p.fixed, p.free.skeleton)
+.merge_and_repar2 <- function(p.free, p.fixed, p.free.skeleton)
 {
     p <- relist(p.free, skeleton=p.free.skeleton)
     p <- append(p, p.fixed)
@@ -42,10 +42,10 @@ merge_and_repar2 <- function(p.free, p.fixed, p.free.skeleton)
 }
 
 
-SElikelihood2 <- function(param.free, param.fixed, param.free.skeleton, k)
+.SElikelihood2 <- function(param.free, param.fixed, param.free.skeleton, k)
 {
     #Resynthesize and reparametrisize our parameters to a single list
-    p <- merge_and_repar2(param.free, param.fixed, param.free.skeleton)
+    p <- .merge_and_repar2(param.free, param.fixed, param.free.skeleton)
     out <- 0 #the
     #Exon-Intron ist SE-Reads * effective-length
     for(i in 1:length(p$t))
@@ -65,9 +65,9 @@ SElikelihood2 <- function(param.free, param.fixed, param.free.skeleton, k)
 }
 
 
-SElikelihood2.grad <- function(param.free, param.fixed, param.free.skeleton, k)
+.SElikelihood2.grad <- function(param.free, param.fixed, param.free.skeleton, k)
 {
-    p <- merge_and_repar2(param.free, param.fixed, param.free.skeleton)
+    p <- .merge_and_repar2(param.free, param.fixed, param.free.skeleton)
     d_gm <- rep(0, p$N)
     d_gl <- rep(0, p$N)
     d_gs <- rep(0, p$N)
