@@ -149,8 +149,6 @@
 }
 
 
-
-
 ## the underlying function to fit labeled and unlabeled RNA amounts to observed
 ## read count data
 .fitAlphaBeta_log_reparam <- function(
