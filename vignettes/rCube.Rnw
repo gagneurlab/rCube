@@ -134,7 +134,7 @@ spikeinCounts <- setupExperimentSpikeins(rows=spikeins,
                                          labelingState=spikeinLabeling)
 @
 The \Rfunction{setupExperiment} can be used analogically for genes/exons/introns/junctions. Here, only the \Robject{rows} and either \Robject{designMatrix} or \Robject{files} has
-to be set. See also %TODO section with counting
+to be set. See also section ref{Counting}.
 
 The individual information from the \Rclass{rCubeExperiment} can be assessed by:
 <<rCubeExperimentContainer, echo=TRUE>>=
@@ -148,6 +148,8 @@ colData(spikeinCounts)
 assay(spikeinCounts)
 @
 
+\subsection{Read counting}\label{Counting}
+
 All RNA rate estimations of this package rely on read counts. These can be either
 provided as count matrices, or read counts can be obtained from BAM files using
 the rCube pipeline.
@@ -155,6 +157,11 @@ the rCube pipeline.
 #TODO 
 @
 
+Alternatively, count matrices can be assigned to the correctly formatted, empty
+\Rclass{rCubeExperiment} object:
+<<countAssignment, echo=TRUE>>=
+#TODO 
+@
 
 % #TODO
 % which section do we do::
@@ -164,10 +171,12 @@ the rCube pipeline.
 
 
 %--------------------------------------------------
-\section{Normalizing RNA-Seq samples using spike-in counts} \label{Normalization}
+\section{Normalization of TT-seq/4sU-seq and RNA-Seq samples} \label{Normalization}
 %--------------------------------------------------
 
+The three possible normalization methods are described in detail below.
 
+\subsection{Normalization by fitting a GLM to artifical spike-in read counts}
 The sample specific parameters like sequencing depth and cross-contamination
 rate are estimated from spike-in counts only. Therefore, we fit a
  generalized linear model (GLM) of the Negative Binomial family with a log link
@@ -183,7 +192,6 @@ contamination (only estimated for unlabeled spike-ins in labeled samples)), and
 e.g. due to sequence biases.
 \end{itemize}
 Additionally, the length of each spike-in is used as an offset, i.e. a known slope for the covariate.
-
 
 <<SpikeinNormalization, echo=TRUE, eval=TRUE>>=
 data(geneCounts)
@@ -202,7 +210,11 @@ Additional fitting results are stored in the \Robject{metadata} of the resulting
 metadata(geneCounts)
 @
 
+\subsection{Normalization using mean counts of artifical spike-ins}
+%TODO
 
+\subsection{Normalization using joint model}
+%TODO
 
 \newpage
 
@@ -212,7 +224,7 @@ metadata(geneCounts)
 %--------------------------------------------------
 
 
-Using the sample-specific values for sequencing depth and cross-contamination as estimated in the previous section, we can now normalize all the samples. It is especially important to bring Labeled and Total samples to comparable scales. Labeled and Total samples can be sequenced at the same depth, and the same amount of RNA is used for library preparation, but the resulting read counts do not reflect the true ratio of Labeled and Total RNAs in the cells, where the amount of newly-synthesized, labeled RNA should be much less than the total RNA amount. Therefore it is necessary to upscale the Total RNA read counts compared to the Labeled RNA read counts.
+Using the sample-specific values for sequencing depth and cross-contamination as estimated in the previous section, we can now normalize all the samples. It is especially important to bring labeled (4sU-seq/TT-seq) and total RNA-seq samples to comparable scales. Labeled and total RNA-seq samples can be sequenced at the same depth, and the same amount of RNA is used for library preparation, but the resulting read counts do not reflect the true ratio of labeled vs all RNAs in the cells, where the amount of newly-synthesized, labeled RNA should be much less than the total RNA amount. Therefore it is necessary to upscale the read counts from total RNA-seq samples compared to the labeled RNA read counts.
 
 \subsection{Providing gene-wise dispersion estimates} \label{Dispersion}
 Usually, read counts in different RNA-seq samples underly fluctuations due to biological or technical variances.
@@ -233,7 +245,11 @@ length m, indiciating for each condition if it was a labeled 4sU-Seq sample
 of n rows and 2 columns, the Labeled (``L") and Total (``T") dispersion estimates
 for all n genes.
 
-TODO BEISPIEL
+<<DESeqDispersion, echo=TRUE, eval=TRUE>>=
+geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
+rowRanges(geneCounts)
+@
+
 
 \subsection{Gene-wise synthesis and degratation rate estimates}
 

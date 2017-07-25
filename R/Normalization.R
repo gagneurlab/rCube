@@ -2,7 +2,7 @@
 #' 
 #' @description \code{estimateSizeFactors} provides a wrapper function to
 #' estimate sample-specific size-factors by three different types. The 
-#' 'spikeinGLM' methodfits a GLM to spike-in read counts to extract sequencing 
+#' 'spikeinGLM' method fits a GLM to spike-in read counts to extract sequencing 
 #' depth values and cross-contamination rates for all samples.
 #' 
 #' TODO: explain other methods 
@@ -11,8 +11,8 @@
 #' resulting \code{rCubeExperiment}.
 #'
 #' @param featureCounts A \code{rCubeExperiment} object containing read
-#' counts for features (genes, junctions, ...), see constructor function 
-#' \code{\link{setupExperiment}}.
+#' counts for features (genes, exons, introns, junctions, ...), see constructor 
+#' function \code{\link{setupExperiment}}.
 #' @param spikeinCounts A \code{rCubeExperiment} object containing read 
 #' counts, length and labeling status for spike-ins, as well as sample 
 #' information, see constructor function \code{\link{setupExperimentSpikeins}}.
@@ -25,19 +25,22 @@
 #' @rdname estimateSizeFactors
 #' @importFrom MASS glm.nb
 #' @export
-#' @author Carina Demel
+#' @author Carina Demel, Leonhard Wachutka
 #'
 #' @examples
+#' # fitting a GLM to spike-in read counts
 #' data(geneCounts)
 #' data(spikeinCounts)
 #' geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method="spikeinGLM")
-estimateSizeFactors <- function(featureCounts, spikeinCounts, method=c('spikeinGLM', 'spikeinMean', 'jointModel')){
+estimateSizeFactors <- function(featureCounts,
+                                spikeinCounts,
+                                method=c('spikeinGLM', 'spikeinMean', 'jointModel')){
     if(method == "spikeinGLM"){
         featureCounts <- .calculateNormalizationBySpikeinGLM(featureCounts, 
                                                              spikeinCounts)
     }else if(method == "spikeinMean"){
-        featureCounts <- .calculateNormalizationByMean(featureCounts, 
-                                                      spikeinCounts)
+        featureCounts <- .calculateNormalizationByMean(featureCounts,
+                                                       spikeinCounts)
     }else{
         ## TODO joint Model?
     }

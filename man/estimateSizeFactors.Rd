@@ -9,8 +9,8 @@ estimateSizeFactors(featureCounts, spikeinCounts, method = c("spikeinGLM",
 }
 \arguments{
 \item{featureCounts}{A \code{rCubeExperiment} object containing read
-counts for features (genes, junctions, ...), see constructor function 
-\code{\link{setupExperiment}}.}
+counts for features (genes, exons, introns, junctions, ...), see constructor 
+function \code{\link{setupExperiment}}.}
 
 \item{spikeinCounts}{A \code{rCubeExperiment} object containing read 
 counts, length and labeling status for spike-ins, as well as sample 
@@ -26,7 +26,7 @@ An updated \code{rCubeExperiment} object for features with sequencing
 \description{
 \code{estimateSizeFactors} provides a wrapper function to
 estimate sample-specific size-factors by three different types. The 
-'spikeinGLM' methodfits a GLM to spike-in read counts to extract sequencing 
+'spikeinGLM' method fits a GLM to spike-in read counts to extract sequencing 
 depth values and cross-contamination rates for all samples.
 
 TODO: explain other methods 
@@ -35,10 +35,11 @@ Additional informations for the fit can be found in the metadata of the
 resulting \code{rCubeExperiment}.
 }
 \examples{
+# fitting a GLM to spike-in read counts
 data(geneCounts)
 data(spikeinCounts)
 geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method="spikeinGLM")
 }
 \author{
-Carina Demel
+Carina Demel, Leonhard Wachutka
 }
