@@ -1,0 +1,10 @@
+\contentsline {section}{\numberline {1}Background}{2}{section.1}
+\contentsline {section}{\numberline {2}Getting started}{2}{section.2}
+\contentsline {subsection}{\numberline {2.1}Input Data}{2}{subsection.2.1}
+\contentsline {section}{\numberline {3}Normalizing RNA-Seq samples using spike-in counts}{3}{section.3}
+\contentsline {section}{\numberline {4}Estimating gene-specific synthesis and degradation rates}{5}{section.4}
+\contentsline {subsection}{\numberline {4.1}Providing gene-wise dispersion estimates}{5}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Gene-wise synthesis and degratation rate estimates}{5}{subsection.4.2}
+\contentsline {section}{\numberline {5}Estimating splicing times from junction read counts}{5}{section.5}
+\contentsline {section}{\numberline {6}Session Information}{5}{section.6}
+\contentsline {section}{\numberline {7}References}{6}{section.7}

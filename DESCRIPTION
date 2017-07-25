@@ -10,4 +10,5 @@ RoxygenNote: 6.0.1
 Imports: methods, data.table, MASS, DESeq2, BiocParallel, S4Vectors, GenomicAlignments, GenomicRanges, IRanges, Rsamtools, lattice, magrittr, stringr, grDevices, graphics, stats, utils
 Depends: SummarizedExperiment
 biocViews: Sequencing, DataImport, Normalization, ExperimentalDesign, SystemsBiology, GeneRegulation
-Suggests: testthat
+Suggests: testthat, BiocStyle, knitr
+VignetteBuilder: knitr
