@@ -1,9 +1,0 @@
-\begin{thebibliography}{1}
-
-\bibitem{Love2014}
-Michael~I Love, Wolfgang Huber, and Simon Anders.
-\newblock {Moderated estimation of fold change and dispersion for RNA-Seq data
-  with DESeq2}.
-\newblock {\em Genome Biology}, 15(12):550, 2014.
-
-\end{thebibliography}
