@@ -40,27 +40,22 @@ options(digits=3, width=80, prompt=" ", continue=" ")
 
 
 \begin{abstract}
-A common problem of RNA-Seq experiments is the normalization of different
-samples, especially when they were also treated differently. A special case is
-the 4sU-labeling followed by deep-sequencing, where two libraries are generated
-from each RNA fraction: First, in one part of the fraction, the 4sU-labeled
-RNAs are pulled down and gives the labeled (``L") fraction of the experiment for
-library preparation. Second, the total RNA (labeled and unlabeled, ``T") is used
-for the preparation of another RNA-Seq library. As the RNA amount for library
-preparation is usually stringent, the sequencing results do not reflect
-reality. Here, we have to account for the sequencing depth of different samples
-and especially adjust the ratio of Labeled to Total RNA-Seq libraries.
-Additionally, the labeled RNA extraction is not perfect and also a little bit
-of unlabeled RNA may contaminate the labeled fraction. As the gene-expression
-also always varies a little bit for biological samples, read counts from real
-genes might lead to confusing estimations. Therefore, we apply our
-normalization approach only to artificial spike-ins from the External RNA 
-Control Consortium (ERCC), for which
-the initial amount of each spike-in is known and the same across all samples.
-Some of the spike-ins were 4sU-labeled by in-vitro transcription, so the
-cross-contamination of unlabeled spike-ins in labeled samples can be monitored.
-The goal of this package is to reliably estimate sequencing depths and
-cross-contamination rates per sample, given 4sU- and total RNA-Seq data.
+% A common problem of RNA-Seq experiments is the normalization of different
+% samples, especially when they were also treated differently. A special case is
+% the 4sU-labeling and purification, followed by deep-sequencing, where two libraries are generated
+% from each RNA fraction: First, in one part of the fraction, the 4sU-labeled
+% RNAs are pulled down and gives the labeled (``L") fraction of the experiment for
+% library preparation. Second, the total RNA (labeled and unlabeled, ``T") is used
+% for the preparation of another RNA-Seq library. As the RNA amount for library
+% preparation is usually stringent, the sequencing results do not reflect
+% reality. Here, we have to account for the sequencing depth of different samples
+% and especially adjust the ratio of Labeled to Total RNA-Seq libraries.
+
+RNA rates: synthesis, splicing, degradation:
+
+TT-seq allows to monitor local synthesis rates
+
+provide a framework to extract RNA rates from BAM files
 
 \vspace{1em}
   
@@ -120,7 +115,7 @@ The \Robject{rowRanges} of the \Rclass{rCubeExperiment} is a \Rclass{GRanges} ob
 features, for which RNA rates should be estimated. Experimental sample information
 can be either provided by a design matrix or this information can be extracted from
 the BAM-file names (when they fulfil the required structure).
-Then, an empty \Rclass{rCubeExperiment},e.g. for the artificial spike-ins can
+Then, an empty \Rclass{rCubeExperiment}, e.g. for the artificial spike-ins, can
 be constructed as follows:
 <<EmptyrCubeExperimentContainer, echo=TRUE>>=
 data("spikeins")
@@ -134,7 +129,7 @@ spikeinCounts <- setupExperimentSpikeins(rows=spikeins,
                                          labelingState=spikeinLabeling)
 @
 The \Rfunction{setupExperiment} can be used analogically for genes/exons/introns/junctions. Here, only the \Robject{rows} and either \Robject{designMatrix} or \Robject{files} has
-to be set. See also section ref{Counting}.
+to be set. See also section \ref{Counting}.
 
 The individual information from the \Rclass{rCubeExperiment} can be assessed by:
 <<rCubeExperimentContainer, echo=TRUE>>=
@@ -177,6 +172,21 @@ Alternatively, count matrices can be assigned to the correctly formatted, empty
 The three possible normalization methods are described in detail below.
 
 \subsection{Normalization by fitting a GLM to artifical spike-in read counts}
+
+By normalization, we want to account for the sequencing depth of different samples
+and especially adjust the ratio between Labeled to Total RNA-Seq libraries.
+Additionally, the labeled RNA extraction is not perfect and some
+unlabeled RNA may contaminate the labeled RNA fraction. As the gene-expression
+also always varies a little bit for biological samples, read counts from real
+genes might lead to confusing estimations. Therefore, we apply our
+normalization approach only to artificial spike-ins from the External RNA 
+Control Consortium (ERCC), for which
+the initial amount of each spike-in is known and the same across all samples.
+Some of the spike-ins were 4sU-labeled by in-vitro transcription, so the
+cross-contamination of unlabeled spike-ins in labeled samples can be monitored.
+The goal of this package is to reliably estimate sequencing depths and
+cross-contamination rates per sample, given 4sU- and total RNA-Seq data.
+
 The sample specific parameters like sequencing depth and cross-contamination
 rate are estimated from spike-in counts only. Therefore, we fit a
  generalized linear model (GLM) of the Negative Binomial family with a log link
@@ -251,9 +261,16 @@ rowRanges(geneCounts)
 @
 
 
-\subsection{Gene-wise synthesis and degratation rate estimates}
+\subsection{Feature-specific synthesis and degratation rate estimates}
 
-Plug-in sequencing depth and cross-contamination as estimated in Section \ref{Normalization} and gene-wise dispersion estimates as described in Section \ref{Dispersion}.
+After estimating sequencing depth and cross-contamination rates per sample (see Section \ref{Normalization}) and extracting feature-specific dispersion estimates (see Section \ref{Dispersion}), we can now estimate RNA synthesis and degradation rate for each feature and condition individually. Multiple replicates for the same condition can be used for a joint estimation. 
+The user has to specify for which replicate or combination of replicates the results should be estimated. Therefore, the \Robject{replicate} parameter is a vector of all combinations that should be evaluated. For the joint estimation for multiple replicates, these have to be
+given as a string separeted by a ``:''. In the following example, we will obtain individual results for replicate 1 and 2 and also results for a joint estimation.
+
+<<SynDecEstimation, echo=TRUE, eval=TRUE>>=
+rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1, 2, "1:2"),
+method='single', BPPARAM=BiocParallel::MulticoreParam(1))
+@
 
 
 %--------------------------------------------------
