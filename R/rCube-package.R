@@ -74,3 +74,11 @@ NULL
 #' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
 #' @keywords data
 NULL
+
+#' Biostrings object for artifical spike-ins containing fasta sequences
+#'
+#' @name spikeinGenome
+#' @docType data
+#' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
+#' @keywords data
+NULL

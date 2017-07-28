@@ -51,11 +51,10 @@ options(digits=3, width=80, prompt=" ", continue=" ")
 % reality. Here, we have to account for the sequencing depth of different samples
 % and especially adjust the ratio of Labeled to Total RNA-Seq libraries.
 
-RNA rates: synthesis, splicing, degradation:
+{\color{red}rCube} provides a framework for the estimation of {\textcolor{red}R}NA metabolism {\textcolor{red}R}ates in {\textcolor{red}R} (${\color{red}R^3}$). The rCube package complements the recently published transient transcriptome sequencing (TT-seq) protocol. It has been shown, that 4sU-labeling and subsequent purification of RNA allows to monitor local RNA synthesis. Therefore, the information from TT-seq/4sU-seq and total RNA-seq samples is used to model RNA synthesis, splicing, and degradation rates based on first-order kinetics.
 
-TT-seq allows to monitor local synthesis rates
-
-provide a framework to extract RNA rates from BAM files
+The rCube package includes functionalities to extract junctions and constitutive exons from feature annotations,
+count reads from BAM-files, and normalize different samples against each other using a variety of different methods.
 
 \vspace{1em}
   
@@ -114,7 +113,7 @@ The rCube package works on \Rclass{rCubeExperiment} containers, that rely on the
 The \Robject{rowRanges} of the \Rclass{rCubeExperiment} is a \Rclass{GRanges} object of
 features, for which RNA rates should be estimated. Experimental sample information
 can be either provided by a design matrix or this information can be extracted from
-the BAM-file names (when they fulfil the required structure). The file name should be a string containing condition, labelingTime (as integer), L/T sample information, and replicate (integer/string), separated by a "_".
+the BAM-file names (when they fulfil the required structure). The file name should be a string containing condition, labelingTime (as integer), L/T sample information, and replicate (integer/string), separated by a "\_".
 Then, an empty \Rclass{rCubeExperiment}, e.g. for the artificial spike-ins, can
 be constructed as follows:
 <<EmptyrCubeExperimentContainer, echo=TRUE>>=
@@ -128,8 +127,7 @@ spikeinCounts <- setupExperimentSpikeins(rows=spikeins,
                                          length=spikeinLengths,
                                          labelingState=spikeinLabeling)
 @
-The \Rfunction{setupExperiment} can be used analogically for genes/exons/introns/junctions. Here, only the \Robject{rows} and either \Robject{designMatrix} or \Robject{files} has
-to be set. See also section \ref{Counting}.
+The \Rfunction{setupExperiment} can be used analogically for genes/exons/introns/junctions. Here, only the \Robject{rows} and either \Robject{designMatrix} or \Robject{files} has to be set. See also section \ref{Counting}.
 
 The individual information from the \Rclass{rCubeExperiment} can be assessed by:
 <<rCubeExperimentContainer, echo=TRUE>>=
@@ -154,7 +152,7 @@ the rCube pipeline.
 
 Alternatively, count matrices can be assigned to the correctly formatted, empty
 \Rclass{rCubeExperiment} object:
-<<countAssignment, echo=TRUE>>=
+<<countAssignment, echo=TRUE, eval=FALSE>>=
 #TODO 
 @
 
@@ -267,7 +265,8 @@ given as a string separeted by a ``:''. In the following example, we will obtain
 <<SynDecEstimation, echo=TRUE, eval=FALSE>>=
 rates <- estimateRateByFirstOrderKinetics(geneCounts,
                                           replicate=c(1, 2, "1:2"),
-                                          method='single', BPPARAM=BiocParallel::MulticoreParam(1))
+                                          method='single',
+                                          BPPARAM=BiocParallel::MulticoreParam(1))
 @
 
 
