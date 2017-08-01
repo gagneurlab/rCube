@@ -1,0 +1,13 @@
+The files *.bam contain reads aligned to the human genome (version GRCh38, April 2014)
+restricted to the following regions:
+
+FOS: chr14:75278000-75283000
+Spikein2: chrS2
+Spikein4: chrS4
+Spikein5: chrS5
+Spikein8: chrS8
+Spikein9: chrS9
+Spikein12: chrS12
+
+Full data set published in:
+Michel et al, MSB, 2017.
