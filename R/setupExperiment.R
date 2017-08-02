@@ -27,7 +27,7 @@
 #' @examples
 #' data(spikeins)
 #' data(spikeinLabeling)
-#' data(spikeinLengths)
+#' spikeinLengths <- width(spikeins)
 #' data(designMatrix)
 #' spikeinCounts <- setupExperimentSpikeins(rows=spikeins, 
 #' designMatrix=designMatrix, length=spikeinLengths, 
