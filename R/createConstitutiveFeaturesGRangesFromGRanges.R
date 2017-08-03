@@ -17,7 +17,7 @@
 #' @author Carina Demel
 #' 
 #' @examples
-#' # Gencode annotation of MYC gene
+#' # reduced Gencode annotation of FOS gene (for illustration)
 #' data(exampleExons)
 #' constitutiveExons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, 
 #' BPPARAM=NULL, ncores=1)
@@ -67,8 +67,10 @@ createConstitutiveFeaturesGRangesFromGRanges <- function(granges,
     constFeatureList <- GRangesList(constFeatureList)
     constitutiveFeatures <- do.call("c", constFeatureList)
     
-    featureNumFormatted <- sprintf("%05d", 1:length(constitutiveFeatures))
-    names(constitutiveFeatures) <- paste("CF", featureNumFormatted, sep="")
+    if(length(constitutiveFeatures) > 0){
+        featureNumFormatted <- sprintf("%05d", 1:length(constitutiveFeatures))
+        names(constitutiveFeatures) <- paste("CF", featureNumFormatted, sep="")
+    }
     
     return(constitutiveFeatures)
 }

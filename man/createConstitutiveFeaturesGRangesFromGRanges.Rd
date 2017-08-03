@@ -26,7 +26,7 @@ constitutive, when they belong to all transcript isoform of the corresponding
 gene.
 }
 \examples{
-# Gencode annotation of MYC gene
+# reduced Gencode annotation of FOS gene (for illustration)
 data(exampleExons)
 constitutiveExons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, 
 BPPARAM=NULL, ncores=1)
