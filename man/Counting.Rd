@@ -3,6 +3,7 @@
 \name{countJunctions}
 \alias{countJunctions}
 \alias{countSpikeins}
+\alias{countFeatures}
 \title{Counting reads for features}
 \usage{
 countJunctions(experimentalSetup, scanBamParam = ScanBamParam(flag =
@@ -10,6 +11,10 @@ countJunctions(experimentalSetup, scanBamParam = ScanBamParam(flag =
   verbose = FALSE)
 
 countSpikeins(experimentalSetup, scanBamParam = ScanBamParam(flag =
+  scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL,
+  verbose = FALSE)
+
+countFeatures(experimentalSetup, scanBamParam = ScanBamParam(flag =
   scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL,
   verbose = FALSE)
 }
@@ -39,6 +44,7 @@ artificial spikeins, \code{countJunctions} to count reads for junctions.
 }
 \examples{
 
+#TODO
 #TODO
 }
 \seealso{

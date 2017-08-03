@@ -57,16 +57,6 @@ NULL
 #' @keywords data
 NULL
 
-
-#' Length of artificial spike-ins sequences
-#'
-#' @name spikeinLengths
-#' @docType data
-#' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
-#' @keywords data
-NULL
-
-
 #' Genomic ranges object for artifical spike-ins, which can be used for counting
 #'
 #' @name spikeins

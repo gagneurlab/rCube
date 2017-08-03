@@ -15,8 +15,6 @@ opts_chunk$set(tidy=FALSE,dev="png",fig.show="hide",
 BiocStyle::latex()
 @
 
-
-
 \title{rCube - RNA-Rates in R}
 \author{Leonhard Wachutka$^{1,*}$, Carina Demel$^{2}$, Julien Gagneur$^{1}$ \\
 [1em] \small{$^{1}$ Department of Informatics, Technical University of Munich, Munich, Germany} \\
@@ -87,12 +85,20 @@ As described in .... 4sU-seq allows to monitor changes in the RNA metabolism. If
 
 
 explain the  why we have spike ins (diagram?)
+Artificial RNA spike-in sequences can be used to adjust for global sequencing variations between samples. One source of variation is the sequencing depth. Even replicates from the same experimental condition may exhibit different read counts based on how deep the samples were sequenced. These variations (up to biological variations) can be overcome by normalization to sequencing depth.
+In a typical RNA-seq experiment, one wants to compare different samples. After extracting the RNA from the cells, the same starting material is used for the library prepartion, therefore the information is lost, if cells from different samples were expressing different amounts of RNA. Adding the same volumes of spike-ins to a defined number of cells can help to resolve this problem. In our case, we additionally want to rescale 4sU-labeled and total RNA-seq samples, so that the ratio of labeled RNA to total RNA read counts reflects the ratio of labeled RNA to total RNA amounts in the cell.
+%The External RNA Control Consortium (ERCC) is providing a set artifical RNA sequences that do not map to any known genome.
+
 
  explain time series vs only label total 
 
  ref to TTseq
+ \cite{Schwalb2016}
 
  ref to MSB
+ In another study, we
+\cite{Michel2017} 
+
 
  define synthesis, splicing, decay rate
 
@@ -117,11 +123,79 @@ Before starting, the package must be loaded by:
 library("rCube")
 @
 
+\subsection{Example Data}
+
+The \texttt{inst/extdata} of the \textit{rCube} package provides two example data sets that 
+should illustrate the two different functionalities of rCube:
+
+The first example data set, ``Jurkat'', contains bam files from resting and activated Jurkat T-cells for TT-seq and RNA-seq samples. The bamfiles are restricted to the FOS gene (chr14:75278000-75283000) and the artifical spike-ins, subsampled to reduce file size. The full data sets are published in \cite{Michel2017}. This example data is used to demonstrate the spike-ins normalization method, and the estimation of synthesis and degradation rates for individual 4sU-labeled (TT-seq) and total RNA-seq pairs.
+
+The second data set , ...
+
+%--------------------------------------------------
+\section{Conditional synthesis and degradation rates for Jurkat data}
+%--------------------------------------------------
+
+Example data sets from a T-cell activation experiment are stored in the \texttt{inst/extdata} of the \textit{rCube} package.
+In this part of the vignette, we will demonstrate 
+\begin{itemize}
+\item how reads can be counted for (constitutive) exons and spike-ins,
+\item how the samples are normalized against each other based on the spike-in read counts,
+\item how synthesis and degradation rates are obtained for (constitutive) exons
+\item how gene-specific rates are obtained from exon-specific rates
+\end{itemize}
+
+\subsection{Gene model}
+working on exons/introns/genes...
+The estimation of synthesis and degradation rates with the \textit{rCube} package relies on read counts.
+Dependent on the features, for which read counts are provided, the rates can reflect synthesis rates of exons, introns, or full genes. 
+Especially degradation rates may differ between exons and introns. 
+Therefore, the features, which should be used to estimate synthesis and degradation rates, 
+and for which read counts are provided or should be obtained, need to be provided as a \Rclass{GRanges} object.
+
+Due to numerous transcript isoforms per gene, and the arising problem that for 
+some bases their exonic or intronic nature cannot be unambigously identified, 
+we propose to use the model of constitutive exons/introns from \cite{Bullard2010}.
+Hereby, all bases, that belong to an exon/intron in all (annotated) transcript 
+isoforms of the same gene, are thought to be part of "constitutive" exons/introns.
+In the following, we have an example annotation from the FOS gene (not comprehensive) to illustrate how constitutive exons can be extracted from an exon annotation.
+
+<<constitutiveExons, echo=TRUE>>==
+data("exampleExons")
+exampleExons
+constitutiveExons <- createConstitutiveFeaturesGRangesFromGRanges(exampleExons,
+                                                                  BPPARAM=NULL,
+                                                                  ncores=1)
+constitutiveExons
+@
+
+
+<<plotConstExons, echo=FALSE, eval=TRUE, fig.width=7.5, fig.height=2.5, fig.show='asis'>>==
+library(ggbio)
+data("exampleExons")
+elementMetadata(exampleExons) = data.frame("group"=elementMetadata(exampleExons)[,"transcript_id"])
+elementMetadata(constitutiveExons) = data.frame("group"="constitutive")
+gra2 = c(exampleExons, constitutiveExons)
+levels(gra2$group) = c("isoform 1", "isoform 2", "constitutive")
+gra2$group = relevel(gra2$group, ref="constitutive")
+autoplot(gra2, aes(fill = group, group = group), geom = "alignment", group.selfish = TRUE, xlab="chromosome 14")
+@
+
+Please note, for the subsequent workflow it is not necessary to extract constitutive exons. Any kind of \Rclass{GRanges} object can be used as feature annotation (e.g. full genes, introns, ...).
 
 
 \subsection{Experimental Design}
 
-Example data sets for a T cell activation are stored in the \texttt{inst/extdata} of the \textit{rCube} package.
+The rCube package works on \Rclass{rCubeExperiment} containers, that rely on the
+\Rclass{SummerizedExperiment} class.
+Objects of this class are used as input for the whole
+workflow, starting from read counting, normalization, dispersion estimation, to rate estimation. Most of these steps return an updated and extended 
+\Rclass{rCubeExperiment} object.
+
+The \Robject{rowRanges} of the \Rclass{rCubeExperiment} is a \Rclass{GRanges} annotation of
+features, for which RNA rates should be estimated. Experimental sample information
+can be either provided by a experimental design matrix or this information can be extracted from
+the BAM-file names (when they fulfil the required structure).
 
 We first look at the experimental design file \texttt{experimentalDesign.txt}, that can be imported as a \Rclass{data.frame}.
 
@@ -130,28 +204,55 @@ folder <- system.file("extdata/Jurkat", package='rCube')
 folder
 expDesign <- read.delim(file.path(folder, "experimentalDesign.txt"))
 expDesign
-#setupExperiment(rows, designMatrix=expDesign, files=NULL)
 @
 
-Alternatively, the experimental design matrix can be constructed from the bam file names, if they follow the following convention
+Together with the feature annotation, for which we want to estimate synthesis and degradation rates, we can construct the \Rclass{rCubeExperiment}:
+<<ExperimentalDesignFromFile, echo=TRUE>>==
+exonCounts <- setupExperiment(constitutiveExons, designMatrix=expDesign, files=NULL)
+class(exonCounts)
+@
+
+Alternatively, the experimental design matrix can be constructed from the bam file names internally, if they follow the following convention
 \texttt{\{condition\}\_\{L|T\}\_\{labelingTime\}\_\{replicate\}.bam}
 
-%TODO; should we export: .createDesignMatrix
+<<bamfiles, echo=TRUE>>==
+bamfiles <- list.files(folder, pattern="*.bam$", full.names=TRUE)
+basename(bamfiles)
 
-<<ExperimentalDesignFromFiles, echo=TRUE>>==
-bamfiles <- list.files(folder, pattern="*.bam$")
-bamfiles
-#setupExperiment(rows, designMatrix=NULL, files=bamfiles)
+exonCounts <- setupExperiment(constitutiveExons, designMatrix=NULL, files=bamfiles)
+@
+
+The individual information from the \Rclass{rCubeExperiment} can be assessed by:
+<<expDesignAccessors, echo=TRUE>>==
+# feature information
+rowRanges(exonCounts)
+
+# sample information
+colData(exonCounts)
+
+# read counts
+assay(exonCounts)
 @
 
 
-\subsection{Read classification}
-\subsection{Gene model}
-(exon, into and junctions)
-by gff
-de novo + gff
+The resulting \Rclass{rCubeExperiment} object can now be used to count reads.
+
 
 \subsection{Counting}
+
+For read countings, we use the \Rfunction{readGAlignmentPairs} in a parallel fashion:
+
+<<Couting, echo=TRUE>>==
+assay(exonCounts)
+
+exonCounts <- countFeatures(exonCounts,
+                            scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), 
+                            BPPARAM=NULL, 
+                            verbose=FALSE)
+assay(exonCounts)
+@
+
+
 \subsection{Spike-ins}
 The artifical spike-in annotations and labeling information can be loaded via:
 <<spikeins, echo=TRUE>>==
@@ -162,7 +263,36 @@ spikeinLengths <- width(spikeins)
 
 \subsection{Spike-in design}
 
+An empty \Rclass{rCubeExperiment} for the artificial spike-ins additionally requires 
+information about the length and the labeling status of each spikein, and can
+be constructed as follows:
+
+<<spikeindesign, echo=TRUE>>=
+spikeinCounts <- setupExperimentSpikeins(rows=spikeins,
+                                         designMatrix=expDesign,
+                                         length=spikeinLengths,
+                                         labelingState=spikeinLabeling)
+@
+
+
 \subsection{Spike-in counting}
+
+%Please be aware, that our example data is stored in the \texttt{inst/extdata} of the \textit{rCube} package. Therefore, the \Robject{filename} in the \Rclass{rCubeExperiment}
+%\Robject{colData} has to be adjusted to 
+<<spikeincountsfilename, echo=FALSE>>=
+colData(spikeinCounts)$filename <- bamfiles
+@
+
+%TODO this example does not work! :(
+<<spikeincounts, echo=TRUE>>==
+# spikeinCounts <- countSpikeins(spikeinCounts,
+#                     scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)),
+#                     BPPARAM=NULL,
+#                     verbose=FALSE)
+assay(spikeinCounts)
+@
+
++ diagnostic plot?
 
 
 \subsection{Size factor based on spike-in}
@@ -171,6 +301,31 @@ spikeinLengths <- width(spikeins)
 \subsection{describe the different fitting functions}
 \subsection{describe the class of the returned object (rCubeRates)}
 
+
+%--------------------------------------------------
+\section{Labeling time series}
+%--------------------------------------------------
+
+\subsection{Experimental Design}
+\subsection{Read classification}
+\subsection{Gene model}
+(exon, into and junctions)
+by gff
+de novo + gff
+\subsection{Counting}
+\subsection{Spike-ins}
+\subsection{Spike-in design}
+\subsection{Spike-in counting}
+\subsection{Size factor based on spike-in}
+\subsection{Estimate dispersion}
+\subsection{Fit the rates}
+\subsection{describe the different fitting functions}
+\subsection{describe the class of the returned object (rCubeRates)}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %### this part is old from before talking to julien:
  this part is old from before talking to julien:
