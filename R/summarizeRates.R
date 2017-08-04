@@ -15,10 +15,10 @@
 #' @seealso \code{\link[GenomicRanges]{findOverlaps}}
 #'
 #' @examples
-#' data(geneRates)
-#' rows <- rowRanges(geneRates)
+#' data(exonRates)
+#' rows <- rowRanges(exonRates)
 #' topLevelFeatures <- reduce(rows)
-#' topLevelFeaturesRates <- summarizeRates(geneRates, topLevelFeatures, by='mean')
+#' topLevelFeaturesRates <- summarizeRates(exonRates, topLevelFeatures, by='mean')
 summarizeRates <- function(featureRates, topLevelFeatures, by=c('mean', 'median'))
 {
     rows <- rowRanges(featureRates)
@@ -28,7 +28,11 @@ summarizeRates <- function(featureRates, topLevelFeatures, by=c('mean', 'median'
                                                             topLevelFeatures)
     mergeRates <- function(subject, rates, ov, by){
         hits <- queryHits(ov)[subjectHits(ov) == subject]
-        return(apply(rates[hits, ], 2, match.fun(by), na.rm=TRUE))
+        if(length(hits) > 1){
+            return(apply(rates[hits, ], 2, match.fun(by), na.rm=TRUE))
+        }else{
+            return(rates[hits, ])
+        }
     }
     res <- t(sapply(unique(subjectHits(ov)), mergeRates, rates=rates, ov=ov, 
                     by=by))
