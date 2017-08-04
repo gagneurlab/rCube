@@ -31,17 +31,17 @@
 #' @examples
 #' ## estimate sequencing depths and cross-contamination values from spike-ins
 #' data(spikeinCounts)
-#' data(geneCounts)
-#' geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM')
+#' data(exonCounts)
+#' exonCounts <- estimateSizeFactors(exonCounts, spikeinCounts, method='spikeinGLM')
 #' 
 #' ## estimate dispersions for all genes
-#' geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
+#' exonCounts <- estimateSizeDispersions(exonCounts, method='DESeqDispMAP')
 #' 
 #' ## set number of iterations for random initialization
-#' elementMetadata(geneCounts)$numberOfInterations <- 1
+#' elementMetadata(exonCounts)$numberOfInterations <- 1
 #' 
 #' ## estimate synthesis and degradation rates for individual replicates and combination
-#' rates <- estimateRateByFirstOrderKinetics(geneCounts, replicate=c(1, 2, "1:2"),
+#' rates <- estimateRateByFirstOrderKinetics(exonCounts, replicate=c(1, 2, "1:2"),
 #' method='single', BPPARAM=BiocParallel::MulticoreParam(1))
 estimateRateByFirstOrderKinetics <- function(featureCounts,
                                              replicate,
@@ -78,8 +78,8 @@ estimateRateByFirstOrderKinetics <- function(featureCounts,
 #' @rdname rCubeRate
 #'
 #' @examples
-#' data(geneCounts)
-#' rates <- createRResultCubeRates(geneCounts, replicate=c(1, 2, '1:2'))
+#' data(exonCounts)
+#' rates <- createRResultCubeRates(exonCounts, replicate=c(1, 2, '1:2'))
 #' rates
 createRResultCubeRates <- function(featureCounts, replicate)
 {
@@ -109,8 +109,8 @@ createRResultCubeRates <- function(featureCounts, replicate)
 #' @rdname rCubeRate
 #'
 #' @examples
-#' #' data(geneCounts)
-#' rates <- createRResultCubeRatesExtended(geneCounts, replicate=c(1, 2, '1:2'))
+#' #' data(exonCounts)
+#' rates <- createRResultCubeRatesExtended(exonCounts, replicate=c(1, 2, '1:2'))
 #' rates
 createRResultCubeRatesExtended <- function(featureCounts, replicate)
 {
