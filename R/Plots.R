@@ -57,11 +57,12 @@ plotSpikeinCountsVsSample <- function(spikeinCounts)
 #' @import graphics
 #'
 #' @examples
-#' data(geneRates)
-#' plotResultsReplicates(geneRates)
+#' data(exonRates)
+#' plotResultsReplicates(exonRates)
 plotResultsReplicates <- function(featureRates){
     # nplots <- expand.grid(cond=unique(colData(featureRates)$condition), rate=c('synthesis', 'degradation'))
     
+    #TODO
     
     for(cond in unique(colData(featureRates)$condition)){
         for(rate in c('synthesis', 'degradation')){
@@ -81,12 +82,12 @@ plotResultsReplicates <- function(featureRates){
 #' and sample information.
 #' @param featureRates A \code{rCubeRates} object containing estimated labeled
 #' and total RNA amounts for all desired replicates/conditions.
-#' @param condition bla
-#' @param replicate bla
+#' @param condition (optional) Character vector indicating subset of samples
+#' for which plot should be produced
+#' @param replicate (optional) replicate/combination for which plot should be produced
 #'
 #'
 #' @export
-#' @importFrom graphics abline mtext par plot
 #' @import ggplot2
 #' @rdname diagnosticPlots
 #'
@@ -95,6 +96,13 @@ plotResultsReplicates <- function(featureRates){
 #' plotFittedCounts(exonCounts, exonRates, "ActivatedJurkat", "1")
 plotFittedCounts <- function(featureCounts, featureRates, condition=NULL, replicate=NULL){
     res.batches <- unique(data.frame(cond=colData(featureRates)$condition, rep=colData(featureRates)$replicate))
+    
+    if(is.null(condition)){
+        condition <- res.batches$cond
+    }
+    if(is.null(replicate)){
+        replicate <- res.batches$rep
+    }
     res.batches <- res.batches[which(res.batches$cond %in% condition & res.batches$rep %in% replicate),]
     
     crossCont <- colData(featureCounts)$cross.contamination
