@@ -108,7 +108,7 @@
 
     # message(date(), ' Estimate rates for ', capture.output(c), capture.output(rep), capture.output(gene))
     
-    if (any(counts[gene, samples] > 0) & all(!is.na(dispersion[gene, ]))) {
+    if(any(counts[gene, samples] > 0) & all(!is.na(dispersion[gene, ]))) {
         muInitialGene <- runif(1, 0.01, 0.1)
         lambdaInitialGene <- runif(1, 0.01, 0.1)
         
@@ -222,12 +222,12 @@
     labeledAmount <- exp(l) ## labeled amount alpha
     unlabeledAmount <- exp(u) ## unlabeled amount beta
     
-    expectedCountsLabeled <- .getExpectedCounts(L=L, labeledAmount=labeledAmount,
+    expectedCountsLabeled <- .vgetExpectedCounts(L=L, labeledAmount=labeledAmount,
                                                 unlabeledAmount=unlabeledAmount, 
                                                 N=N,
                                                 crossCont=crossContamination[labeledSamples],
                                                 seqDepths=sequencingDepths[labeledSamples])
-    expectedCountsTotal <- .getExpectedCounts(L=L, labeledAmount=labeledAmount,
+    expectedCountsTotal <- .vgetExpectedCounts(L=L, labeledAmount=labeledAmount,
                                               unlabeledAmount=unlabeledAmount,
                                               N=N,
                                               crossCont=crossContamination[totalSamples],
