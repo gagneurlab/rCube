@@ -5,7 +5,7 @@
 \title{Estimation of sample-specific normalization factors}
 \usage{
 estimateSizeFactors(featureCounts, spikeinCounts, method = c("spikeinGLM",
-  "spikeinMean", "jointModel"))
+  "spikeinMean"))
 }
 \arguments{
 \item{featureCounts}{A \code{rCubeExperiment} object containing read
@@ -36,9 +36,9 @@ resulting \code{rCubeExperiment}.
 }
 \examples{
 # fitting a GLM to spike-in read counts
-data(geneCounts)
+data(exonCounts)
 data(spikeinCounts)
-geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method="spikeinGLM")
+exonCounts <- estimateSizeFactors(exonCounts, spikeinCounts, method="spikeinGLM")
 }
 \author{
 Carina Demel, Leonhard Wachutka

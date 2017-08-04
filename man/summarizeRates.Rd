@@ -23,10 +23,10 @@ Estimated rates are averaged for features which overlap with a
 top-level feature.
 }
 \examples{
-data(geneRates)
-rows <- rowRanges(geneRates)
+data(exonRates)
+rows <- rowRanges(exonRates)
 topLevelFeatures <- reduce(rows)
-topLevelFeaturesRates <- summarizeRates(geneRates, topLevelFeatures, by='mean')
+topLevelFeaturesRates <- summarizeRates(exonRates, topLevelFeatures, by='mean')
 }
 \seealso{
 \code{\link[GenomicRanges]{findOverlaps}}

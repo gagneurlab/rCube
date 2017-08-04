@@ -29,12 +29,12 @@ using \code{\link[DESeq2]{DESeq}}.
 #TODO describe replicate method
 }
 \examples{
-data(geneCounts)
-geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
-rowRanges(geneCounts)
+data(exonCounts)
+exonCounts <- estimateSizeDispersions(exonCounts, method='DESeqDispMAP')
+rowRanges(exonCounts)
 
-geneCounts <- estimateSizeDispersions(geneCounts, method='Replicate')
-rowRanges(geneCounts)
+exonCounts <- estimateSizeDispersions(exonCounts, method='Replicate')
+rowRanges(exonCounts)
 }
 \seealso{
 \code{\link[DESeq2]{DESeq}}

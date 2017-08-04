@@ -37,11 +37,11 @@ estimates for all replicates/combination of replicates.
 synthesis and degradation rates
 }
 \examples{
-data(geneCounts)
-rates <- createRResultCubeRates(geneCounts, replicate=c(1, 2, '1:2'))
+data(exonCounts)
+rates <- createRResultCubeRates(exonCounts, replicate=c(1, 2, '1:2'))
 rates
-#' data(geneCounts)
-rates <- createRResultCubeRatesExtended(geneCounts, replicate=c(1, 2, '1:2'))
+#' data(exonCounts)
+rates <- createRResultCubeRatesExtended(exonCounts, replicate=c(1, 2, '1:2'))
 rates
 }
 \author{
