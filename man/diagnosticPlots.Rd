@@ -48,11 +48,8 @@ data(spikeinCounts)
 plotSpikeinCountsVsSample(spikeinCounts)
 data(geneRates)
 plotResultsReplicates(geneRates)
-data(spikeinCounts)
-data(geneCounts)
-geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM')
-data(geneRates)
-plotFittedCounts(geneCounts, geneRates, "A", "1")
+data(exonRates)
+plotFittedCounts(exonCounts, exonRates, "ActivatedJurkat", "1")
 }
 \author{
 Carina Demel

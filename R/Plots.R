@@ -87,26 +87,31 @@ plotResultsReplicates <- function(featureRates){
 #'
 #' @export
 #' @importFrom graphics abline mtext par plot
+#' @import ggplot2
 #' @rdname diagnosticPlots
 #'
 #' @examples
-#' data(spikeinCounts)
-#' data(geneCounts)
-#' geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method='spikeinGLM')
-#' data(geneRates)
-#' plotFittedCounts(geneCounts, geneRates, "A", "1")
+#' data(exonRates)
+#' plotFittedCounts(exonCounts, exonRates, "ActivatedJurkat", "1")
 plotFittedCounts <- function(featureCounts, featureRates, condition=NULL, replicate=NULL){
     res.batches <- unique(data.frame(cond=colData(featureRates)$condition, rep=colData(featureRates)$replicate))
     res.batches <- res.batches[which(res.batches$cond %in% condition & res.batches$rep %in% replicate),]
     
     crossCont <- colData(featureCounts)$cross.contamination
     seqDepths <- colData(featureCounts)$sequencing.depth
-
-    op <- par(no.readonly = TRUE)
-    par(mfrow=c(nrow(res.batches), 2))
+    
+    reps = do.call("rbind", sapply(1:nrow(res.batches), function(r){ rep=unlist(strsplit(as.character(res.batches[r,]$rep), ':'));
+    return(suppressWarnings(data.frame(res.batches[r,], repind=rep)))
+    }, simplify = FALSE))
+    
+    # counts <- expand.grid(sample=paste(res.batches$cond, res.batches$rep), feature = 1:nrow(rowData(featureCounts)))
+    counts <- expand.grid(sample=paste(reps$cond, reps$rep), feature=1:nrow(rowData(featureCounts)), LT=c("L","T"))
+    # counts <- cbind(counts, trueCountsL=NA, trueCountsT=NA, expCountsL=NA, expCountsT=NA)
+    counts <- cbind(counts, trueCounts=NA, expCounts=NA)
     
     for(r in 1:nrow(res.batches)){
         row <- res.batches[r, ]
+        p <- paste(row$cond, row$rep)
         labeledAmount <- assay(featureRates[, featureRates$condition == row$cond & featureRates$replicate == row$rep & featureRates$rate == 'labeled.amount'])
         unlabeledAmount <- assay(featureRates[, featureRates$condition == row$cond & featureRates$replicate == row$rep & featureRates$rate == 'unlabeled.amount'])
         
@@ -123,25 +128,25 @@ plotFittedCounts <- function(featureCounts, featureRates, condition=NULL, replic
                                           crossCont[labeledSamples],
                                           seqDepths[labeledSamples])
         
-        trueCountsL <- assay(featureCounts[, featureCounts$condition == row$cond &
-                                            featureCounts$replicate %in% rep &
-                                            featureCounts$LT == "L"])
-        trueCountsT <- assay(featureCounts[, featureCounts$condition == row$cond &
-                                            featureCounts$replicate %in% rep &
-                                            featureCounts$LT == "T"])
+        counts[counts$sample == p & counts$LT == "L", "expCounts"] <- as.vector(t(expCountsL))
+        counts[counts$sample == p & counts$LT == "T", "expCounts"] <- as.vector(t(expCountsT))
         
-        suppressWarnings(plot(expCountsL, trueCountsL, log="xy", 
-                              xlab="Expected Counts", ylab="Observed Counts",
-                              main=paste(row$cond, as.character(row$rep), 
-                                         collapse=" ")))
-        mtext("Labeled Counts", col="grey")
-        abline(0, 1, col="grey")
-        suppressWarnings(plot(expCountsT, trueCountsT, log="xy", 
-                              xlab="Expected Counts", ylab="Observed Counts",
-                              main=paste(row$cond, as.character(row$rep), 
-                                         collapse=" ")))
-        mtext("Total Counts", col="grey")
-        abline(0, 1, col="grey")
+        trueCountsL <- assay(featureCounts[, featureCounts$condition == row$cond &
+                                               featureCounts$replicate %in% rep &
+                                               featureCounts$LT == "L"])
+        trueCountsT <- assay(featureCounts[, featureCounts$condition == row$cond &
+                                               featureCounts$replicate %in% rep &
+                                               featureCounts$LT == "T"])
+        counts[counts$sample == p & counts$LT == "L", "trueCounts"] <- as.vector(t(trueCountsL))
+        counts[counts$sample == p & counts$LT == "T", "trueCounts"] <- as.vector(t(trueCountsT))
     }
-    par(op) ### Reset to previous plotting settings
+    suppressWarnings(print(ggplot(counts, aes(x=expCounts, y=trueCounts)) + 
+                               geom_point() + 
+                               facet_grid(LT ~ sample) + 
+                               scale_x_log10() + 
+                               scale_y_log10() + 
+                               geom_abline(intercept=0, slope=1) + 
+                               xlab("Expected read counts") +
+                               ylab("Observed read counts") +
+                               ggtitle("Expected vs observed read counts")))
 }
