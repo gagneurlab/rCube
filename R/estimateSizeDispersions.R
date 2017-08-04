@@ -63,7 +63,7 @@ estimateSizeDispersions <- function(experiment, method=c('DESeqDispMAP', 'DESeqD
     deseqMatrixTotal <- suppressWarnings(DESeq2::DESeqDataSetFromMatrix(
         counts[, labeledSample == 'T'], colData=expDesignTotal,
         design=formula(~ condition)))
-    ddsTotal <- suppressMessages(DESeq2::DESeq(deseqMatrixTotal))
+    ddsTotal <- DESeq2::estimateSizeFactors(deseqMatrixTotal) # suppressMessages(DESeq2::DESeq(deseqMatrixTotal))
     
     expDesignLabeled <- subset(colData, labeledSample == 'L')
     message(paste(
@@ -72,18 +72,18 @@ estimateSizeDispersions <- function(experiment, method=c('DESeqDispMAP', 'DESeqD
     deseqMatrixLabeled <- suppressWarnings(DESeq2::DESeqDataSetFromMatrix(
         counts[, labeledSample == 'L'], colData=expDesignLabeled,
         design=formula(~ condition)))
-    ddsLabeled <- suppressMessages(DESeq2::DESeq(deseqMatrixLabeled))
+    ddsLabeled <- DESeq2::estimateSizeFactors(deseqMatrixLabeled) # suppressMessages(DESeq2::DESeq(deseqMatrixLabeled))
     
     suppressWarnings(
         if (method == 'DESeqDispGeneEst') {
-            dispersionLabeled <- mcols(ddsLabeled)$dispGeneEst
-            dispersionTotal <- mcols(ddsTotal)$dispGeneEst
+            dispersionLabeled <- rowData(DESeq2::estimateDispersionsGeneEst(ddsLabeled))$dispGeneEst # mcols(ddsLabeled)$dispGeneEst
+            dispersionTotal <- rowData(DESeq2::estimateDispersionsGeneEst(ddsTotal))$dispGeneEst # mcols(ddsTotal)$dispGeneEst
         } else if ( method == 'DESeqDispFit') {
-            dispersionLabeled <- mcols(ddsLabeled)$dispFit
-            dispersionTotal <- mcols(ddsTotal)$dispFit
+            dispersionLabeled <- rowData(DESeq2::estimateDispersionsFit(ddsLabeled))$dispFit # mcols(ddsLabeled)$dispFit
+            dispersionTotal <- rowData(DESeq2::estimateDispersionsFit(ddsTotal))$dispFit # mcols(ddsTotal)$dispFit
         } else {
-            dispersionLabeled <- mcols(ddsLabeled)$dispersion
-            dispersionTotal <- mcols(ddsTotal)$dispersion
+            dispersionLabeled <-  suppressWarnings(rowData(DESeq2::estimateDispersionsMAP(ddsLabeled))$dispersion) # mcols(ddsLabeled)$dispersion
+            dispersionTotal <- suppressWarnings(rowData(DESeq2::estimateDispersionsMAP(ddsTotal))$dispersion) # mcols(ddsTotal)$dispersion
         }
     )
     # in cases where no dispersion could be fitted because of missing values,
