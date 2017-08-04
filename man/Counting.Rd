@@ -10,12 +10,12 @@ countJunctions(experimentalSetup, scanBamParam = ScanBamParam(flag =
   scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL, ncores = 1,
   verbose = FALSE)
 
-countSpikeins(experimentalSetup, scanBamParam = ScanBamParam(flag =
-  scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL,
+countSpikeins(experimentalSetup, scanBamParam = Rsamtools::ScanBamParam(flag =
+  Rsamtools::scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL,
   verbose = FALSE)
 
-countFeatures(experimentalSetup, scanBamParam = ScanBamParam(flag =
-  scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL,
+countFeatures(experimentalSetup, scanBamParam = Rsamtools::ScanBamParam(flag =
+  Rsamtools::scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL,
   verbose = FALSE)
 }
 \arguments{
@@ -44,8 +44,21 @@ artificial spikeins, \code{countJunctions} to count reads for junctions.
 }
 \examples{
 
-#TODO
-#TODO
+data("spikeins")
+data("spikeinLabeling")
+folder <- system.file("extdata/Jurkat", package= rCube )
+bamfiles <- list.files(folder, pattern="*.bam$", full.names=TRUE)
+spikeinCounts <- setupExperimentSpikeins(rows=spikeins, designMatrix=expDesign, labelingState=spikeinLabeling)
+assay(spikeinCounts)
+spikeinCounts <- countSpikeins(spikeinCounts, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+assay(spikeinCounts)
+data(exampleExons)
+folder <- system.file("extdata/Jurkat", package= rCube )
+bamfiles <- list.files(folder, pattern="*.bam$", full.names=TRUE)
+exonCounts <- setupExperiment(exampleExons, designMatrix=NULL, files=bamfiles)
+assay(exonCounts)
+exonCounts <- countFeatures(exonCounts, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+assay(exonCounts)
 }
 \seealso{
 \code{\link[Rsamtools]{ScanBamParam}}

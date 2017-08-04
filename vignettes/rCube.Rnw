@@ -6,8 +6,8 @@
 
 <<knitr, echo=FALSE, results="hide">>=
 library("knitr")
-opts_chunk$set(tidy=FALSE,dev="png",fig.show="hide",
-               fig.width=4,fig.height=4.5,
+opts_chunk$set(tidy=FALSE, dev="png", fig.show="hide",
+               fig.width=4, fig.height=4.5,
                message=FALSE)
 @ 
 
@@ -49,7 +49,7 @@ options(digits=3, width=80, prompt=" ", continue=" ")
 % reality. Here, we have to account for the sequencing depth of different samples
 % and especially adjust the ratio of Labeled to Total RNA-Seq libraries.
 
-{\color{red}rCube} provides a framework for the estimation of {\textcolor{red}R}NA metabolism {\textcolor{red}R}ates in {\textcolor{red}R} (${\color{red}R^3}$). The rCube package complements the recently published transient transcriptome sequencing (TT-seq) protocol. It has been shown, that 4sU-labeling and subsequent purification of RNA allows to monitor local RNA synthesis. Therefore, the information from TT-seq/4sU-seq and total RNA-seq samples is used to model RNA synthesis, splicing, and degradation rates based on first-order kinetics. The rCube package works on count data and provides a series of functionalities to extract them from the desired features. It allows to extract junctions and constitutive exons from feature annotations,
+{\color{red}rCube} provides a framework for the estimation of {\textcolor{red}R}NA metabolism {\textcolor{red}R}ates in {\textcolor{red}R} (${\color{red}R^3}$). The \textit{rCube} package complements the recently published transient transcriptome sequencing (TT-seq) protocol. It has been shown, that 4sU-labeling and subsequent purification of RNA allows to monitor local RNA synthesis. Therefore, the information from TT-seq/4sU-seq and total RNA-seq samples is used to model RNA synthesis, splicing, and degradation rates based on first-order kinetics. The \textit{rCube} package works on count data and provides a series of functionalities to extract them from the desired features. It allows to extract junctions and constitutive exons from feature annotations,
 count reads from BAM-files, and normalize different samples against each other using a variety of different methods.
 
 \vspace{1em}
@@ -81,23 +81,22 @@ count reads from BAM-files, and normalize different samples against each other u
 %--------------------------------------------------
 
 
-As described in .... 4sU-seq allows to monitor changes in the RNA metabolism. If cells are exposed to 4sU, they rapidly take up this Uridine analog and incorporate it into newly-synthesized RNAs. This way, newly-synthesized RNAs are labeled and can be extracted from the total RNA in the sample. The longer the labeling time, e.i. the time from 4sU addition to harvesting the cells, the bigger is the proportion of labeled RNAs among all RNAs.
+As described in \cite{miller_dynamic_2011}, 4sU-seq allows to monitor changes in the RNA metabolism. If cells are exposed to 4sU, they rapidly take up this Uridine analog and incorporate it into newly-synthesized RNAs. This way, newly-synthesized RNAs are labeled and can be extracted from the total RNA in the sample. The longer the labeling time, e.i. the time from 4sU addition to harvesting the cells, the bigger is the proportion of labeled RNAs among all RNAs.
 
-
-explain the  why we have spike ins (diagram?)
-Artificial RNA spike-in sequences can be used to adjust for global sequencing variations between samples. One source of variation is the sequencing depth. Even replicates from the same experimental condition may exhibit different read counts based on how deep the samples were sequenced. These variations (up to biological variations) can be overcome by normalization to sequencing depth.
-In a typical RNA-seq experiment, one wants to compare different samples. After extracting the RNA from the cells, the same starting material is used for the library prepartion, therefore the information is lost, if cells from different samples were expressing different amounts of RNA. Adding the same volumes of spike-ins to a defined number of cells can help to resolve this problem. In our case, we additionally want to rescale 4sU-labeled and total RNA-seq samples, so that the ratio of labeled RNA to total RNA read counts reflects the ratio of labeled RNA to total RNA amounts in the cell.
+Variations in read counts among different samples can have multiple reasons.
+%explain the  why we have spike ins (diagram?)
+One source of variation is the sequencing depth. Even replicates from the same experimental condition may exhibit different read counts based on how deep the samples were sequenced. These variations (up to biological variations) can be overcome by normalization to sequencing depth.
+In a typical RNA-seq experiment, one wants to compare different samples under different experimental conditions. After extracting the RNA from the cells, the same starting material is used for the library prepartion. Therefore the information is lost, if cells from different samples were expressing different amounts of RNA (both for individual genes or on a global scale). 
+Artificial RNA spike-in sequences can be used to adjust for global sequencing variations between samples. Adding the same volumes of spike-ins to a defined number of cells can help to resolve this problem, as they are subject to the same technical biases than natural RNAs, but their read counts should not be influenced by biological processes. In the case of TT-seq/4sU-seq, we additionally want to rescale 4sU-labeled and total RNA-seq samples, so that the ratio of labeled RNA to total RNA read counts reflects the ratio of labeled RNA to total RNA amounts in the cell. This can be achieved by labeling some of the spike-ins with 4sU during the \textit{in vitro} transcription. Then it is also possible to quantify the amount of unlabeled spike-ins (RNAs) that is not lost during labeled RNA purification, the so-called cross-contamination.
 %The External RNA Control Consortium (ERCC) is providing a set artifical RNA sequences that do not map to any known genome.
-
 
  explain time series vs only label total 
 
- ref to TTseq
- \cite{Schwalb2016}
-
- ref to MSB
- In another study, we
-\cite{Michel2017} 
+The normalization based on artifical spike-ins and subsequent estimation of synthesis and degradation rates has been successfully implemented and applied in different studies:
+% ref to TTseq
+In human K562 cells, we investigated synthesis rates and half-lives of different RNA species under steady-state conditions \cite{Schwalb2016}.
+% ref to MSB
+In another study, we investigated the change of RNA synthesis immediately after T-cell stimulation \cite{Michel2017}.The sensitivity of TT-seq allowed us to monitor rapid changes in transcription from enhancers and promoters during the immediate response of T cells to ionomycin and phorbol 12-myristate 13-acetate (PMA).
 
 
  define synthesis, splicing, decay rate
@@ -126,9 +125,9 @@ library("rCube")
 \subsection{Example Data}
 
 The \texttt{inst/extdata} of the \textit{rCube} package provides two example data sets that 
-should illustrate the two different functionalities of rCube:
+should illustrate the two different functionalities of \textit{rCube}:
 
-The first example data set, ``Jurkat'', contains bam files from resting and activated Jurkat T-cells for TT-seq and RNA-seq samples. The bamfiles are restricted to the FOS gene (chr14:75278000-75283000) and the artifical spike-ins, subsampled to reduce file size. The full data sets are published in \cite{Michel2017}. This example data is used to demonstrate the spike-ins normalization method, and the estimation of synthesis and degradation rates for individual 4sU-labeled (TT-seq) and total RNA-seq pairs.
+The first example data set, ``Jurkat'', contains bam files from resting and activated Jurkat T-cells for TT-seq and RNA-seq samples. The bamfiles are restricted to the FOS gene (chr14:75278000-75283000) and the artifical spike-ins, subsampled to reduce file size. The full data sets are published in \cite{Michel2017}. This example data is used to demonstrate the spike-in normalization method, and the estimation of synthesis and degradation rates for individual 4sU-labeled (TT-seq) and total RNA-seq pairs.
 
 The second data set , ...
 
@@ -145,6 +144,7 @@ In this part of the vignette, we will demonstrate
 \item how gene-specific rates are obtained from exon-specific rates
 \end{itemize}
 
+%--------------------------------------------------
 \subsection{Gene model}
 working on exons/introns/genes...
 The estimation of synthesis and degradation rates with the \textit{rCube} package relies on read counts.
@@ -153,11 +153,7 @@ Especially degradation rates may differ between exons and introns.
 Therefore, the features, which should be used to estimate synthesis and degradation rates, 
 and for which read counts are provided or should be obtained, need to be provided as a \Rclass{GRanges} object.
 
-Due to numerous transcript isoforms per gene, and the arising problem that for 
-some bases their exonic or intronic nature cannot be unambigously identified, 
-we propose to use the model of constitutive exons/introns from \cite{Bullard2010}.
-Hereby, all bases, that belong to an exon/intron in all (annotated) transcript 
-isoforms of the same gene, are thought to be part of "constitutive" exons/introns.
+Due to numerous transcript isoforms per gene, and the arising problem that for some bases their exonic or intronic nature cannot be unambigously identified, we propose to use the model of constitutive exons/introns from \cite{Bullard2010}. Hereby, all bases, that belong to an exon/intron in all (annotated) transcript isoforms of the same gene, are thought to be part of "constitutive" exons/introns.
 In the following, we have an example annotation from the FOS gene (not comprehensive) to illustrate how constitutive exons can be extracted from an exon annotation.
 
 <<constitutiveExons, echo=TRUE>>==
@@ -170,7 +166,7 @@ constitutiveExons
 @
 
 
-<<plotConstExons, echo=FALSE, eval=TRUE, fig.width=7.5, fig.height=2.5, fig.show='asis'>>==
+<<plotConstExons, echo=FALSE, eval=TRUE, fig.width=7.5, fig.height=2.5, fig.show='asis', fig.cap="Illustration of two transcript isoforms for the FOS gene and the resulting constitutive exons">>==
 library(ggbio)
 data("exampleExons")
 elementMetadata(exampleExons) = data.frame("group"=elementMetadata(exampleExons)[,"transcript_id"])
@@ -183,10 +179,10 @@ autoplot(gra2, aes(fill = group, group = group), geom = "alignment", group.selfi
 
 Please note, for the subsequent workflow it is not necessary to extract constitutive exons. Any kind of \Rclass{GRanges} object can be used as feature annotation (e.g. full genes, introns, ...).
 
-
+%--------------------------------------------------
 \subsection{Experimental Design}
 
-The rCube package works on \Rclass{rCubeExperiment} containers, that rely on the
+The \textit{rCube} package works on \Rclass{rCubeExperiment} containers, that rely on the
 \Rclass{SummerizedExperiment} class.
 Objects of this class are used as input for the whole
 workflow, starting from read counting, normalization, dispersion estimation, to rate estimation. Most of these steps return an updated and extended 
@@ -223,7 +219,7 @@ exonCounts <- setupExperiment(constitutiveExons, designMatrix=NULL, files=bamfil
 @
 
 The individual information from the \Rclass{rCubeExperiment} can be assessed by:
-<<expDesignAccessors, echo=TRUE>>==
+<<expDesignAccessors, echo=TRUE, eval=FALSE>>==
 # feature information
 rowRanges(exonCounts)
 
@@ -237,22 +233,34 @@ assay(exonCounts)
 
 The resulting \Rclass{rCubeExperiment} object can now be used to count reads.
 
-
+%--------------------------------------------------
 \subsection{Counting}
 
-For read countings, we use the \Rfunction{readGAlignmentPairs} in a parallel fashion:
+All RNA rate estimations of this package rely on read counts. These can be either
+provided as count matrices, or read counts can be obtained from BAM files using
+the \textit{rCube} pipeline.
 
-<<Couting, echo=TRUE>>==
+For read counting, we use the \Rfunction{readGAlignmentPairs} in a parallel fashion:
+
+%TODO counting did not work withou explicitly loading Rsamtools
+<<Rsamtools, echo=FALSE, eval=TRUE>>==
+library(Rsamtools)
+@
+
+<<Couting, echo=TRUE, eval=TRUE>>==
 assay(exonCounts)
 
 exonCounts <- countFeatures(exonCounts,
                             scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), 
                             BPPARAM=NULL, 
                             verbose=FALSE)
+
 assay(exonCounts)
 @
+In case you already have counted reads on your featrues of interest, count matrices can be assigned to the correctly formatted, empty
+\Rclass{rCubeExperiment} object.
 
-
+%--------------------------------------------------
 \subsection{Spike-ins}
 The artifical spike-in annotations and labeling information can be loaded via:
 <<spikeins, echo=TRUE>>==
@@ -261,6 +269,7 @@ data("spikeinLabeling")
 spikeinLengths <- width(spikeins)
 @
 
+%--------------------------------------------------
 \subsection{Spike-in design}
 
 An empty \Rclass{rCubeExperiment} for the artificial spike-ins additionally requires 
@@ -274,7 +283,7 @@ spikeinCounts <- setupExperimentSpikeins(rows=spikeins,
                                          labelingState=spikeinLabeling)
 @
 
-
+%--------------------------------------------------
 \subsection{Spike-in counting}
 
 %Please be aware, that our example data is stored in the \texttt{inst/extdata} of the \textit{rCube} package. Therefore, the \Robject{filename} in the \Rclass{rCubeExperiment}
@@ -283,22 +292,85 @@ spikeinCounts <- setupExperimentSpikeins(rows=spikeins,
 colData(spikeinCounts)$filename <- bamfiles
 @
 
-%TODO this example does not work! :(
 <<spikeincounts, echo=TRUE>>==
-# spikeinCounts <- countSpikeins(spikeinCounts,
-#                     scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)),
-#                     BPPARAM=NULL,
-#                     verbose=FALSE)
+spikeinCounts <- countSpikeins(spikeinCounts,
+                    scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)),
+                    BPPARAM=NULL,
+                    verbose=FALSE)
 assay(spikeinCounts)
 @
 
-+ diagnostic plot?
+The distribution of 4sU-labeled and unlabeld spike-ins among different samples can be illustrated by the function \Rfunction{plotSpikeinCountsVsSample}. Figure \ref{figure/SpikeinDiagnosticPlot-1} shows the read counts of spike-ins in the Jurkat example data set.
+
+<<SpikeinDiagnosticPlot, fig.show='hide', fig.width=10, fig.height=4>>=
+plotSpikeinCountsVsSample(spikeinCounts)
+@
+
+\incfig{figure/SpikeinDiagnosticPlot-1}{0.9\textwidth}{Spike-in read counts in different samples.}
+{The code that creates this figure is shown in the code chunk.}
+
+Naturally, labeled spike-ins (Spike2, Spike4, Spike8) should be enriched in labeled samples ("L"), whereas unlabeled spike-ins (Spike5, Spike9, Spike12) should be depleted from these samples. In total RNA-seq samples ("T"), all spike-ins should be present to a similar extend.
+
+%--------------------------------------------------
+\subsection{Size factor based on spike-ins}\label{Normalization}
+%TODO
+We provide two different normalization schemes. In the experimental setup with multiple conditions, the sample specific parameters like sequencing depth and cross-contamination
+rate are estimated from spike-in read counts only. Therefore, we fit a generalized linear model (GLM) of the Negative Binomial family with a log link function. The response of the GLM are the observed spike-in counts, and the terms that specify the linear predictor of the response are comprised of:
+\begin{itemize}
+\item a sample specific factor (that reflects the sample specific sequencing
+depth),
+\item a labeled sample specific factor (that reflects the control for cross
+contamination (only estimated for unlabeled spike-ins in labeled samples)), and
+\item a spike-in specific factor to allow for some spike-in specific variation
+e.g. due to sequence biases.
+\end{itemize}
+Additionally, the length of each spike-in is used as an offset, i.e. a known slope for the covariate.
+
+<<SpikeinNormalization, echo=TRUE, eval=TRUE>>=
+exonCounts <- estimateSizeFactors(exonCounts, spikeinCounts, method="spikeinGLM")
+colnames(colData(exonCounts))
+exonCounts$sequencing.depth
+exonCounts$cross.contamination
+@
+
+Note, the cross-contamination value for all total RNA-seq samples is 1, as 100\% of the unlabeled RNAs are supposed to be in the sample.
+Additional fitting results are stored in the \Robject{metadata} of the resulting \Rclass{rCubeExperiment} object.
+
+<<SpikeinNormalizationMetadata, echo=TRUE, eval=FALSE>>=
+metadata(exonCounts)
+@
+
+%--------------------------------------------------
+\subsection{Providing gene-wise dispersion estimates} \label{Dispersion}
+
+Usually, read counts in different RNA-seq samples underly fluctuations due to biological or technical variances. To take these fluctuations into account, we estimate each gene's dispersion. For each gene, a single dispersion estimate for all 4sU-Seq samples and for all Total RNA-Seq samples is needed.  The wrapper function \Rfunction{estimateSizeDispersions} offers different methods to estimate a gene's dispersion
+%TODO explain them, how does leos work?
+Here, we can use the method provided in the DESeq2 package \cite{Love2014}. The DESeq algorithm is applied all genes, while separating the count table according to the RNA-Seq protocol (labeled or total RNA). It is possible to choose between all provided DESeq dispersion estimates, namely the genewise maximum likelihood dispersion estimate (``dispGeneEst"), the smooth curve fitted through the gene-wise disperion estimates (``dispFit") and the genewise dispersion estimates shrunken towards the fitted curve (``dispMAP", default). The input is an \Rclass{rCubeExperiment} object with read counts for the features of interest. The function returns an updated \Rclass{rCubeExperiment} object with two additional columns in the \Robject{rowRanges}, namely \Robject{dispersion\_L} and \Robject{dispersion\_T}.
+
+<<DESeqDispersion, echo=TRUE, eval=TRUE>>=
+exonCounts <- estimateSizeDispersions(exonCounts, method='DESeqDispGeneEst')
+rowRanges(exonCounts)
+@
 
 
-\subsection{Size factor based on spike-in}
-\subsection{Estimate dispersion}
-\subsection{Fit the rates}
+%--------------------------------------------------
+%\subsection{Fit the rates}
+\subsection{Exon-specific synthesis and degradation rate estimates}\label{Fitting}
+
+After estimating sequencing depth and cross-contamination rates per sample (see Section \ref{Normalization}) and extracting feature-specific dispersion estimates (see Section \ref{Dispersion}), we can now estimate RNA synthesis and degradation rate for each feature and condition individually. Multiple replicates for the same condition can be used for a joint estimation. The user has to specify for which replicate or combination of replicates the results should be estimated. Therefore, the \Robject{replicate} parameter is a vector of all combinations that should be evaluated. For the joint estimation for multiple replicates, these have to be given as a string separeted by a ``:''. In the following example, we will obtain individual results for replicate 1 and 2 and also results for a joint estimation.
+
+<<SynDecEstimation, echo=TRUE, eval=FALSE>>=
+rates <- estimateRateByFirstOrderKinetics(exonCounts,
+                                          replicate=c(1, 2, "1:2"),
+                                          method='single',
+                                          BPPARAM=BiocParallel::MulticoreParam(1))
+@
+
+
+%--------------------------------------------------
 \subsection{describe the different fitting functions}
+
+%--------------------------------------------------
 \subsection{describe the class of the returned object (rCubeRates)}
 
 
@@ -327,199 +399,6 @@ de novo + gff
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%### this part is old from before talking to julien:
- this part is old from before talking to julien:
- 
- 
-\subsection{Input Data}
-The rCube package works on \Rclass{rCubeExperiment} containers, that rely on the
-\Rclass{SummerizedExperiment} class.
-The \Robject{rowRanges} of the \Rclass{rCubeExperiment} is a \Rclass{GRanges} object of
-features, for which RNA rates should be estimated. Experimental sample information
-can be either provided by a design matrix or this information can be extracted from
-the BAM-file names (when they fulfil the required structure). The file name should be a string containing condition, labelingTime (as integer), L/T sample information, and replicate (integer/string), separated by a "\_".
-Then, an empty \Rclass{rCubeExperiment}, e.g. for the artificial spike-ins, can
-be constructed as follows:
-<<EmptyrCubeExperimentContainer, echo=TRUE>>=
-
-data("designMatrix")
-
-spikeinCounts <- setupExperimentSpikeins(rows=spikeins,
-                                         designMatrix=designMatrix,
-                                         length=spikeinLengths,
-                                         labelingState=spikeinLabeling)
-@
-The \Rfunction{setupExperiment} can be used analogically for genes/exons/introns/junctions. Here, only the \Robject{rows} and either \Robject{designMatrix} or \Robject{files} has to be set. See also section \ref{Counting}.
-
-The individual information from the \Rclass{rCubeExperiment} can be assessed by:
-<<rCubeExperimentContainer, echo=TRUE>>=
-# feature information
-rowRanges(spikeinCounts)
-
-# sample information
-colData(spikeinCounts)
-
-# read counts
-assay(spikeinCounts)
-@
-
-\subsection{Read counting}\label{Counting}
-
-All RNA rate estimations of this package rely on read counts. These can be either
-provided as count matrices, or read counts can be obtained from BAM files using
-the rCube pipeline.
-<<counting, echo=TRUE>>=
-#TODO 
-@
-
-Alternatively, count matrices can be assigned to the correctly formatted, empty
-\Rclass{rCubeExperiment} object:
-<<countAssignment, echo=TRUE, eval=FALSE>>=
-#TODO 
-@
-
-% #TODO
-% which section do we do::
-% estimating gene specific syn dec rates (with spikein norm, based on const exons, then summarize rates)
-% estimating splicing rates from labeling timecourse
-
-
-
-%--------------------------------------------------
-\section{Normalization of TT-seq/4sU-seq and RNA-Seq samples} \label{Normalization}
-%--------------------------------------------------
-
-The three possible normalization methods are described in detail below.
-
-\subsection{Normalization by fitting a GLM to artifical spike-in read counts}
-
-By normalization, we want to account for the sequencing depth of different samples
-and especially adjust the ratio between Labeled to Total RNA-Seq libraries.
-Additionally, the labeled RNA extraction is not perfect and some
-unlabeled RNA may contaminate the labeled RNA fraction. As the gene-expression
-also always varies a little bit for biological samples, read counts from real
-genes might lead to confusing estimations. Therefore, we apply our
-normalization approach only to artificial spike-ins from the External RNA 
-Control Consortium (ERCC), for which
-the initial amount of each spike-in is known and the same across all samples.
-Some of the spike-ins were 4sU-labeled by in-vitro transcription, so the
-cross-contamination of unlabeled spike-ins in labeled samples can be monitored.
-The distribution of 4sU-labeled and unlabeld spike-ins among different samples
-can be monitored with \Rfunction{plotSpikeinCountsVsSample}.
-
-<<SpikeinDiagnosticPlot, fig.width=7, fig.height=4.5, echo=FALSE, results="hide">>=
-data(spikeinCounts)
-pdf("SpikeinDiagnosticPlot.pdf")
-plotSpikeinCountsVsSample(spikeinCounts)
-dev.off()
-@
-
-<<SpikeinDiagnosticPlotCode, echo=TRUE, eval=FALSE>>=
-data(spikeinCounts)
-plotSpikeinCountsVsSample(spikeinCounts)
-@
-
-\begin{figure}
-\centering
-\includegraphics[width=.6\textwidth]{SpikeinDiagnosticPlot.pdf}
-\caption{
-  \textbf{Spikein-vs-Sample-plot.} 
-}
-\label{plotSpikeinCountsVsSample}
-\end{figure}
-
-The goal of this package is to reliably estimate sequencing depths and
-cross-contamination rates per sample, given 4sU- and total RNA-Seq data.
-
-The sample specific parameters like sequencing depth and cross-contamination
-rate are estimated from spike-in counts only. Therefore, we fit a
- generalized linear model (GLM) of the Negative Binomial family with a log link
- function.
-The response of the GLM are the observed spike-in counts, and the terms that
-specify the linear predictor of the response are comprised of:
-\begin{itemize}
-\item a sample specific factor (that reflects the sample specific sequencing
-depth),
-\item a labeled sample specific factor (that reflects the control for cross
-contamination (only estimated for unlabeled spike-ins in labeled samples)), and
-\item a spike-in specific factor to allow for some spike-in specific variation
-e.g. due to sequence biases.
-\end{itemize}
-Additionally, the length of each spike-in is used as an offset, i.e. a known slope for the covariate.
-
-<<SpikeinNormalization, echo=TRUE, eval=TRUE>>=
-data(geneCounts)
-data(spikeinCounts)
-geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method="spikeinGLM")
-colnames(colData(geneCounts))
-geneCounts$sequencing.depth
-geneCounts$cross.contamination
-@
-
-Note, the cross-contamination value for all total RNA-seq samples is 1, as 100\%
-of the unlabeled RNAs are supposed to be in the sample.
-Additional fitting results are stored in the \Robject{metadata} of the resulting
-\Rclass{rCubeExperiment} object.
-<<SpikeinNormalizationMetadata, echo=TRUE, eval=FALSE>>=
-metadata(geneCounts)
-@
-
-\subsection{Normalization using mean counts of artifical spike-ins}
-%TODO
-
-\subsection{Normalization using joint model}
-%TODO
-
-\newpage
-
-
-%--------------------------------------------------
-\section{Estimating gene-specific synthesis and degradation rates} \label{SynDec}
-%--------------------------------------------------
-
-
-Using the sample-specific values for sequencing depth and cross-contamination as estimated in the previous section, we can now normalize all the samples. It is especially important to bring labeled (4sU-seq/TT-seq) and total RNA-seq samples to comparable scales. Labeled and total RNA-seq samples can be sequenced at the same depth, and the same amount of RNA is used for library preparation, but the resulting read counts do not reflect the true ratio of labeled vs all RNAs in the cells, where the amount of newly-synthesized, labeled RNA should be much less than the total RNA amount. Therefore it is necessary to upscale the read counts from total RNA-seq samples compared to the labeled RNA read counts.
-
-\subsection{Providing gene-wise dispersion estimates} \label{Dispersion}
-Usually, read counts in different RNA-seq samples underly fluctuations due to biological or technical variances.
-To take these fluctuations into account, we estimate each gene's dispersion.
-For each gene, a single dispersion estimate for all 4sU-Seq samples and for all
-Total RNA-Seq samples is needed. Here, we can use the method provided in the
-DESeq2 package \cite{Love2014} The wrapper function \Rfunction{estimateSizeDispersions}
-applies the DESeq algorithm to all genes, while separating the count table
-according to the RNA-Seq protocol (labeled or total RNA). It is possible to
-choose between all provided DESeq dispersion estimates, namely the genewise
-maximum likelihood dispersion estimate (``dispGeneEst"), the smooth curve fitted
-through the gene-wise disperion estimates (``dispFit") and the genewise
-dispersion estimates shrunken towards the fitted curve (``dispMAP", default).
-The input is an \Rclass{rCubeExperiment} object with read counts for the features of interest. The function returns an updated \Rclass{rCubeExperiment} object with two additional columns in the \Robject{rowRanges}, namely \Robject{dispersion\_L} and \Robject{dispersion\_T}.
-
-%TODO leos dispersion is differently
-
-<<DESeqDispersion, echo=TRUE, eval=TRUE>>=
-geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
-rowRanges(geneCounts)
-@
-
-
-\subsection{Feature-specific synthesis and degratation rate estimates}
-
-After estimating sequencing depth and cross-contamination rates per sample (see Section \ref{Normalization}) and extracting feature-specific dispersion estimates (see Section \ref{Dispersion}), we can now estimate RNA synthesis and degradation rate for each feature and condition individually. Multiple replicates for the same condition can be used for a joint estimation. 
-The user has to specify for which replicate or combination of replicates the results should be estimated. Therefore, the \Robject{replicate} parameter is a vector of all combinations that should be evaluated. For the joint estimation for multiple replicates, these have to be
-given as a string separeted by a ``:''. In the following example, we will obtain individual results for replicate 1 and 2 and also results for a joint estimation.
-
-<<SynDecEstimation, echo=TRUE, eval=FALSE>>=
-rates <- estimateRateByFirstOrderKinetics(geneCounts,
-                                          replicate=c(1, 2, "1:2"),
-                                          method='single',
-                                          BPPARAM=BiocParallel::MulticoreParam(1))
-@
-
-
-%--------------------------------------------------
-\section{Estimating splicing times from junction read counts} \label{Splicing}
-%--------------------------------------------------
-
 %--------------------------------------------------
 \section{Session Information}
 %--------------------------------------------------
@@ -540,5 +419,3 @@ sessionInfo()
 
 
 \end{document}
-
-
