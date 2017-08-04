@@ -34,15 +34,13 @@
 #' geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method="spikeinGLM")
 estimateSizeFactors <- function(featureCounts,
                                 spikeinCounts,
-                                method=c('spikeinGLM', 'spikeinMean', 'jointModel')){
+                                method=c('spikeinGLM', 'spikeinMean')){
     if(method == "spikeinGLM"){
         featureCounts <- .calculateNormalizationBySpikeinGLM(featureCounts, 
                                                              spikeinCounts)
     }else if(method == "spikeinMean"){
         featureCounts <- .calculateNormalizationByMean(featureCounts,
                                                        spikeinCounts)
-    }else{
-        ## TODO joint Model?
     }
     
     return(featureCounts)
