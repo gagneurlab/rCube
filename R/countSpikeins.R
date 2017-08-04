@@ -3,8 +3,15 @@
 #' @rdname Counting
 #' @export
 #' @examples
-#' #TODO
-countSpikeins <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+#' data("spikeins")
+#' data("spikeinLabeling")
+#' folder <- system.file("extdata/Jurkat", package="rCube")
+#' bamfiles <- list.files(folder, pattern="*.bam$", full.names=TRUE)
+#' spikeinCounts <- setupExperimentSpikeins(rows=spikeins, designMatrix=expDesign, labelingState=spikeinLabeling)
+#' assay(spikeinCounts)
+#' spikeinCounts <- countSpikeins(spikeinCounts, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+#' assay(spikeinCounts)
+countSpikeins <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamParam(flag=Rsamtools::scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
 {
     bamFiles <- colData(experimentalSetup)$filename
     region <- rowRanges(experimentalSetup)
@@ -25,7 +32,7 @@ countSpikeins <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scan
 {
     bamWhich(scanBamParam) <- region
     #this will split the Readpairs by CIGAR and merge(union) the resulting reads to avoid double counting of the two ends
-    exploded_reads <- readGAlignmentPairs(bamFile, param=scanBamParam)
+    exploded_reads <- GenomicAlignments::readGAlignmentPairs(bamFile, param=scanBamParam)
     exploded_reads <- reduce(grglist(exploded_reads))
     count <- countOverlaps(region, exploded_reads, minoverlap=2)
     return(count)
@@ -35,9 +42,15 @@ countSpikeins <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scan
 #' @rdname Counting
 #' @export
 #' @examples
-#' #TODO
-countFeatures <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+#' data(exampleExons)
+#' folder <- system.file("extdata/Jurkat", package="rCube")
+#' bamfiles <- list.files(folder, pattern="*.bam$", full.names=TRUE)
+#' exonCounts <- setupExperiment(exampleExons, designMatrix=NULL, files=bamfiles)
+#' assay(exonCounts)
+#' exonCounts <- countFeatures(exonCounts, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+#' assay(exonCounts)
+countFeatures <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamParam(flag=Rsamtools::scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
 {
-    countSpikeins(experimentalSetup, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+    countSpikeins(experimentalSetup, scanBamParam=scanBamParam, BPPARAM=BPPARAM, verbose=verbose)
         
 }

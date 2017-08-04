@@ -20,7 +20,7 @@
 #' @seealso \code{\link{BiocParallelParam}}
 #' @import GenomicAlignments
 #' @import GenomicRanges
-#' @import Rsamtools
+#' @importFrom Rsamtools ScanBamParam scanBamFlag
 #' @import S4Vectors
 #' 
 #' @return An updated \code{rCubeExperiment} container, with spike-in read 
