@@ -46,18 +46,19 @@ artificial spikeins, \code{countJunctions} to count reads for junctions.
 
 data("spikeins")
 data("spikeinLabeling")
-folder <- system.file("extdata/Jurkat", package= rCube )
+folder <- system.file("extdata/Jurkat", package="rCube")
 bamfiles <- list.files(folder, pattern="*.bam$", full.names=TRUE)
-spikeinCounts <- setupExperimentSpikeins(rows=spikeins, designMatrix=expDesign, labelingState=spikeinLabeling)
+spikeinCounts <- setupExperimentSpikeins(rows=spikeins, 
+files=bamfiles, labelingState=spikeinLabeling)
 assay(spikeinCounts)
-spikeinCounts <- countSpikeins(spikeinCounts, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+spikeinCounts <- countSpikeins(spikeinCounts)
 assay(spikeinCounts)
 data(exampleExons)
-folder <- system.file("extdata/Jurkat", package= rCube )
+folder <- system.file("extdata/Jurkat", package="rCube")
 bamfiles <- list.files(folder, pattern="*.bam$", full.names=TRUE)
 exonCounts <- setupExperiment(exampleExons, designMatrix=NULL, files=bamfiles)
 assay(exonCounts)
-exonCounts <- countFeatures(exonCounts, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+exonCounts <- countFeatures(exonCounts)
 assay(exonCounts)
 }
 \seealso{

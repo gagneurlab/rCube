@@ -7,9 +7,10 @@
 #' data("spikeinLabeling")
 #' folder <- system.file("extdata/Jurkat", package="rCube")
 #' bamfiles <- list.files(folder, pattern="*.bam$", full.names=TRUE)
-#' spikeinCounts <- setupExperimentSpikeins(rows=spikeins, designMatrix=expDesign, labelingState=spikeinLabeling)
+#' spikeinCounts <- setupExperimentSpikeins(rows=spikeins, 
+#' files=bamfiles, labelingState=spikeinLabeling)
 #' assay(spikeinCounts)
-#' spikeinCounts <- countSpikeins(spikeinCounts, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+#' spikeinCounts <- countSpikeins(spikeinCounts)
 #' assay(spikeinCounts)
 countSpikeins <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamParam(flag=Rsamtools::scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
 {
@@ -47,7 +48,7 @@ countSpikeins <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamPara
 #' bamfiles <- list.files(folder, pattern="*.bam$", full.names=TRUE)
 #' exonCounts <- setupExperiment(exampleExons, designMatrix=NULL, files=bamfiles)
 #' assay(exonCounts)
-#' exonCounts <- countFeatures(exonCounts, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
+#' exonCounts <- countFeatures(exonCounts)
 #' assay(exonCounts)
 countFeatures <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamParam(flag=Rsamtools::scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, verbose=FALSE)
 {

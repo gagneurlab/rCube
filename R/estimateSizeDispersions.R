@@ -24,12 +24,12 @@
 #' @rdname estimateSizeDispersions
 #' 
 #' @examples 
-#' data(geneCounts)
-#' geneCounts <- estimateSizeDispersions(geneCounts, method='DESeqDispMAP')
-#' rowRanges(geneCounts)
+#' data(exonCounts)
+#' exonCounts <- estimateSizeDispersions(exonCounts, method='DESeqDispMAP')
+#' rowRanges(exonCounts)
 #'
-#' geneCounts <- estimateSizeDispersions(geneCounts, method='Replicate')
-#' rowRanges(geneCounts)
+#' exonCounts <- estimateSizeDispersions(exonCounts, method='Replicate')
+#' rowRanges(exonCounts)
 estimateSizeDispersions <- function(experiment, method=c('DESeqDispMAP', 'DESeqDispFit', 'DESeqDispGeneEst', 'Replicate'))
 {
     if(method == 'Replicate')

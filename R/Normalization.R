@@ -29,9 +29,9 @@
 #'
 #' @examples
 #' # fitting a GLM to spike-in read counts
-#' data(geneCounts)
+#' data(exonCounts)
 #' data(spikeinCounts)
-#' geneCounts <- estimateSizeFactors(geneCounts, spikeinCounts, method="spikeinGLM")
+#' exonCounts <- estimateSizeFactors(exonCounts, spikeinCounts, method="spikeinGLM")
 estimateSizeFactors <- function(featureCounts,
                                 spikeinCounts,
                                 method=c('spikeinGLM', 'spikeinMean')){
