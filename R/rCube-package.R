@@ -24,18 +24,17 @@ NULL
 #' @keywords data
 NULL
 
-#' \code{rCubeExperiment} container for example genes including read counts
+#' \code{rCubeExperiment} container for example exons including read counts
 #'
-#' @name geneCounts
+#' @name exonCounts
 #' @docType data
 #' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
 #' @keywords data
 NULL
 
-
-#' \code{rCubeRates} container for example genes
+#' \code{rCubeRates} container for example exons
 #'
-#' @name geneRates
+#' @name exonRates
 #' @docType data
 #' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
 #' @keywords data
