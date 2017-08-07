@@ -35,7 +35,7 @@ createJunctionGRangesFromBam <- function(bamFiles,
     {
         #Length is maximum ScanBam can handle
         which <- GRanges(seqnames=as.character(chromosome), IRanges(1, 536870912))
-        spliced_reads <- GenomicAlignments::readGAlignmentPairs(bamFile, param=ScanBamParam(which=which, flag=scanBamFlag(isSecondaryAlignment=FALSE))) %>% junctions() %>% reduce() %>% unlist() %>% as.data.table()
+        spliced_reads <- GenomicAlignments::readGAlignmentPairs(bamFile, param=Rsamtools::ScanBamParam(which=which, flag=Rsamtools::scanBamFlag(isSecondaryAlignment=FALSE))) %>% junctions() %>% reduce() %>% unlist() %>% as.data.table()
         sc <- spliced_reads[, .(count= .N), by=c("seqnames", "start", "end", "strand")]
         #message('Loaded: ', bamFile, '...', chromosome)
         return(sc)
