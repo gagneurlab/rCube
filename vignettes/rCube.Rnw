@@ -144,6 +144,8 @@ In this part of the vignette, we will demonstrate
 \item how gene-specific rates are obtained from exon-specific rates
 \end{itemize}
 
+Please note, the data set is downsampled due to size reasons, that's why fitting results are less acurate than when applied to multiple genes from deep-sequenced samples.
+
 %--------------------------------------------------
 \subsection{Gene model}
 working on exons/introns/genes...
@@ -154,7 +156,7 @@ Therefore, the features, which should be used to estimate synthesis and degradat
 and for which read counts are provided or should be obtained, need to be provided as a \Rclass{GRanges} object.
 
 Due to numerous transcript isoforms per gene, and the arising problem that for some bases their exonic or intronic nature cannot be unambigously identified, we propose to use the model of constitutive exons/introns from \cite{Bullard2010}. Hereby, all bases, that belong to an exon/intron in all (annotated) transcript isoforms of the same gene, are thought to be part of "constitutive" exons/introns.
-In the following, we have an example annotation from the FOS gene (not comprehensive) to illustrate how constitutive exons can be extracted from an exon annotation.
+Figure \ref{figure/plotConstExons-1} shows an example annotation from the FOS gene (not comprehensive) to illustrate how constitutive exons can be extracted from an exon annotation with the following code:
 
 <<constitutiveExons, echo=TRUE>>==
 data("exampleExons")
@@ -166,7 +168,7 @@ constitutiveExons
 @
 
 
-<<plotConstExons, echo=FALSE, eval=TRUE, fig.width=7.5, fig.height=2.5, fig.show='asis', fig.cap="Illustration of two transcript isoforms for the FOS gene and the resulting constitutive exons">>==
+<<plotConstExons, echo=FALSE, eval=TRUE, fig.width=7.5, fig.height=2.5, fig.show='hide', fig.cap="Illustration of two transcript isoforms for the FOS gene and the resulting constitutive exons">>==
 library(ggbio)
 data("exampleExons")
 elementMetadata(exampleExons) = data.frame("group"=elementMetadata(exampleExons)[,"transcript_id"])
@@ -176,6 +178,10 @@ levels(gra2$group) = c("isoform 1", "isoform 2", "constitutive")
 gra2$group = relevel(gra2$group, ref="constitutive")
 autoplot(gra2, aes(fill = group, group = group), geom = "alignment", group.selfish = TRUE, xlab="chromosome 14")
 @
+
+
+\incfig{figure/plotConstExons-1}{0.9\textwidth}{Illustration of two transcript isoforms for the FOS gene and the resulting constitutive exons.}
+{}
 
 Please note, for the subsequent workflow it is not necessary to extract constitutive exons. Any kind of \Rclass{GRanges} object can be used as feature annotation (e.g. full genes, introns, ...).
 
@@ -242,16 +248,11 @@ the \textit{rCube} pipeline.
 
 For read counting, we use the \Rfunction{readGAlignmentPairs} in a parallel fashion:
 
-%TODO counting did not work withou explicitly loading Rsamtools
-<<Rsamtools, echo=FALSE, eval=TRUE>>==
-library(Rsamtools)
-@
-
-<<Couting, echo=TRUE, eval=TRUE>>==
+<<Counting, echo=TRUE, eval=TRUE>>==
 assay(exonCounts)
 
 exonCounts <- countFeatures(exonCounts,
-                            scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), 
+                            scanBamParam=Rsamtools::ScanBamParam(flag=Rsamtools::scanBamFlag(isSecondaryAlignment=FALSE)), 
                             BPPARAM=NULL, 
                             verbose=FALSE)
 
@@ -294,7 +295,7 @@ colData(spikeinCounts)$filename <- bamfiles
 
 <<spikeincounts, echo=TRUE>>==
 spikeinCounts <- countSpikeins(spikeinCounts,
-                    scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)),
+                    scanBamParam=Rsamtools::ScanBamParam(flag=Rsamtools::scanBamFlag(isSecondaryAlignment=FALSE)),
                     BPPARAM=NULL,
                     verbose=FALSE)
 assay(spikeinCounts)
@@ -357,13 +358,23 @@ rowRanges(exonCounts)
 %\subsection{Fit the rates}
 \subsection{Exon-specific synthesis and degradation rate estimates}\label{Fitting}
 
-After estimating sequencing depth and cross-contamination rates per sample (see Section \ref{Normalization}) and extracting feature-specific dispersion estimates (see Section \ref{Dispersion}), we can now estimate RNA synthesis and degradation rate for each feature and condition individually. Multiple replicates for the same condition can be used for a joint estimation. The user has to specify for which replicate or combination of replicates the results should be estimated. Therefore, the \Robject{replicate} parameter is a vector of all combinations that should be evaluated. For the joint estimation for multiple replicates, these have to be given as a string separeted by a ``:''. In the following example, we will obtain individual results for replicate 1 and 2 and also results for a joint estimation.
+After estimating sequencing depth and cross-contamination rates per sample (see Section \ref{Normalization}) and extracting feature-specific dispersion estimates (see Section \ref{Dispersion}), we can now estimate RNA synthesis and degradation rate for each feature and condition individually. 
 
-<<SynDecEstimation, echo=TRUE, eval=FALSE>>=
+The estimation of these rates relies on a random initialization. To make the results more robust, it is possible to run multiple iterations of the algorithm with random initialization and the median of the resulting rates is returned. The default number of iterations is 3. To change this value, the \Robject{numberOfInterations} in the \Robject{elementMetadata} of the \Rclass{rCubeExperiment} object has to be set:
+
+<<NumberOfIterations, echo=TRUE, eval=TRUE>>=
+elementMetadata(exonCounts)$numberOfInterations <- 7
+@
+
+Multiple replicates for the same condition can be used for a joint estimation. The user has to specify for which replicate or combination of replicates the results should be estimated. Therefore, the \Robject{replicate} parameter is a vector of all combinations that should be evaluated. For the joint estimation for multiple replicates, these have to be given as a string separeted by a ``:''. In the following example, we will obtain individual results for replicate 1 and 2 and also results for a joint estimation.
+
+<<SynDecEstimation, echo=TRUE, eval=TRUE>>=
 rates <- estimateRateByFirstOrderKinetics(exonCounts,
                                           replicate=c(1, 2, "1:2"),
                                           method='single',
                                           BPPARAM=BiocParallel::MulticoreParam(1))
+rates
+exonCounts
 @
 
 
@@ -373,6 +384,34 @@ rates <- estimateRateByFirstOrderKinetics(exonCounts,
 %--------------------------------------------------
 \subsection{describe the class of the returned object (rCubeRates)}
 
+The returned \Robject{rates} object is of the type \Rclass{rCubeRates}, which also extends \Rclass{SummarizedExperiment}. The \Robject{rowRanges} should be identical to the input data. The columns of the resulting matrix correspond to synthesis and degradation rates, for all indicated replicates and replicate combinations.
+
+
+The resulting rates can be validated by looking at the correlation of measured read counts and fitted read counts.
+<<ObservedVsFittedCounts, fig.show='hide', fig.width=10, fig.height=4>>=
+plotFittedCounts(exonCounts, rates)
+@
+
+\incfig{figure/ObservedVsFittedCounts-1}{0.9\textwidth}{Correlation of observed vs expected counts (based on synthesis and degradation rate estimates).}{The code that creates this figure is shown in the code chunk.}
+
+
+If rates were estimated independently for different replicates or replicate combinations, the correlation of the results can be plotted with:
+<<ReplicateResults, fig.show='hide', fig.width=10, fig.height=4>>=
+plotResultsReplicates(rates)
+@
+
+\incfig{figure/ReplicateResults-1}{0.9\textwidth}{Estimation results from independent estimations for different replicates/combinations of replicates.}{The code that creates this figure is shown in the code chunk.}
+
+
+If you want to get an average estimate for "top level features", e.g. full genes, from the exon-rates, you can run the \Rfunction{summarizeRates} function:
+<<SummarizeRates, echo=TRUE, eval=TRUE>>=
+topLevelFeature <- GRanges(seqnames="chr14", ranges=IRanges(start=75278774, end=75281636), strand="+")
+topLevelFeaturesRates <- summarizeRates(rates, topLevelFeature, by='mean')
+@
+
+
+\cleardoublepage
+\newpage
 
 %--------------------------------------------------
 \section{Labeling time series}

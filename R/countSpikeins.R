@@ -2,6 +2,7 @@
 
 #' @rdname Counting
 #' @export
+#' @import Rsamtools
 #' @examples
 #' data("spikeins")
 #' data("spikeinLabeling")
@@ -22,7 +23,7 @@ countSpikeins <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamPara
             message(date(), ' Counting reads from ', fn)
         }
         
-        counts <- .countSpike(fn, region, scanBamParam)
+        counts <- .countSpike(bamFile=fn, region=region, scanBamParam=scanBamParam)
         assays(experimentalSetup[, experimentalSetup[['filename']] == fn])[['counts']] <- as.matrix(counts, ncol=1)
     }
     return(experimentalSetup) 
@@ -31,7 +32,7 @@ countSpikeins <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamPara
 
 .countSpike <- function(bamFile, region, scanBamParam)
 {
-    bamWhich(scanBamParam) <- region
+    Rsamtools::bamWhich(scanBamParam) <- region
     #this will split the Readpairs by CIGAR and merge(union) the resulting reads to avoid double counting of the two ends
     exploded_reads <- GenomicAlignments::readGAlignmentPairs(bamFile, param=scanBamParam)
     exploded_reads <- reduce(grglist(exploded_reads))

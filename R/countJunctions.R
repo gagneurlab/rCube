@@ -20,7 +20,7 @@
 #' @seealso \code{\link{BiocParallelParam}}
 #' @import GenomicAlignments
 #' @import GenomicRanges
-#' @importFrom Rsamtools ScanBamParam scanBamFlag
+#' @import Rsamtools
 #' @import S4Vectors
 #' 
 #' @return An updated \code{rCubeExperiment} container, with spike-in read 
@@ -31,7 +31,7 @@
 #'
 #' @examples
 #' 
-countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, ncores=1, verbose=FALSE)
+countJunctions <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamParam(flag=Rsamtools::scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, ncores=1, verbose=FALSE)
 {
     #first count spliced reads
     bamFiles <- colData(experimentalSetup)$filename
@@ -110,7 +110,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
 {
     region2 <- region
     strand(region2) <- '*'
-    bamWhich(scanBamParam) <- range(sort(region2)[start:end])
+    Rsamtools::bamWhich(scanBamParam) <- range(sort(region2)[start:end])
     #this will split the Readpairs by CIGAR and merge(union) the resulting reads to avoid double counting of the two ends
     exploded_reads <- readGAlignmentPairs(bamFile, param=scanBamParam)
     exploded_reads <- reduce(grglist(exploded_reads))
@@ -124,7 +124,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=ScanBamParam(flag=sca
 .countSplitReadsPerChromosome <- function(chromosome, bamFile, scanBamParam){
     # restrict to the chromosome only
     
-    bamWhich(scanBamParam) <- GRanges(seqnames=chromosome, ranges=IRanges(0, 536870912))
+    Rsamtools::bamWhich(scanBamParam) <- GRanges(seqnames=chromosome, ranges=IRanges(0, 536870912))
     
     # get reads from bam file
     galignment <- readGAlignmentPairs(bamFile, param=scanBamParam)

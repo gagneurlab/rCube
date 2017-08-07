@@ -6,9 +6,9 @@
 \alias{countFeatures}
 \title{Counting reads for features}
 \usage{
-countJunctions(experimentalSetup, scanBamParam = ScanBamParam(flag =
-  scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL, ncores = 1,
-  verbose = FALSE)
+countJunctions(experimentalSetup, scanBamParam = Rsamtools::ScanBamParam(flag
+  = Rsamtools::scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL,
+  ncores = 1, verbose = FALSE)
 
 countSpikeins(experimentalSetup, scanBamParam = Rsamtools::ScanBamParam(flag =
   Rsamtools::scanBamFlag(isSecondaryAlignment = FALSE)), BPPARAM = NULL,
