@@ -58,6 +58,8 @@ plotSpikeinCountsVsSample <- function(spikeinCounts)
 #' @import ggplot2
 #' @importFrom data.table melt
 #' @importFrom stringr str_extract
+#' @importFrom stats reshape
+#' @importFrom utils combn
 #'
 #' @examples
 #' data(exonRates)
@@ -71,13 +73,13 @@ plotResultsReplicates <- function(featureRates, condition=NULL, replicate=NULL){
     df$condition <- stringr::str_extract(as.character(df$variable), '[^_]+')
     df$rate <- factor(stringr::str_extract(as.character(df$variable), '(?<=_)[^_]*[^_]'))
     df$replicate <- stringr::str_extract(as.character(df$variable), '(?<=_)[^_]*$')
-    df <- df[,-which(colnames(df)=="variable")]
-    df2 <- reshape(df, idvar=c("gene","rate", "condition"), timevar="replicate", direction="wide")
+    df <- df[,-which(colnames(df) == "variable")]
+    df2 <- reshape(df, idvar=c("gene", "rate", "condition"), timevar="replicate", direction="wide")
     
     repCombis = combn(unique(df$replicate),2)
     
     df3 <- do.call("rbind", lapply(1:ncol(repCombis), function(i){
-        x <- cbind(df2[,c("gene","condition","rate", paste("value", repCombis[,i], sep="."))], paste(repCombis[,i], collapse="/") )
+        x <- cbind(df2[, c("gene","condition","rate", paste("value", repCombis[,i], sep="."))], paste(repCombis[, i], collapse="/") )
         colnames(x)[4:6] <- c("rate1", "rate2", "combi")
         x
     }))

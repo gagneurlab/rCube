@@ -3,7 +3,7 @@
 #' @description Estimated rates are averaged for features which overlap with a 
 #' top-level feature.
 #'
-#' @param featureRates An \code{rCubeRate object}, see constructor function 
+#' @param featureRates An \code{rCubeRates} object, see constructor function 
 #'  \code{\link{createRResultCubeRates}}.
 #' @param topLevelFeatures \code{GRanges} annotation
 #' @param by grouping method, one of 'mean', 'median'

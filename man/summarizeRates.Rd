@@ -7,7 +7,7 @@
 summarizeRates(featureRates, topLevelFeatures, by = c("mean", "median"))
 }
 \arguments{
-\item{featureRates}{An \code{rCubeRate object}, see constructor function 
+\item{featureRates}{An \code{rCubeRates} object, see constructor function 
 \code{\link{createRResultCubeRates}}.}
 
 \item{topLevelFeatures}{\code{GRanges} annotation}

@@ -44,7 +44,7 @@
     N <- 1 ## number of cells, my model does not take into account other numbers
     numberOfIterations <- elementMetadata(featureCounts)$numberOfIterations
     if(is.null(numberOfIterations)){
-        numberOfIterations <- 3 ##TODO (leo calls it rep) integrate into metadata?
+        numberOfIterations <- 3 ##TODO (leo calls it rep) 
     }
     
     
