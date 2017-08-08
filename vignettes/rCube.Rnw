@@ -81,7 +81,7 @@ count reads from BAM-files, and normalize different samples against each other u
 %--------------------------------------------------
 
 
-As described in \cite{miller_dynamic_2011}, 4sU-seq allows to monitor changes in the RNA metabolism. If cells are exposed to 4sU, they rapidly take up this Uridine analog and incorporate it into newly-synthesized RNAs. This way, newly-synthesized RNAs are labeled and can be extracted from the total RNA in the sample. The longer the labeling time, e.i. the time from 4sU addition to harvesting the cells, the bigger is the proportion of labeled RNAs among all RNAs.
+As described in \cite{miller_dynamic_2011}, 4sU-seq allows to monitor changes in the RNA metabolism. If cells are exposed to 4sU, they rapidly take up this Uridine analog and incorporate it into newly-synthesized RNAs. This way, newly-synthesized RNAs are labeled and can be extracted from the total RNA in the sample. The longer the labeling time, e.i. the time from 4sU addition to harvesting the cells, the bigger is the proportion of labeled RNAs among all RNAs. Labeling with 4sU has been successfully combined with deep sequencing in various 4sU-seq and TT-seq studies (\cite{Schwalb2016, miller_dynamic_2011, Michel2017}). In order to quantify gene expression levels from sequencing experiments, usually read counts per gene are used to compare the expression between genes and samples.
 
 Variations in read counts among different samples can have multiple reasons.
 %explain the  why we have spike ins (diagram?)
@@ -90,15 +90,19 @@ In a typical RNA-seq experiment, one wants to compare different samples under di
 Artificial RNA spike-in sequences can be used to adjust for global sequencing variations between samples. Adding the same volumes of spike-ins to a defined number of cells can help to resolve this problem, as they are subject to the same technical biases than natural RNAs, but their read counts should not be influenced by biological processes. In the case of TT-seq/4sU-seq, we additionally want to rescale 4sU-labeled and total RNA-seq samples, so that the ratio of labeled RNA to total RNA read counts reflects the ratio of labeled RNA to total RNA amounts in the cell. This can be achieved by labeling some of the spike-ins with 4sU during the \textit{in vitro} transcription. Then it is also possible to quantify the amount of unlabeled spike-ins (RNAs) that is not lost during labeled RNA purification, the so-called cross-contamination.
 %The External RNA Control Consortium (ERCC) is providing a set artifical RNA sequences that do not map to any known genome.
 
- explain time series vs only label total 
-
+With the \textit{rCube} package we propose two different methods to extract normalization parameters from spike-in read counts.
 The normalization based on artifical spike-ins and subsequent estimation of synthesis and degradation rates has been successfully implemented and applied in different studies:
 % ref to TTseq
 In human K562 cells, we investigated synthesis rates and half-lives of different RNA species under steady-state conditions \cite{Schwalb2016}.
 % ref to MSB
-In another study, we investigated the change of RNA synthesis immediately after T-cell stimulation \cite{Michel2017}.The sensitivity of TT-seq allowed us to monitor rapid changes in transcription from enhancers and promoters during the immediate response of T cells to ionomycin and phorbol 12-myristate 13-acetate (PMA).
+In another study, we investigated the change of RNA synthesis immediately after T-cell stimulation \cite{Michel2017}.The sensitivity of TT-seq allowed us to monitor rapid changes in transcription from enhancers and promoters during the immediate response of T-cells to ionomycin and phorbol 12-myristate 13-acetate (PMA).
 
+% explain time series vs only label total 
+The \textit{rCube} package offers a framework for two different experimental setups. First, a labeling time series can be used to extract robust synthesis, degradation, and splicing rates. Hereby, a set of TT-seq samples with different labeling times and a complementary total RNA-seq sample are used. A similar approach has been used for 4tU-seq labeling in \textit{S. pombe} \cite{Eser2016}. Second, synthesis and degradation rates can be estimated from pairs of TT-seq and total RNA-seq samples, as published in \cite{Schwalb2016, Michel2017}.
 
+Synthesis rates correspond to the transcription rate at a specific genomic locus. Synthesis and degradation rates together determine the steady-state levels of mature RNA.
+%single bond level
+For more details, see also our recent review: \cite{Wachutka2016}
  define synthesis, splicing, decay rate
 
  define the read classifications: junction reads E-E, E-I, I-E junction 
