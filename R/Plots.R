@@ -76,10 +76,10 @@ plotResultsReplicates <- function(featureRates, condition=NULL, replicate=NULL){
     df <- df[,-which(colnames(df) == "variable")]
     df2 <- reshape(df, idvar=c("gene", "rate", "condition"), timevar="replicate", direction="wide")
     
-    repCombis = combn(unique(df$replicate),2)
+    repCombis = combn(unique(df$replicate), 2)
     
     df3 <- do.call("rbind", lapply(1:ncol(repCombis), function(i){
-        x <- cbind(df2[, c("gene","condition","rate", paste("value", repCombis[,i], sep="."))], paste(repCombis[, i], collapse="/") )
+        x <- cbind(df2[, c("gene", "condition", "rate", paste("value", repCombis[, i], sep="."))], paste(repCombis[, i], collapse="/"))
         colnames(x)[4:6] <- c("rate1", "rate2", "combi")
         x
     }))

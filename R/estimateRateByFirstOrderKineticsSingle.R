@@ -82,11 +82,11 @@
     # ## empty results object code by LEO in estimate...Kinetics.R
     # ## createRResultCubeRates(featureCounts, replicate)
     rRates <- createRResultCubeRatesExtended(featureCounts, replicate)
-    assay(rRates[,rRates$rate == 'synthesis']) <- matrix(res$synthesis, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
-    assay(rRates[,rRates$rate == 'degradation']) <- matrix(res$degradation, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
-    assay(rRates[,rRates$rate == 'half.life']) <- matrix(res$half.life, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
-    assay(rRates[,rRates$rate == 'labeled.amount']) <- matrix(res$labeledAmount, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
-    assay(rRates[,rRates$rate == 'unlabeled.amount']) <- matrix(res$unlabeledAmount, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
+    assay(rRates[, rRates$rate == 'synthesis']) <- matrix(res$synthesis, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
+    assay(rRates[, rRates$rate == 'degradation']) <- matrix(res$degradation, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
+    assay(rRates[, rRates$rate == 'half.life']) <- matrix(res$half.life, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
+    assay(rRates[, rRates$rate == 'labeled.amount']) <- matrix(res$labeledAmount, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
+    assay(rRates[, rRates$rate == 'unlabeled.amount']) <- matrix(res$unlabeledAmount, nrow=length(genes), ncol=length(unique(conditions))*length(replicate), byrow=TRUE)
     
     return(rRates)
 }
@@ -192,7 +192,7 @@
         # exp.counts <- t(N) * L * t(seqDepths * (t(labeledAmount) + crossCont * t(unlabeledAmount)))
         # #TODO I removed N because of ERror with "  non-conformable arrays" and I am not using it anywhere else (only when calculating for rep 1 and 2 (2 seqDepth and crossCont values))
         exp.counts <- L * t(seqDepths * (t(labeledAmount) + crossCont * t(unlabeledAmount)))
-        # L * t(seqDepths * t(as.vector(labeledAmount) + t(outer(crossCont, unlabeledAmount)[,,1])))
+        # L * t(seqDepths * t(as.vector(labeledAmount) + t(outer(crossCont, unlabeledAmount)[, , 1])))
         # L * t(seqDepths * t(as.vector(labeledAmount) + t(matrix(outer(crossCont, unlabeledAmount), nrow=length(unlabeledAmount), byrow=T))))
         
         return(exp.counts)
