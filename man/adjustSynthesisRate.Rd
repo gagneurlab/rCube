@@ -2,22 +2,14 @@
 % Please edit documentation in R/SpikeinAdjustment.R
 \name{adjustSynthesisRate}
 \alias{adjustSynthesisRate}
-<<<<<<< HEAD
 \title{Adjust synthesis rate to transcripts per cell per minute}
 \usage{
 adjustSynthesisRate(spikeinCounts, spikeinGenome, featureRates,
   ratio_4sU = 0.1, spikeinAmount = 1, cellNumber = 10^7)
-=======
-\title{Title
-TODO}
-\usage{
-adjustSynthesisRate(spikeinCounts, featureRates, ratio_4sU = 0.1)
->>>>>>> 930a9a6397575c59315dd62a015a35a1689a68e1
 }
 \arguments{
 \item{spikeinCounts}{\code{rCubeExperiment} object with spikeins read counts}
 
-<<<<<<< HEAD
 \item{spikeinGenome}{A \code{DNAStringSet} containing the spike-in sequences.
 Names must be identical to the \code{seqnames} in the \code{spikeinCounts} object.}
 
@@ -58,16 +50,6 @@ rowRanges(spikeinCounts)$spikeinAmount <- 25*0.05
 colData(spikeinCounts)$cellNumber <- 5*10^7
 data("exonRates")
 adjustedSynthesis <- adjustSynthesisRate(spikeinCounts, spikeinGenome, exonRates)
-=======
-\item{featureRates}{\code{rCubeRates} object with resulting synthesis rates that
-should be adjusted}
-
-\item{ratio_4sU}{Percentage of 4sU vs U volume for reverse transcription of spike-ins}
-}
-\description{
-Title
-TODO
->>>>>>> 930a9a6397575c59315dd62a015a35a1689a68e1
 }
 \author{
 Carina Demel
