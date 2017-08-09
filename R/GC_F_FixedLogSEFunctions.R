@@ -1,16 +1,16 @@
 ## author: Leonhard Wachutka
 
 ## TODO: Leo, the F invokes a warning with biocCheck as it thinks you mean FALSE. maybe you can rename it?
-.guess_initial2 <- function(counts, ti, gc, F)
+.guess_initial2 <- function(counts, ti, gc, sF)
 {
-    F <- F/F[1]
-    F <- F[-1]
+    sF <- sF/sF[1]
+    sF <- sF[-1]
     gen.num <- nrow(counts)
     numFinite <- sum(is.finite(ti)) #TODO this is not used
     params.initial <- list(gl=runif(gen.num, 0.01, 0.1),
                             gs=runif(gen.num, 0.01, 0.1),
                             gm=runif(gen.num, 10, 500),
-                            F=F,
+                            F=sF,
                             gc=gc)
     return (params.initial)
 }

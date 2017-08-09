@@ -51,3 +51,7 @@ importFrom(stringr,str_extract)
 importFrom(utils,as.relistable)
 importFrom(utils,capture.output)
 importFrom(utils,combn)
+<<<<<<< HEAD
+=======
+importFrom(utils,data)
+>>>>>>> 930a9a6397575c59315dd62a015a35a1689a68e1
