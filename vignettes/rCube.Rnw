@@ -148,7 +148,7 @@ In this part of the vignette, we will demonstrate
 \item how gene-specific rates are obtained from exon-specific rates
 \end{itemize}
 
-Please note, the data set is downsampled due to size reasons, that's why fitting results are less acurate than when applied to multiple genes from deep-sequenced samples.
+Please note, the data set is downsampled (to yield approx 5\% of the originial read numbers) due to size reasons, that's why fitting results are less acurate than when applied to multiple genes from deep-sequenced samples.
 
 %--------------------------------------------------
 \subsection{Gene model}
@@ -413,6 +413,20 @@ topLevelFeature <- GRanges(seqnames="chr14", ranges=IRanges(start=75278774, end=
 topLevelFeaturesRates <- summarizeRates(rates, topLevelFeature, by='mean')
 @
 
+
+%--------------------------------------------------
+\subsection{Synthesis rates in Transcripts per Cell per Minute}
+So far, our estimated synthesis rates are on an arbitrary scale. Using the knowledge of initially used spike-in amounts and cell numbers for the experiment,
+the synthesis rates can be rescaled to the scale of transcripts per cell per minute. In the Jurkat example, for each spikein 25ng of spike-ins were added to each sample constisting of RNA from 50 million cells. As reads were downsampled to yield only 5\% of the originial reads, we have to account for that in this example.
+The synthesis rate adjustment can then achieved with the following function:
+
+<<adjustSynthesis, echo=TRUE, eval=TRUE>>==
+data("spikeinGenome")
+adjustedSynthesis <- adjustSynthesisRate(spikeinCounts, spikeinGenome, rates, spikeinAmount=25*0.05, cellNumber=5*10^7)
+range(adjustedSynthesis)
+@
+
+The result shows, that on average 1-5 transcripts are produced per cell per minute, which agrees well with previous estimates \cite{}. %TODO citations
 
 \cleardoublepage
 \newpage

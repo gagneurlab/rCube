@@ -7,7 +7,7 @@ Maintainer: Leonhard Wachutka <wachutka@in.tum.de>
 Description: Calculate rates of RNA metabolism (synthesis, splicing, degradation) from 4sU/TT-seq and RNA-seq data.
 License: GPL (>=3)
 RoxygenNote: 6.0.1
-Imports: methods, data.table, MASS, DESeq2, BiocParallel, S4Vectors, GenomicAlignments, GenomicRanges, IRanges, Rsamtools, lattice, magrittr, stringr, grDevices, stats, utils, ggplot2
+Imports: methods, data.table, MASS, DESeq2, BiocParallel, S4Vectors, GenomicAlignments, GenomicRanges, IRanges, Rsamtools, lattice, magrittr, stringr, grDevices, stats, utils, ggplot2, Biostrings
 Depends: SummarizedExperiment
 biocViews: Sequencing, DataImport, Normalization, ExperimentalDesign, SystemsBiology, GeneRegulation
 Suggests: testthat, BiocStyle, knitr
