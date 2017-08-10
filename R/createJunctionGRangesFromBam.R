@@ -21,9 +21,9 @@
 #' @author Leonhard Wachutka
 #' 
 #' @examples
-#' # Gencode annotation of MYC gene
-#' data(exampleExons)
-#' constitutive.exons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, BPPARAM=NULL, 1)
+#' bamfiles <- list.files(system.file("extdata/K562", package='rCube'), pattern=".bam$", full.names=TRUE)
+#' # do not run because of time reasons
+#' # junctions <- createJunctionGRangesFromBam(bamfiles, support=5, ncores=1, BPPARAM=BiocParallel::MulticoreParam(1))
 #' @export
 createJunctionGRangesFromBam <- function(bamFiles, 
                                          support=10,
