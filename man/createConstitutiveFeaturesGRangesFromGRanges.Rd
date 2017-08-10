@@ -28,7 +28,7 @@ gene.
 \examples{
 # reduced Gencode annotation of FOS gene (for illustration)
 data(exampleExons)
-constitutiveExons = createConstitutiveFeaturesGRangesFromGRanges(exampleExons, 
+constitutiveExons <- createConstitutiveFeaturesGRangesFromGRanges(exampleExons, 
 BPPARAM=NULL, ncores=1)
 }
 \seealso{

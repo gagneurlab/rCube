@@ -52,5 +52,5 @@ data("exonRates")
 adjustedSynthesis <- adjustSynthesisRate(spikeinCounts, spikeinGenome, exonRates)
 }
 \author{
-Carina Demel
+Björn Schwalb, Carina Demel
 }
