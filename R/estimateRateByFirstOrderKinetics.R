@@ -29,7 +29,7 @@
 #' 
 #' @author Leonhard Wachutka, Carina Demel
 #' @examples
-#' ## estimate sequencing depths and cross-contamination values from spike-ins
+#' ## estimate size factors and cross-contamination values from spike-ins
 #' data(spikeinCounts)
 #' data(exonCounts)
 #' exonCounts <- estimateSizeFactors(exonCounts, spikeinCounts, method='spikeinGLM')

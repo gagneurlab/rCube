@@ -9,8 +9,8 @@
     conditionsLabeling <- featureCounts@colData$LT
     labelingTime <- featureCounts@colData$labelingTime
     replicates <- as.character(featureCounts@colData$replicate)
-    sequencingDepths <- featureCounts@colData$sequencing.depth
-    crossContamination <- featureCounts@colData$cross.contamination
+    sequencingDepths <- featureCounts@colData$sizeFactor
+    crossContamination <- featureCounts@colData$crossContamination
     
     ## gene information
     rows <- rowRanges(featureCounts)

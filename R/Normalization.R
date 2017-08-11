@@ -34,12 +34,18 @@
 #' exonCounts <- estimateSizeFactors(exonCounts, spikeinCounts, method="spikeinGLM")
 estimateSizeFactors <- function(featureCounts,
                                 spikeinCounts,
-                                method=c('spikeinGLM', 'spikeinMean')){
+                                method=c('spikeinGLM', 'spikeinMean', 'spikeinMedian')){
+    if(length(method) > 1){
+        method <- method[1] #set default value
+    }
     if(method == "spikeinGLM"){
         featureCounts <- .calculateNormalizationBySpikeinGLM(featureCounts, 
-                                                             spikeinCounts)
+                                                            spikeinCounts)
     }else if(method == "spikeinMean"){
         featureCounts <- .calculateNormalizationByMean(featureCounts,
+                                                       spikeinCounts)
+    }else if(method == "spikeinMedian"){
+        featureCounts <- .calculateNormalizationByMedian(featureCounts,
                                                        spikeinCounts)
     }
     
@@ -79,14 +85,14 @@ estimateSizeFactors <- function(featureCounts,
     spikeinSpecificBias <- c(1, exp(coefs[grep("spike", names(coefs))]))
     names(spikeinSpecificBias) <- sort(spikeins)
     
-    resultsList <- list("sequencing.depth"=sequencingDepths,
-                       "cross.contamination"=crossContamination,
+    resultsList <- list("sizeFactor"=sequencingDepths,
+                       "crossContamination"=crossContamination,
                        "spikeinSpecificBias"=spikeinSpecificBias,
                        "intercept"=intercept,
                        "fittedCounts"=matrix(fittedCounts,
                                              nrow=length(spikeinSpecificBias)))
-    colData(featureCounts)$sequencing.depth <- sequencingDepths
-    colData(featureCounts)$cross.contamination <- crossContamination
+    colData(featureCounts)$sizeFactor <- sequencingDepths
+    colData(featureCounts)$crossContamination <- crossContamination
     metadata(featureCounts) <- resultsList
     return(featureCounts)
 }
@@ -99,6 +105,12 @@ estimateSizeFactors <- function(featureCounts,
     return(featureCounts)
 }
 
+.calculateNormalizationByMedian <- function(featureCounts, spikeinCounts){
+    labeled <- subset(spikeinCounts, labelingState == 'L')
+    lc <- assay(labeled)
+    colData(featureCounts)$sizeFactor <- apply(lc / rowSums(lc), 2, median)
+    return(featureCounts)
+}
 
 ## helper function
 .spikeinDataframe <- function(spikeinCounts){

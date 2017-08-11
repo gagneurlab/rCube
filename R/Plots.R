@@ -101,7 +101,7 @@ plotResultsReplicates <- function(featureRates, condition=NULL, replicate=NULL){
 #' samples.
 #'
 #' @param featureCounts A \code{rCubeExperiment} object containing read counts
-#' and sample information, as well as estimated sequencing depth and 
+#' and sample information, as well as estimated size factors and 
 #' cross-contamination rates (see \code{\link{estimateSizeFactors}}).
 #' @param featureRates A \code{rCubeRates} object containing estimated labeled
 #' and total RNA amounts for all desired replicates/conditions.
@@ -134,8 +134,8 @@ plotFittedCounts <- function(featureCounts, featureRates, condition=NULL, replic
     }
     res.batches <- res.batches[which(res.batches$cond %in% condition & res.batches$rep %in% replicate),]
     
-    crossCont <- colData(featureCounts)$cross.contamination
-    seqDepths <- colData(featureCounts)$sequencing.depth
+    crossCont <- colData(featureCounts)$crossContamination
+    seqDepths <- colData(featureCounts)$sizeFactor
     stopifnot(!is.null(seqDepths) | !is.null(crossCont))
     
     reps = do.call("rbind", sapply(1:nrow(res.batches), function(r){ rep=unlist(strsplit(as.character(res.batches[r,]$rep), ':'));
