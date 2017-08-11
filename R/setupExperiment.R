@@ -56,9 +56,9 @@ setupExperimentSpikeins <- function(rows, designMatrix=NULL, files=NULL,
         rownames(counts) <- names(rows)
     }
     
-    # rows$labelingState <- factor(labelingState[names(rows)])
-    # rows$labeledSpikein <- ifelse(rows$labelingState == "L", TRUE, FALSE)
-    rows$labeledSpikein <- factor(labelingState[names(rows)])
+    rows$labelingState <- factor(labelingState[names(rows)])
+    rows$labeledSpikein <- ifelse(rows$labelingState == "L", TRUE, FALSE)
+    # rows$labeledSpikein <- factor(labelingState[names(rows)])
     
     
     rowData <- data.frame(length=rows$length, labelingState=labelingState, 
