@@ -27,7 +27,7 @@ for which plot should be produced}
 \item{replicate}{(optional) replicate/combination for which plot should be produced}
 
 \item{featureCounts}{A \code{rCubeExperiment} object containing read counts
-and sample information, as well as estimated sequencing depth and 
+and sample information, as well as estimated size factors and 
 cross-contamination rates (see \code{\link{estimateSizeFactors}}).}
 }
 \value{

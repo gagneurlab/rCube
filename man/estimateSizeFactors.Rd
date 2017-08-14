@@ -5,7 +5,7 @@
 \title{Estimation of sample-specific normalization factors}
 \usage{
 estimateSizeFactors(featureCounts, spikeinCounts, method = c("spikeinGLM",
-  "spikeinMean"))
+  "spikeinMean", "spikeinMedian"))
 }
 \arguments{
 \item{featureCounts}{A \code{rCubeExperiment} object containing read

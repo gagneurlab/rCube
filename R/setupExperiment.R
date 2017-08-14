@@ -78,7 +78,8 @@ setupExperimentSpikeins <- function(rows, designMatrix=NULL, files=NULL,
 #'
 #' @examples
 #' data(junctions)
-#' bamfiles <- list.files(system.file("extdata/K562", package='rCube'), pattern=".bam$", full.names=TRUE)
+#' bamfiles <- list.files(system.file("extdata/TimeSeriesExample/", package='rCube'), 
+#' pattern=".bam$", full.names=TRUE)
 #' junctionCounts <- setupExperiment(junctions, files=bamfiles)
 setupExperiment <- function(rows, designMatrix=NULL, files=NULL){
     

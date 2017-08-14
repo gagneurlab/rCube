@@ -44,11 +44,13 @@ artificial spikeins, \code{countJunctions} to count reads for junctions.
 }
 \examples{
 data(junctions)
-bamfiles <- list.files(system.file("extdata/K562", package='rCube'), pattern=".bam$", full.names=TRUE)
+bamfiles <- list.files(system.file("extdata/TimeSeriesExample/", package='rCube'), 
+pattern=".bam$", full.names=TRUE)
 # first setup experiment
 junctionCounts <- setupExperiment(junctions, files=bamfiles)
 # then count reads
-junctionCounts <- countJunctions(junctionCounts, BPPARAM=BiocParallel::MulticoreParam(1))
+#junctionCounts <- countJunctions(junctionCounts, 
+#BPPARAM=BiocParallel::MulticoreParam(1))
 data("spikeins")
 data("spikeinLabeling")
 folder <- system.file("extdata/Jurkat", package="rCube")

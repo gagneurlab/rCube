@@ -71,3 +71,11 @@ NULL
 #' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
 #' @keywords data
 NULL
+
+#' Junction annotation retrieved from TimeSeriesExample BAM files
+#'
+#' @name junctions
+#' @docType data
+#' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
+#' @keywords data
+NULL

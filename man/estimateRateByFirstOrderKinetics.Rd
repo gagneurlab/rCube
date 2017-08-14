@@ -34,7 +34,7 @@ Estimation of synthesis and degradation rates (half-lives) based
 on 4sU-labeled and total RNA-seq read counts.
 }
 \examples{
-## estimate sequencing depths and cross-contamination values from spike-ins
+## estimate size factors and cross-contamination values from spike-ins
 data(spikeinCounts)
 data(exonCounts)
 exonCounts <- estimateSizeFactors(exonCounts, spikeinCounts, method='spikeinGLM')

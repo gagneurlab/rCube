@@ -23,9 +23,11 @@ Returns a GRanges object with junctions.
 Title
 }
 \examples{
-bamfiles <- list.files(system.file("extdata/K562", package='rCube'), pattern=".bam$", full.names=TRUE)
+bamfiles <- list.files(system.file("extdata/TimeSeriesExample/", package='rCube'), 
+pattern=".bam$", full.names=TRUE)
 # do not run because of time reasons
-# junctions <- createJunctionGRangesFromBam(bamfiles, support=5, ncores=1, BPPARAM=BiocParallel::MulticoreParam(1))
+# junctions <- createJunctionGRangesFromBam(bamfiles, support=5, ncores=1, 
+# BPPARAM=BiocParallel::MulticoreParam(1))
 }
 \author{
 Leonhard Wachutka

@@ -27,7 +27,7 @@
 #' @return Returns a matrix of synthesis rates, normalized to 
 #' transcripts/cell/minute.
 #' 
-#' @author Björn Schwalb, Carina Demel
+#' @author Bj\"orn Schwalb, Carina Demel
 #' @export
 #' @import Biostrings
 #' @examples 
