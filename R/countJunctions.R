@@ -58,7 +58,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamPar
         message(date(),' Counting J...')
     }
     bptasks(BPPARAM) <- nrow(param)
-    res <- unlist(GRangesList(bpdtapply(param, .countSplitReadsPerChromosome,
+    res <- unlist(GRangesList(.bpdtapply(param, .countSplitReadsPerChromosome,
                                         scanBamParam=scanBamParam, 
                                         BPPARAM=BPPARAM)))
     resByFilename <- split(res, res$filename)
@@ -68,7 +68,6 @@ countJunctions <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamPar
         assays(experimentalSetup[rowRanges(experimentalSetup)$typ == 'junction',
                                 experimentalSetup[['filename']] == fn])[['counts']] <- 
             as.matrix(merge(rowRanges(s), resByFilename[[fn]], all.x=TRUE)$count, ncol=1)
-        # TODO LEO CHECK: Carina removed S4Vectors:: before merge because of Warnings in R CMD check
     }
     
     if(verbose){
@@ -93,7 +92,7 @@ countJunctions <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamPar
             message(date(),' Counting da for ', fn)
         }
         bptasks(BPPARAM) <- nrow(param)
-        res <- bpdtapply(param, .countDA, bamFile=fn, region=region, 
+        res <- .bpdtapply(param, .countDA, bamFile=fn, region=region, 
                         scanBamParam=scanBamParam, BPPARAM=BPPARAM)
         if(verbose){
             message(date(),' Reduce da for ', fn)

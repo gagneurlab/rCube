@@ -190,7 +190,7 @@
         return(rep(NA, length(crossCont))) #used if multiple samples are calculated
     }else{
         # exp.counts <- t(N) * L * t(seqDepths * (t(labeledAmount) + crossCont * t(unlabeledAmount)))
-        # #TODO I removed N because of ERror with "  non-conformable arrays" and I am not using it anywhere else (only when calculating for rep 1 and 2 (2 seqDepth and crossCont values))
+        # #TODO I removed N because of Error with "  non-conformable arrays" and I am not using it anywhere else (only when calculating for rep 1 and 2 (2 seqDepth and crossCont values))
         exp.counts <- L * t(seqDepths * (t(labeledAmount) + crossCont * t(unlabeledAmount)))
         # L * t(seqDepths * t(as.vector(labeledAmount) + t(outer(crossCont, unlabeledAmount)[, , 1])))
         # L * t(seqDepths * t(as.vector(labeledAmount) + t(matrix(outer(crossCont, unlabeledAmount), nrow=length(unlabeledAmount), byrow=T))))

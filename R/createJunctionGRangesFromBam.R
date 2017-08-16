@@ -1,13 +1,20 @@
-##TODO CARINA modified import data.table here because of error with shift function in SummarizedExp and data.table
-
-#' Title
+## author: Leonhard Wachutka
+ 
+#' Create de novo junction Annotation from bam files
 #' 
-#' @param bamFiles A string Vector containing all bam files
-#' @param support min number of supporting reads
-#' @param ncores Number of cores available for parallel computation
-#' @param BPPARAM see BiocParallel
+#' @description Reads coming from sequenced fragments that cannot be 
+#' mapped entirely to a genomic location, can be split, so that they e.g. map 
+#' two exons flanking an intron. The cigar string of these reads usually contains
+#' a 'N' character, where the read cannot be aligned to the genome. This information
+#' can be used to extract possible splice sites.
 #' 
+#' @param bamFiles A string vector containing all bam files.
+#' @param support Minimal number of supporting reads.
+#' @param ncores Number of cores available for parallel computation.
+#' @param BPPARAM An instance of a \code{BiocParallelParam} class, e.g., 
+#' \code{\link{MulticoreParam}}, \code{\link{SnowParam}}, \code{\link{DoparParam}}.
 #' 
+#' @seealso \code{\link{BiocParallelParam}}
 #' @import BiocParallel
 #' @import GenomicAlignments
 #' @importFrom data.table data.table rbindlist copy is.data.table :=  .N
@@ -16,7 +23,6 @@
 #' @import IRanges
 #' @import Rsamtools
 #' 
-#'
 #' @return Returns a GRanges object with junctions.
 #' @author Leonhard Wachutka
 #' 
@@ -54,7 +60,7 @@ createJunctionGRangesFromBam <- function(bamFiles,
         #BPPARAM <- SnowParam(workers=ncores, tasks=nrow(param), type="SOCK", progressbar=TRUE)
     }
     bptasks(BPPARAM) <- nrow(param)
-    res <- rbindlist(bpdtapply(param, extractSplicedReads, BPPARAM=BPPARAM))
+    res <- rbindlist(.bpdtapply(param, extractSplicedReads, BPPARAM=BPPARAM))
     res <- res[, .(count=sum(count)), by=c("seqnames", "start", "end", "strand")][count >= support, c("seqnames", "start", "end", "strand")]
     res <- .jToDA(res)
     res <- unique(res, by=c("seqnames", "start", "end", "strand", "typ"))
@@ -68,7 +74,7 @@ createJunctionGRangesFromBam <- function(bamFiles,
 }
 
 
-bpdtapply <- function(dt, FUN, ..., BPREDO=list(), BPPARAM=bpparam())
+.bpdtapply <- function(dt, FUN, ..., BPREDO=list(), BPPARAM=bpparam())
 {
     stopifnot(is.data.table(dt))
     bplapply(split(dt, 1:NROW(dt)), .bpdtapply_helper, FUNEXPORT=FUN, BPREDO=BPREDO, BPPARAM=BPPARAM, ...)
@@ -84,7 +90,7 @@ bpdtapply <- function(dt, FUN, ..., BPREDO=list(), BPPARAM=bpparam())
 .jToDA <- function(junctionsIn)
 {
     junctions <- copy(junctionsIn)
-    junctions[, start:=start-1] #TODO Carina asks if this is ok like this, is there not an assignment missing?
+    junctions[, start:=start-1]
     temp <- junctions
     da <- rbind(junctions[, .(start, end=start+1, typ=ifelse(strand == '+', 'donor', 'acceptor')), by=c('seqnames', 'strand')],
                 junctions[, .(start=end, end=end+1, typ=ifelse(strand != '+', 'donor', 'acceptor')), by=c('seqnames', 'strand')]
@@ -92,19 +98,3 @@ bpdtapply <- function(dt, FUN, ..., BPREDO=list(), BPPARAM=bpparam())
     junctionsIn[, typ := 'junction']
     return(rbind(junctionsIn, da))
 }
-
-
-# .test = function()
-# {
-#     # TODO Test function needs to be removed here. but pls include example data
-#     # require(BiocParallel)
-#     # require(GenomicAlignments)
-#     # require(data.table)
-#     # require(magrittr)
-#     
-#     bamFiles <- c('/data/ouga03/ag_gagneur/project_local/livia_tt_seq_k562/ProcessedData/Star/HT2000/L1_02_Aligned.sortedByCoord.out.bam',
-#                   '/data/ouga03/ag_gagneur/project_local/livia_tt_seq_k562/ProcessedData/Star/HT2000/L1_05_Aligned.sortedByCoord.out.bam')
-#     
-#     mparam <- SnowParam(workers=ncores, tasks=nrow(param), type="SOCK")
-#     createJunctionGRangesFromBam(bamFiles, BPPARAM=mparam)
-# }

@@ -54,7 +54,6 @@ callFit <- function(batch, experiment, verbose=FALSE)
     modelTime <- as.numeric(colData(experiment)$labelingTime)
     modelTime[colData(experiment)$LT == 'T'] <- Inf
     ss <- experiment[batch]
-    ## TODO: Leo, the F invokes a warning with biocCheck as it thinks you mean FALSE. maybe you can rename it?
     fit <- .SE_fit_rates(assay(ss), modelTime, length=rep(1, nrow(ss)), uc=rep(0, nrow(ss)), puc=0, sF=sF, gc=0)
     rr <- rowRanges(ss)
     rr$gs <- fit$gs

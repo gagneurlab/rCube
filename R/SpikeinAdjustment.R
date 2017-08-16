@@ -38,6 +38,7 @@
 #' colData(spikeinCounts)$cellNumber <- 5*10^7
 #' data("exonRates")
 #' adjustedSynthesis <- adjustSynthesisRate(spikeinCounts, spikeinGenome, exonRates)
+#' adjustedSynthesis
 adjustSynthesisRate <- function(spikeinCounts, spikeinGenome, featureRates, ratio_4sU=0.1, spikeinAmount=1, cellNumber=10^7){
     #molecular weights [g/mol]:
     Mw_A <- 329.2

@@ -1,6 +1,5 @@
 ## author: Leonhard Wachutka
 
-## TODO: Leo, the F invokes a warning with biocCheck as it thinks you mean FALSE. maybe you can rename it?
 .guess_initial2 <- function(counts, ti, gc, sF)
 {
     sF <- sF/sF[1]

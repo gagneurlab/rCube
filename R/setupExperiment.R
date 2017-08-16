@@ -103,8 +103,6 @@ setupExperiment <- function(rows, designMatrix=NULL, files=NULL){
 }
 
 
-# TODO is this not being exported?
-# else we need example and roxygen comment
 .createDesignMatrix <- function(files)
 {
     designMatrix <- data.table(filename=files)
