@@ -3,7 +3,7 @@
 #' @description \code{estimateSizeFactors} provides a wrapper function to
 #' estimate sample-specific size-factors by three different types. The 
 #' 'spikeinGLM' method fits a GLM to spike-in read counts to extract sequencing 
-#' depth values and cross-contamination rates for all samples.
+#' depth values and cross-contamination rates for all samples (default).
 #' 
 #' TODO: explain other methods 
 #' 
@@ -37,16 +37,17 @@ estimateSizeFactors <- function(featureCounts,
                                 method=c('spikeinGLM', 'spikeinMean', 'spikeinMedian')){
     if(length(method) > 1){
         method <- method[1] #set default value
+        message("More than one method was given and only the first element will be used.")
     }
-    if(method == "spikeinGLM"){
-        featureCounts <- .calculateNormalizationBySpikeinGLM(featureCounts, 
-                                                            spikeinCounts)
-    }else if(method == "spikeinMean"){
+    if(method == "spikeinMean"){
         featureCounts <- .calculateNormalizationByMean(featureCounts,
                                                        spikeinCounts)
     }else if(method == "spikeinMedian"){
         featureCounts <- .calculateNormalizationByMedian(featureCounts,
                                                        spikeinCounts)
+    }else{ #in any other case use spike-in GLM as default (e.g. typo)
+        featureCounts <- .calculateNormalizationBySpikeinGLM(featureCounts, 
+                                                             spikeinCounts)
     }
     
     return(featureCounts)

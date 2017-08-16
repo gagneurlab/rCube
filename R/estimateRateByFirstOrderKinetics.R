@@ -45,9 +45,14 @@
 #' method='single', BPPARAM=BiocParallel::MulticoreParam(1))
 estimateRateByFirstOrderKinetics <- function(featureCounts,
                                              replicate,
-                                             method=c('series', 'single'),
+                                             method=c('single', 'series'),
                                              BPPARAM=NULL)
 {
+    if(length(method) >= 1){
+        method <- method[1]
+        message("More than one method was given and only the first element will be used.")
+    }
+    
     if(method == 'series')
     {
         rRates <- createRResultCubeRates(featureCounts, replicate)
