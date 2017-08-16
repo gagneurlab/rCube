@@ -75,7 +75,7 @@ callFit <- function(batch, experiment, verbose=FALSE)
     #ubias <- 1-(puc)^uc
     #try with 0 ubias
     ubias <- 1
-    params.fixed <- list(t=ti, F0=1, ga=40, N=nrow(counts), numFinite=sum(is.finite(ti)), l=length, gl=p$gl, gc=p$gc, F=p$F, uc=ubias)
+    params.fixed <- list(t=ti, F0=1, ga=40, N=nrow(counts), numFinite=sum(is.finite(ti)), l=length, gl=p$gl, gc=p$gc, sF=p$sF, uc=ubias)
     
     if(log.out != FALSE){print("Start fit...")}
     log_trace <- 0
