@@ -55,8 +55,14 @@ setupExperimentSpikeins <- function(rows, designMatrix=NULL, files=NULL,
         counts <- matrix(NA, nrow=length(rows), ncol=nrow(designMatrix))
         rownames(counts) <- names(rows)
     }
+    if(!is.null(names(labelingState))){
+        labelingState <- labelingState[names(rows)]
+    }else{
+        message("Your provided labelingState does not have names, rCube assumes that they are ordered according to the provided rows.")
+    }
     
-    rows$labelingState <- factor(labelingState[names(rows)])
+    
+    rows$labelingState <- factor(labelingState)
     rows$labeledSpikein <- ifelse(rows$labelingState == "L", TRUE, FALSE)
     # rows$labeledSpikein <- factor(labelingState[names(rows)])
     
