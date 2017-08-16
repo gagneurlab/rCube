@@ -5,7 +5,11 @@
 #' 'spikeinGLM' method fits a GLM to spike-in read counts to extract sequencing 
 #' depth values and cross-contamination rates for all samples (default).
 #' 
-#' TODO: explain other methods 
+#' The 'spikeinMean' and 'spikeinMedian' methods use the mean or median counts 
+#' across labeled spike-ins per sample to determine sample-specific size factors.
+#' For the estimation of cross-contamination in labeled samples, the ratio of 
+#' counts from unlabeled spike-ins to counts from labeled spike-ins is used as
+#' an approximation.
 #' 
 #' Additional informations for the fit can be found in the metadata of the 
 #' resulting \code{rCubeExperiment}.
@@ -32,6 +36,7 @@
 #' data(exonCounts)
 #' data(spikeinCounts)
 #' exonCounts <- estimateSizeFactors(exonCounts, spikeinCounts, method="spikeinGLM")
+#' colData(exonCounts)
 estimateSizeFactors <- function(featureCounts,
                                 spikeinCounts,
                                 method=c('spikeinGLM', 'spikeinMean', 'spikeinMedian')){
@@ -102,7 +107,11 @@ estimateSizeFactors <- function(featureCounts,
 .calculateNormalizationByMean <- function(featureCounts, spikeinCounts){
     labeled <- subset(spikeinCounts, labelingState == 'L')
     lc <- assay(labeled)
+    unlabeled <- subset(spikeinCounts, labelingState == 'U')
+    uc <- assay(unlabeled)
     colData(featureCounts)$sizeFactor <- colMeans(lc / rowSums(lc))
+    colData(featureCounts)$crossContamination <- colSums(uc)/colSums(lc)
+    colData(featureCounts)$crossContamination[colData(featureCounts)$LT == "T"] <- 1
     return(featureCounts)
 }
 
@@ -110,6 +119,8 @@ estimateSizeFactors <- function(featureCounts,
     labeled <- subset(spikeinCounts, labelingState == 'L')
     lc <- assay(labeled)
     colData(featureCounts)$sizeFactor <- apply(lc / rowSums(lc), 2, median)
+    colData(featureCounts)$crossContamination <- colSums(uc)/colSums(lc)
+    colData(featureCounts)$crossContamination[colData(featureCounts)$LT == "T"] <- 1
     return(featureCounts)
 }
 

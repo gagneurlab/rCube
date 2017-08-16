@@ -5,7 +5,7 @@
 \title{Estimation of RNA rates}
 \usage{
 estimateRateByFirstOrderKinetics(featureCounts, replicate,
-  method = c("series", "single"), BPPARAM = NULL)
+  method = c("single", "series"), BPPARAM = NULL)
 }
 \arguments{
 \item{featureCounts}{A \code{rCubeExperiment} object with feature count table}
@@ -17,9 +17,9 @@ For specifying combinations of replicates, please separate them by a ':'.
 If \code{NULL}, estimates for each replicate individually and all combinations 
 of replicates will be calculated.}
 
-\item{method}{Type of estimation to be used. 'series' uses a set of TT-seq and
-RNA-seq data sets with multiple labeling time points, 'single' works on individual
-time points.}
+\item{method}{Type of estimation to be used. 'single' works on individual
+time points, 'series' uses a set of TT-seq and
+RNA-seq data sets with multiple labeling time points.}
 
 \item{BPPARAM}{An instance of a \code{BiocParallelParam} class, e.g., 
 \code{\link{MulticoreParam}}, \code{\link{SnowParam}}, \code{\link{DoparParam}}.}
@@ -27,7 +27,7 @@ time points.}
 \value{
 Returns a \code{rCubeRates} object with estimated synthesis and 
 degradation rates for each feature and sample and the specified replicate 
-combinations
+combinations.
 }
 \description{
 Estimation of synthesis and degradation rates (half-lives) based

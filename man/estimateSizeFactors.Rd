@@ -27,9 +27,13 @@ An updated \code{rCubeExperiment} object for features with sequencing
 \code{estimateSizeFactors} provides a wrapper function to
 estimate sample-specific size-factors by three different types. The 
 'spikeinGLM' method fits a GLM to spike-in read counts to extract sequencing 
-depth values and cross-contamination rates for all samples.
+depth values and cross-contamination rates for all samples (default).
 
-TODO: explain other methods 
+The 'spikeinMean' and 'spikeinMedian' methods use the mean or median counts 
+across labeled spike-ins per sample to determine sample-specific size factors.
+For the estimation of cross-contamination in labeled samples, the ratio of 
+counts from unlabeled spike-ins to counts from labeled spike-ins is used as
+an approximation.
 
 Additional informations for the fit can be found in the metadata of the 
 resulting \code{rCubeExperiment}.
@@ -39,6 +43,7 @@ resulting \code{rCubeExperiment}.
 data(exonCounts)
 data(spikeinCounts)
 exonCounts <- estimateSizeFactors(exonCounts, spikeinCounts, method="spikeinGLM")
+colData(exonCounts)
 }
 \author{
 Carina Demel, Leonhard Wachutka
