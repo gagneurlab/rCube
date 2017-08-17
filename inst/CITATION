@@ -1,0 +1,23 @@
+citEntry(entry="article",
+         title = "TT-seq maps the human transient transcriptome",
+         author = personList( as.person("Bjoern Schwalb"),
+                              as.person("Margaux Michel"),
+                              as.person("Benedikt Zacher"),
+                              as.person("Katja Fruehauf"),
+                              as.person("Carina Demel"),
+                              as.person("Achim Tresch"),
+                              as.person("Julien Gagneur"),
+                              as.person("Patrick Cramer")
+                              ),
+         year = 2016,
+         journal = "Science",
+         volume = 352,
+         issue = 6290,
+         doi = "10.1126/science.aad9841",
+         url = "http://dx.doi.org/10.1126/science.aad9841",
+         textVersion = 
+         paste("Bjoern Schwalb, Margaux Michel, Benedikt Zacher, Katja Fruehauf, Carina Demel, Achim Tresch, Julien Gagneur and Patrick Cramer (2016):", 
+               "TT-seq maps the human transient transcriptome.",
+                "Science 352(6290): 1225-1228" )
+)
+
