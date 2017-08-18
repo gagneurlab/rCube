@@ -28,16 +28,6 @@
 #' @export
 #' @author Leonhard Wachutka
 #' @rdname Counting
-#'
-#' @examples
-#' data(junctions)
-#' bamfiles <- list.files(system.file("extdata/TimeSeriesExample/", package='rCube'), 
-#' pattern=".bam$", full.names=TRUE)
-#' # first setup experiment
-#' junctionCounts <- setupExperiment(junctions, files=bamfiles)
-#' # then count reads on junctions
-#' junctionCounts <- countJunctions(junctionCounts, 
-#' BPPARAM=BiocParallel::MulticoreParam(1))
 countJunctions <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamParam(flag=Rsamtools::scanBamFlag(isSecondaryAlignment=FALSE)), BPPARAM=NULL, ncores=1, verbose=FALSE)
 {
     #first count spliced reads

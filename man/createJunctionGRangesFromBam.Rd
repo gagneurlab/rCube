@@ -27,13 +27,6 @@ two exons flanking an intron. The cigar string of these reads usually contains
 a 'N' character, where the read cannot be aligned to the genome. This information
 can be used to extract possible splice sites.
 }
-\examples{
-bamfiles <- list.files(system.file("extdata/TimeSeriesExample/", package='rCube'), 
-pattern=".bam$", full.names=TRUE)
-# do not run because of time reasons
-# junctions <- createJunctionGRangesFromBam(bamfiles, support=5, ncores=1, 
-# BPPARAM=BiocParallel::MulticoreParam(1))
-}
 \seealso{
 \code{\link{BiocParallelParam}}
 }

@@ -602,12 +602,12 @@ rowRanges(junctionCounts)
 In deep-sequenced samples, you might want to filter your data, to only get more
 repliable estimates from highly covered junctions:
 <<Filtering, echo=TRUE, eval=TRUE>>==
-junctionCounts = junctionCounts[rowSums(assay(junctionCounts)) > 100]
+junctionCounts <- junctionCounts[rowSums(assay(junctionCounts)) > 100]
 @
 
 
 <<Fitting, echo=TRUE, eval=TRUE>>==
-junctionRates = estimateRateByFirstOrderKinetics(junctionCounts,
+junctionRates <- estimateRateByFirstOrderKinetics(junctionCounts,
                                                  replicate=c(1,2,'1:2'),
                                                  method='series')
 @

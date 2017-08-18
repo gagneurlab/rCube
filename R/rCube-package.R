@@ -79,3 +79,19 @@ NULL
 #' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
 #' @keywords data
 NULL
+
+#' Count matrix for Junctions retrieved from TimeSeriesExample BAM files
+#'
+#' @name countMatrixJunctions
+#' @docType data
+#' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
+#' @keywords data
+NULL
+
+#' Count matrix for spike-ins retrieved from TimeSeriesExample BAM files
+#'
+#' @name countMatrixSpikeins
+#' @docType data
+#' @author Leonhard Wachutka, Carina Demel, Julien Gagneur
+#' @keywords data
+NULL

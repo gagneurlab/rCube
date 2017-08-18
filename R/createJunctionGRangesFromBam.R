@@ -25,13 +25,6 @@
 #' 
 #' @return Returns a GRanges object with junctions.
 #' @author Leonhard Wachutka
-#' 
-#' @examples
-#' bamfiles <- list.files(system.file("extdata/TimeSeriesExample/", package='rCube'), 
-#' pattern=".bam$", full.names=TRUE)
-#' # do not run because of time reasons
-#' # junctions <- createJunctionGRangesFromBam(bamfiles, support=5, ncores=1, 
-#' # BPPARAM=BiocParallel::MulticoreParam(1))
 #' @export
 createJunctionGRangesFromBam <- function(bamFiles, 
                                          support=10,
