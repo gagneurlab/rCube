@@ -2,25 +2,30 @@
 % Please edit documentation in R/createJunctionGRangesFromBam.R
 \name{createJunctionGRangesFromBam}
 \alias{createJunctionGRangesFromBam}
-\title{Title}
+\title{Create de novo junction Annotation from bam files}
 \usage{
 createJunctionGRangesFromBam(bamFiles, support = 10, ncores = 2,
   BPPARAM = NULL)
 }
 \arguments{
-\item{bamFiles}{A string Vector containing all bam files}
+\item{bamFiles}{A string vector containing all bam files.}
 
-\item{support}{min number of supporting reads}
+\item{support}{Minimal number of supporting reads.}
 
-\item{ncores}{Number of cores available for parallel computation}
+\item{ncores}{Number of cores available for parallel computation.}
 
-\item{BPPARAM}{see BiocParallel}
+\item{BPPARAM}{An instance of a \code{BiocParallelParam} class, e.g., 
+\code{\link{MulticoreParam}}, \code{\link{SnowParam}}, \code{\link{DoparParam}}.}
 }
 \value{
 Returns a GRanges object with junctions.
 }
 \description{
-Title
+Reads coming from sequenced fragments that cannot be 
+mapped entirely to a genomic location, can be split, so that they e.g. map 
+two exons flanking an intron. The cigar string of these reads usually contains
+a 'N' character, where the read cannot be aligned to the genome. This information
+can be used to extract possible splice sites.
 }
 \examples{
 bamfiles <- list.files(system.file("extdata/TimeSeriesExample/", package='rCube'), 
@@ -28,6 +33,9 @@ pattern=".bam$", full.names=TRUE)
 # do not run because of time reasons
 # junctions <- createJunctionGRangesFromBam(bamfiles, support=5, ncores=1, 
 # BPPARAM=BiocParallel::MulticoreParam(1))
+}
+\seealso{
+\code{\link{BiocParallelParam}}
 }
 \author{
 Leonhard Wachutka

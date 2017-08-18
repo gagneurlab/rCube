@@ -50,6 +50,7 @@ rowRanges(spikeinCounts)$spikeinAmount <- 25*0.05
 colData(spikeinCounts)$cellNumber <- 5*10^7
 data("exonRates")
 adjustedSynthesis <- adjustSynthesisRate(spikeinCounts, spikeinGenome, exonRates)
+adjustedSynthesis
 }
 \author{
 Bj\"orn Schwalb, Carina Demel

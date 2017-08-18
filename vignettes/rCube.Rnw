@@ -190,7 +190,7 @@ The \texttt{inst/extdata} of the \textit{rCube} package provides two example dat
 
 The first example data set, ``TcellActivation'', contains bam files from resting and activated Jurkat T-cells for TT-seq and RNA-seq samples. The bamfiles are restricted to the FOS gene (chr14:75278000-75283000) and the artifical spike-ins, subsampled to to 5\% of the original read numbers to reduce file size. The full data sets are published in \cite{Michel2017}. This example data is used to demonstrate the spike-in normalization method, and the estimation of synthesis and degradation rates for individual 4sU-labeled (TT-seq) and total RNA-seq pairs. A detailed working example is given in section \ref{TcellActivation}.
 
-The second data, ``TimeSeriesExample'', set is a labeling time series, where RNA has been labeled with 4sU for different time periods before RNA extraction. The bamfiles are restricted to the MYNN gene (chr3:169769500-169789800) and the artifical spike-ins, subsampled to to 20\% of the original read numbers to reduce file size. An example workflow is provided in section \ref{TimeSeries}.
+The second data, ``TimeSeriesExample'', set is a labeling time series, where RNA has been labeled with 4sU for different time periods before RNA extraction. Due to time and package size limitations, the junctions have already been extracted from the bamfiles and the reads have been counted, restricted to the MYNN gene (chr3:169769500-169789800) and the artifical spike-ins. An example workflow is provided in section \ref{TimeSeries}.
 
 %--------------------------------------------------
 \section{Conditional synthesis and degradation rates for T-cell activation data}\label{TcellActivation}
@@ -380,7 +380,7 @@ metadata(exonCounts)
 @
 
 %--------------------------------------------------
-\subsection{Providing gene-wise dispersion estimates} \label{Dispersion}
+\subsection{Providing feature-specific dispersion estimates} \label{Dispersion}
 
 Usually, read counts in different RNA-seq samples underly fluctuations due to biological or technical variances. To take these fluctuations into account, we estimate each gene's dispersion. For each gene, a single dispersion estimate for all 4sU-Seq samples and for all Total RNA-Seq samples is needed.  The wrapper function \Rfunction{estimateSizeDispersions} offers different methods to estimate a gene's dispersion
 %TODO explain them, how does leos work?
@@ -482,16 +482,14 @@ Junctions can also be extracted from the bam files, based on split reads. The fo
 junctions, that are supported by at least 5 reads:
 
 <<junctionAnno, echo=TRUE, eval=FALSE>>==
-bamfiles <- list.files(system.file("extdata/TimeSeriesExample", package='rCube'), 
-                       pattern=".bam$", full.names=TRUE)
 junctions <- createJunctionGRangesFromBam(bamfiles, support=5, ncores=1, 
                                           BPPARAM=BiocParallel::MulticoreParam(1))
 @
 
+In our case, we load previously extracted junctions:
+
 <<loadJunctions, echo=FALSE, eval=TRUE>>==
 data(junctions)
-bamfiles <- list.files(system.file("extdata/TimeSeriesExample", package='rCube'), 
-                       pattern=".bam$", full.names=TRUE)
 @
 
 The junction annotation now contains entries for the three different types: ``donor'' (exon-intron boundary), ``acceptor'' (intron-exon boundary), and ``junction'' (intron):
@@ -514,7 +512,7 @@ Together with the junction annotation, we can now construct the \Rclass{rCubeExp
 counting and rate estimation:
 
 <<ExperimentalDesignFromFileTimeSeriesExample, echo=TRUE, eval=TRUE>>==
-junctionCounts <- setupExperiment(junctions, files=bamfiles)
+junctionCounts <- setupExperiment(junctions, designMatrix=expDesign)
 class(junctionCounts)
 @
 
@@ -529,9 +527,16 @@ Read counting for junctions includes three different types of reads:
 \end{itemize}
 
 Read counts, that support each type of junction, can be obtained with the following code:
-<<CountingTimeSeriesExample, echo=TRUE, eval=TRUE>>==
+<<CountingTimeSeriesExample, echo=TRUE, eval=FALSE>>==
 junctionCounts <- countJunctions(junctionCounts, BPPARAM=BiocParallel::MulticoreParam(1))
 @
+
+Due to time reasons, we already prepared the count table as a matrix. This can be assigned to a \Rclass{rCubeExperiment} via:
+<<assignCounts, echo=TRUE, eval=TRUE>>==
+data(countMatrixJunctions)
+assay(junctionCounts) <- countMatrixJunctions
+@
+
 
 %--------------------------------------------------
 \subsection{Spike-ins}
@@ -559,21 +564,22 @@ spikeinCounts <- setupExperimentSpikeins(rows=spikeins,
 
 Note, for counting, either your working directory should be set to the bamfile-folder, or you have to give absolute file paths:
 
-<<spikeincountsfilename2, echo=TRUE>>=
-colData(spikeinCounts)$filename <- paste(folder, colData(spikeinCounts)$filename, sep="/")
-@
-
 %--------------------------------------------------
 \subsection{Spike-in counting}
 
 Next, we can count reads that map to the spike-in sequences:
-<<spikeincounts2, echo=TRUE>>==
+<<spikeincountsTimeseries, echo=TRUE, eval=FALSE>>==
 spikeinCounts <- countSpikeins(spikeinCounts)
-assay(spikeinCounts)
+@
+
+Alternatively, previously obtained read counts can be assigned to the \Rclass{rCubeExperiment} object:
+<<spikeincountsTimeseries2, echo=TRUE, eval=TRUE>>==
+data("countMatrixSpikeins")
+assay(spikeinCounts) <- countMatrixSpikeins
 @
 
 %--------------------------------------------------
-\subsection{Size factor based on spike-in}
+\subsection{Size factor based on spike-ins}
 
 Using the spike-in read counts, we can estimate a size factor that will be used later
 to adjust the junction read counts:
@@ -584,25 +590,24 @@ junctionCounts$sizeFactor
 @
 
 %--------------------------------------------------
-\subsection{Estimate dispersion}
+\subsection{Estimating dispersion}
 <<Dispersion, echo=TRUE, eval=TRUE>>=
 junctionCounts <- estimateSizeDispersions(junctionCounts, method='Replicate')
 rowRanges(junctionCounts)
 @
 
 %--------------------------------------------------
-\subsection{Fit the rates}
+\subsection{Fitting the rates}
 
 In deep-sequenced samples, you might want to filter your data, to only get more
-repliable estimates from highly covered junctions. This is not reasonable for our
-test set due to the downsampling. In general, filtering could be obtained via:
-<<Filtering, echo=TRUE, eval=FALSE>>==
-junctionCounts = junctionCounts[rowSums(assay(junctionCounts))>100]
+repliable estimates from highly covered junctions:
+<<Filtering, echo=TRUE, eval=TRUE>>==
+junctionCounts = junctionCounts[rowSums(assay(junctionCounts)) > 100]
 @
 
 
 <<Fitting, echo=TRUE, eval=TRUE>>==
-junctionRates = estimateRateByFirstOrderKinetics(junctionCounts, 
+junctionRates = estimateRateByFirstOrderKinetics(junctionCounts,
                                                  replicate=c(1,2,'1:2'),
                                                  method='series')
 @
@@ -610,14 +615,24 @@ junctionRates = estimateRateByFirstOrderKinetics(junctionCounts,
 Now let's summarize the results obtained from the individual junctions of the MYNN gene:
 
 <<SummarizeRates2, echo=TRUE, eval=TRUE>>=
-topLevelFeaturesJunctions <- GRanges(seqnames="chr3", 
-                           ranges=IRanges(start=169769500, end=169789800), 
+topLevelFeaturesJunctions <- GRanges(seqnames="chr3",
+                           ranges=IRanges(start=169769500, end=169789800),
                            strand="+")
 topLevelFeaturesRates <- summarizeRates(junctionRates, topLevelFeaturesJunctions, by='median')
 
 assay(topLevelFeaturesRates)
 @
 
+The resulting degradation rates can be converted to half-lives via:
+<<halflive, echo=TRUE, eval=TRUE>>==
+hl <- log(2)/assay(topLevelFeaturesRates)[, topLevelFeaturesRates$rate == "degradation"]
+hl
+@
+
+The junction half-life for the MYNN gene, and therefore the time it needs to splice the pre-mRNA is in the range of 80 min. 
+
+\cleardoublepage
+\newpage
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
