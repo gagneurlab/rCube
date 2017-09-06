@@ -23,6 +23,7 @@ BiocStyle::latex()
 }
 
 \begin{document}
+%\SweaveOpts{concordance=TRUE}
 
 \maketitle
 
@@ -45,6 +46,10 @@ count reads from BAM-files, and normalize different samples against each other u
       B. Schwalb, M. Michel, B. Zacher, K. Fr\"uhauf, C. Demel, A. Tresch, J. Gageur, and P. Cramer: \\ 
       TT-seq maps the human transient transcriptome. \\
       Science (2016). doi:10.1126/science.aad9841 \cite{Schwalb2016} \\
+      \\
+      Leonhard Wachutka and Julien Gagneur: \\
+      Measures of RNA metabolism rates: Toward a definition at the level of single bonds. \\
+      Transcription (2016). doi:10.1080/21541264.2016.1257972 \cite{Wachutka2016} \\
       \hline 
     \end{tabular}
   \end{center}
