@@ -35,7 +35,8 @@
 setupExperimentSpikeins <- function(rows, designMatrix=NULL, files=NULL, 
                                     length=NULL, labelingState, counts=NULL){
     
-    stopifnot(!(is.null(designMatrix) & is.null(files) ) & !is.null(names(rows)))
+    stopifnot(xor(is.null(designMatrix), is.null(files)) & !is.null(rows))
+	
     if(is.null(designMatrix))
     {
         designMatrix <- .createDesignMatrix(files)
@@ -69,7 +70,14 @@ setupExperimentSpikeins <- function(rows, designMatrix=NULL, files=NULL,
     
     rowData <- data.frame(length=rows$length, labelingState=labelingState, 
                             row.names=names(rows))
-    spikeins.SE <- SummarizedExperiment(assays=list("counts"=counts[names(rows), ]), rowRanges=rows, colData=designMatrix)
+	
+	if(is.null(names(rows)))
+	{
+		spikeins.SE <- SummarizedExperiment(assays=list("counts"=counts), rowRanges=rows, colData=designMatrix)
+	}else{
+		spikeins.SE <- SummarizedExperiment(assays=list("counts"=counts[names(rows), ]), rowRanges=rows, colData=designMatrix)
+		
+	}
     colnames(spikeins.SE) <- designMatrix$sample
     spikeins <- new("rCubeExperiment", spikeins.SE)
     return(spikeins)
