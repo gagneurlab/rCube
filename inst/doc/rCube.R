@@ -145,7 +145,7 @@ range(adjustedSynthesis)
 #  junctions <- createJunctionGRangesFromBam(bamfiles, support=5, ncores=1,
 #                                            BPPARAM=BiocParallel::MulticoreParam(1))
 
-## ----loadJunctions, echo=FALSE, eval=TRUE-------------------------------------
+## ----loadJunctions, echo=TRUE, eval=TRUE--------------------------------------
 data(junctions)
 
 ## ----showJunctions, echo=TRUE, eval=TRUE--------------------------------------

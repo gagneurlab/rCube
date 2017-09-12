@@ -97,6 +97,9 @@ Before starting, the package must be loaded by:
 library("rCube")
 @
 
+Note: Some of the package functions - in particular all functions dealing with
+bam files directly - can be computational and memory intensive (>16GB) depending
+on the file size. Therefore this package includes only heavily subsampled examples.
 %--------------------------------------------------
 \subsection{Input and output data}\label{inputdata}
 
@@ -170,7 +173,8 @@ In general, all three methods give highly correlated size factors.
 %--------------------------------------------------
 \subsection{Fitting functions}\label{fittingfunctions}
 
-The estimation of RNA metabolism rates is wrapped in the \Rfunction{estimateRateByFirstOrderKinetics} function, where the parameter \Robject{method} allows to choose the type of fitting to be performed: If you want to compare RNA rates in different experimental setups, you might want to choose ``single'', then single synthesis and degradation rates are estimated for each condition. .If you select ``series'' the algorithm assumes you provide a labeling time series experiment and are working on junctions.
+The estimation of RNA metabolism rates is wrapped in the
+\Rfunction{estimateRateByFirstOrderKinetics} function, where the parameter \Robject{method} allows to choose the type of fitting to be performed: If you want to compare RNA rates in different experimental setups, you might want to choose ``single'', then single synthesis and degradation rates are estimated for each condition. If you select ``series'' the algorithm assumes you provide a labeling time series experiment and are working on junctions.
 
 Both methods perform maximum-likelihood (ML) estimations, assuming negative binomial read distributions, with random initialization.
 
@@ -477,6 +481,8 @@ In this part of the vignette, we will demonstrate
 \item how RNA metabolism rates are obtained for junctions.
 \end{itemize}
 
+Due to size constrains we do not provide any bamfiles for this example.
+
 %--------------------------------------------------
 \subsection{Gene model}\label{deNovoJunctions}
 % (exon, into and junctions)
@@ -493,7 +499,7 @@ junctions <- createJunctionGRangesFromBam(bamfiles, support=5, ncores=1,
 
 In our case, we load previously extracted junctions:
 
-<<loadJunctions, echo=FALSE, eval=TRUE>>==
+<<loadJunctions, echo=TRUE, eval=TRUE>>==
 data(junctions)
 @
 
@@ -567,7 +573,8 @@ spikeinCounts <- setupExperimentSpikeins(rows=spikeins,
                                          labelingState=spikeinLabeling)
 @
 
-Note, for counting, either your working directory should be set to the bamfile-folder, or you have to give absolute file paths:
+Note, for counting, either your working directory should be set to the
+bamfile-folder, or you have to give absolute file paths.
 
 %--------------------------------------------------
 \subsection{Spike-in counting}
@@ -596,6 +603,13 @@ junctionCounts$sizeFactor
 
 %--------------------------------------------------
 \subsection{Estimating dispersion}
+To estimate the dispersion we compare the counts of at least two replicates and
+estimate mean and variance of the dataset over the experimental range.
+Note: This method is due to technical problems not yet fully implemented and
+allways returns 40. It has been shown, that this is a good estimate for most
+TTSeq experiments. It will be fully implemented in a future version of the
+package.
+
 <<Dispersion, echo=TRUE, eval=TRUE>>=
 junctionCounts <- estimateSizeDispersions(junctionCounts, method='Replicate')
 rowRanges(junctionCounts)
