@@ -54,7 +54,14 @@ callFit <- function(batch, experiment, verbose=FALSE)
     modelTime <- as.numeric(colData(experiment)$labelingTime)
     modelTime[colData(experiment)$LT == 'T'] <- Inf
     ss <- experiment[batch]
-    fit <- .SE_fit_rates(assay(ss), modelTime, length=rep(1, nrow(ss)), uc=rep(0, nrow(ss)), puc=0, sF=sF, gc=0)
+    if(is.null(colData(experiment)$gc))
+    {
+        gc = rep(0,length(modelTime))
+    }else{
+        gc = as.numeric(colData(experiment)$gc)
+    }
+    
+    fit <- .SE_fit_rates(assay(ss), modelTime, length=rep(1, nrow(ss)), uc=rep(0, nrow(ss)), puc=0, sF=sF, gc=gc)
     rr <- rowRanges(ss)
     rr$gs <- fit$gs
     rr$gm <- fit$gm
