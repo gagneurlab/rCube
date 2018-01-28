@@ -52,7 +52,7 @@
         if(p$t[i] != +Inf)#Steady state has diffrent count formulas due to missing purification
         {
             #Exon-Intron junctions
-            EI <- p$sF[i]*p$gm/p$gs*(1-exp(-p$t[i]*p$gs) + p$gc) * p$l * p$uc
+            EI <- p$sF[i]*p$gm/p$gs* (1 + exp(-p$t[i]*p$gs) * (2*p$gc[i] - 1) + p$gc[i]) * p$l * p$uc
         }else{
             #steady state without Purification
             EI <- p$sF[i] * p$gm / p$gs * p$l
@@ -79,11 +79,12 @@
         if(p$t[i] != +Inf)#Steady state has diffrent count formulas due to missing purification
         {
             #Exon-Intron junctions
-            EI <- p$sF[i] * p$gm/p$gs * (1-exp(-p$t[i]*p$gs) + p$gc) * p$l * p$uc
+            #EI <- p$sF[i] * p$gm/p$gs * (1-exp(-p$t[i]*p$gs) + p$gc) * p$l * p$uc
+            EI <- p$sF[i] * p$gm/p$gs * (1 + exp(-p$t[i]*p$gs) * (2*p$gc[i] - 1) + p$gc[i]) * p$l * p$uc
             
             d_gm <- d_gm + (k[, i]/EI-1) * p$ga/(EI+p$ga) * EI#First EI
             
-            d_gs <- d_gs + (k[, i]/EI-1) * p$ga/(EI+p$ga) * (-p$sF[i]*p$gm/p$gs* (1-exp(-p$t[i]*p$gs) + p$gc)+p$sF[i]*p$gm*exp(-p$t[i]*p$gs)*p$t[i])#First EI
+            d_gs <- d_gs + (k[, i]/EI-1) * p$ga/(EI+p$ga) * (-EI - p$sF[i] * p$gm * p$l * p$uc * (2*p$gc[i] - 1) * exp(-p$t[i]*p$gs) * p$t[i])#First EI
             
         }else{
             #steady state without Purification
@@ -104,7 +105,9 @@
         if(p$t[i] != +Inf)#Steady state has diffrent count formulas due to missing purification
         {
             #Exon-Intron junctions
-            EI <- p$sF[i] * p$gm/p$gs * (1-exp(-p$t[i]*p$gs) + p$gc) * p$l * p$uc
+            #EI <- p$sF[i] * p$gm/p$gs * (1-exp(-p$t[i]*p$gs) + p$gc) * p$l * p$uc
+            EI <- p$sF[i] * p$gm/p$gs * (1 + exp(-p$t[i]*p$gs) * (2*p$gc[i] - 1) + p$gc[i]) * p$l * p$uc
+            
         }else{
             #steady state without Purification
             EI <- p$sF[i] * p$gm / p$gs * p$l
