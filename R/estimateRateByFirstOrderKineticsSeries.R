@@ -54,11 +54,11 @@ callFit <- function(batch, experiment, verbose=FALSE)
     modelTime <- as.numeric(colData(experiment)$labelingTime)
     modelTime[colData(experiment)$LT == 'T'] <- Inf
     ss <- experiment[batch]
-    if(is.null(colData(experiment)$gc))
+    if(is.null(colData(experiment)$crossContamination))
     {
         gc = rep(0,length(modelTime))
     }else{
-        gc = as.numeric(colData(experiment)$gc)
+        gc = as.numeric(colData(experiment)$crossContamination)
     }
     
     fit <- .SE_fit_rates(assay(ss), modelTime, length=rep(1, nrow(ss)), uc=rep(0, nrow(ss)), puc=0, sF=sF, gc=gc)
