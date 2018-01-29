@@ -32,7 +32,7 @@
     batchSize <- 100
     
     batches <- Reduce(c, lapply(index1, function(x) split(x, ceiling(seq_along(x)/batchSize))))
-    bptasks(BPPARAM) <- length(batches)
+    bptasks(BPPARAM) <- length(batches)/50
     res <- bplapply(batches, callFit, experiment=featureCounts, BPPARAM=BPPARAM, verbose=verbose)
     data <- data.table::rbindlist(res)
     #Take the median of all refits
