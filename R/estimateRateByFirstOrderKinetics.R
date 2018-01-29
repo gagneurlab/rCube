@@ -48,7 +48,7 @@ estimateRateByFirstOrderKinetics <- function(featureCounts,
                                              method=c('single', 'series'),
                                              BPPARAM=NULL)
 {
-    if(length(method) >= 1){
+    if(length(method) > 1){
         method <- method[1]
         message("More than one method was given and only the first element will be used.")
     }
