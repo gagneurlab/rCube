@@ -5,7 +5,8 @@
 #' The methods \code{"DESeqDispMAP", "DESeqDispFit", "DESeqDispGeneEst"}
 #' estimate gene-specific dispersion values for total and labeled samples, 
 #' using \code{\link[DESeq2]{DESeq}}.
-#' #TODO describe replicate method
+#' The method \code{"Replicate"} infers the dispersion by comparing multiple 
+#' replicate experiments.
 #'
 #' @import DESeq2
 #' 
@@ -44,7 +45,17 @@ estimateSizeDispersions <- function(experiment, method=c('DESeqDispMAP', 'DESeqD
 ## author: Leonhard Wachutka
 .estimateSizeDispersions_replicate <- function(experiment)
 {
-    rowRanges(experiment)$dispersion <- 40
+	counts <- assay(experiment)
+	colData <- colData(experiment)
+	colData$labelingTime = as.factor(colData$labelingTime)
+	dds <- suppressWarnings(DESeq2::DESeqDataSetFromMatrix(
+					counts, colData=colData,
+					design=formula(~ labelingTime+LT+condition)))
+	dds$sizeFactor <- colData$sizeFactor
+	dispersion <- suppressWarnings(rowData(DESeq2::estimateDispersionsMAP(dds))$dispersion)
+    
+	dispersion[is.na(dispersion)] <-  median(dispersion,na.rm=T)
+	rowRanges(experiment)$dispersion <- dispersion
     return(experiment)
 }
 
