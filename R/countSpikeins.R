@@ -45,10 +45,10 @@ countSpikeins <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamPara
     #this will split the Readpairs by CIGAR and merge(union) the resulting reads to avoid double counting of the two ends
 	bptasks(BPPARAM) <- nrow(param)
 	res <- rCube:::.bpdtapply(param, .countSpikeChunk, 
-			scanBamParam=scanBamParam, BPPARAM=BPPARAM)
+			scanBamParam=scanBamParam, region=region, BPPARAM=BPPARAM)
     return(Reduce(f= '+',res))
 }
-.countSpikeChunk <- function(chromosome, bamFile, scanBamParam, BPPARAM)
+.countSpikeChunk <- function(chromosome, bamFile, scanBamParam, region, BPPARAM)
 {
 	Rsamtools::bamWhich(scanBamParam) <- GRanges(seqnames=chromosome, ranges=IRanges(0, 536870912))
 	exploded_reads <- GenomicAlignments::readGAlignmentPairs(bamFile, param=scanBamParam)
