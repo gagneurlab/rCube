@@ -19,14 +19,16 @@ countSpikeins <- function(experimentalSetup, scanBamParam=Rsamtools::ScanBamPara
     region <- rowRanges(experimentalSetup)
     for (fn in bamFiles)
     {
-        if(verbose){
+        if (verbose) {
             message(date(), ' Counting reads from ', fn)
         }
         
         counts <- .countSpike(bamFile=fn, region=region, scanBamParam=scanBamParam, BPPARAM)
-        assays(experimentalSetup[, experimentalSetup[['filename']] == fn])[['counts']] <- as.matrix(counts, ncol=1)
+        counts_matrix <- as.matrix(counts, ncol=1)
+        colnames(counts_matrix) <- colnames(assays(experimentalSetup[, experimentalSetup[['filename']] == fn])[['counts']])
+        assays(experimentalSetup[, experimentalSetup[['filename']] == fn])[['counts']] <- counts_matrix
     }
-    return(experimentalSetup) 
+    return(experimentalSetup)
 }
 
 
